@@ -26,9 +26,9 @@ Drag a window to a screen edge or corner to fill a half or a quarter. Karo then 
 
 | | |
 |---|---|
-| Left / right half | ⌃⌥← / ⌃⌥→ |
-| Maximize | ⌃⌥↩ |
-| Restore | ⌃⌥⌫ |
+| Left / right half | ⌃ + ⌥ + ← / ⌃ + ⌥ + → |
+| Maximize | ⌃ + ⌥ + ↩ |
+| Restore | ⌃ + ⌥ + ⌫ |
 
 Quarters, thirds and more are in Settings, where every shortcut can be changed.
 
@@ -39,7 +39,7 @@ Quarters, thirds and more are in Settings, where every shortcut can be changed.
 
 ## Switch between windows
 
-⌘Tab shows one icon per app. Karo's ⌥Tab shows every window, and right-click offers quick actions.
+⌘ + Tab shows one icon per app. Karo's ⌥ + Tab shows every window, and right-click offers quick actions.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/scene-switcher-dark.gif">

@@ -1,5 +1,6 @@
 import SwiftUI
 import KaroAccessibility
+import KaroCore
 
 /// The steps of the welcome window. Permissions come after the introduction, so the user
 /// knows why Karo asks for them.
@@ -7,10 +8,13 @@ struct WelcomeView: View {
     enum Exit { case done, settings }
 
     private enum Step: Int, CaseIterable {
-        case introduction, permissions, ready
+        case introduction, permissions, switcherStyle, ready
     }
 
+    static let size = CGSize(width: 720, height: 640)
+
     let launchAtLogin: LaunchAtLogin
+    let store: SettingsStore
     let onExit: (Exit) -> Void
 
     @State private var step = Step.introduction
@@ -22,6 +26,7 @@ struct WelcomeView: View {
                 // Each step in its own `if`, so it gets its own insertion and removal transition.
                 if step == .introduction { IntroductionStep().transition(slide) }
                 if step == .permissions { PermissionsStep().transition(slide) }
+                if step == .switcherStyle { SwitcherStyleStep(store: store).transition(slide) }
                 if step == .ready { ReadyStep(launchAtLogin: launchAtLogin).transition(slide) }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -29,7 +34,7 @@ struct WelcomeView: View {
 
             footer
         }
-        .frame(width: 720, height: 690)
+        .frame(width: Self.size.width, height: Self.size.height)
     }
 
     private var footer: some View {
@@ -188,8 +193,8 @@ private extension DesktopScene.Feature {
     var detail: Text {
         switch self {
         case .snap: Text("Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space.")
-        case .keyboard: Text("⌃⌥← and ⌃⌥→ for halves, ⌃⌥↩ to maximize, ⌃⌥⌫ to restore. All shortcuts can be changed.")
-        case .switcher: Text("⌘Tab shows one icon per app. ⌥Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.")
+        case .keyboard: Text("⌃ + ⌥ + ← and ⌃ + ⌥ + → for halves, ⌃ + ⌥ + ↩ to maximize, ⌃ + ⌥ + ⌫ to restore. All shortcuts can be changed.")
+        case .switcher: Text("⌘ + Tab shows one icon per app. ⌥ + Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.")
         }
     }
 }
@@ -248,6 +253,69 @@ private struct PermissionsStep: View {
                 try? await Task.sleep(for: .seconds(1))
             }
         }
+    }
+}
+
+private struct SwitcherStyleStep: View {
+    let store: SettingsStore
+
+    var body: some View {
+        VStack(spacing: 28) {
+            StepHeader(
+                symbol: "rectangle.stack",
+                title: "Choose a Switcher Style",
+                detail: "How ⌥ + Tab shows your windows. You can change it later in Settings."
+            )
+            HStack(spacing: 16) {
+                ForEach(SwitcherStyle.allCases, id: \.self) { style in
+                    StyleCard(style: style, isSelected: store.settings.switcherStyle == style) {
+                        store.update { $0.switcherStyle = style }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 36)
+    }
+}
+
+/// A switcher style with its animated preview, selectable like a large radio button.
+private struct StyleCard: View {
+    let style: SwitcherStyle
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 10) {
+                Text(verbatim: style.title)
+                    .font(.headline)
+                SwitcherStylePreview(style: style)
+            }
+            .padding(8)
+            .padding(.top, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(isSelected ? AnyShapeStyle(.tint.opacity(0.15)) : AnyShapeStyle(.quinary))
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(isSelected ? AnyShapeStyle(.tint) : AnyShapeStyle(.clear), lineWidth: 2)
+            }
+            .overlay(alignment: .topTrailing) {
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white, .tint)
+                        .padding(10)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isSelected)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

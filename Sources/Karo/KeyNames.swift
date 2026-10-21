@@ -43,13 +43,18 @@ enum KeyNames {
 
     /// E.g. "⌃⌥←" or "⌃⌥U", in Apple's modifier order.
     static func displayString(for shortcut: KeyboardShortcut) -> String {
-        var text = ""
-        if shortcut.modifiers.contains(.control) { text += "⌃" }
-        if shortcut.modifiers.contains(.option) { text += "⌥" }
-        if shortcut.modifiers.contains(.shift) { text += "⇧" }
-        if shortcut.modifiers.contains(.command) { text += "⌘" }
-        let key = specialKeys[Int(shortcut.keyCode)]?.symbol ?? character(for: shortcut.keyCode)?.uppercased() ?? "?"
-        return text + key
+        keys(for: shortcut).joined()
+    }
+
+    /// Each key on its own, e.g. ["⌃", "⌥", "←"], in Apple's modifier order.
+    static func keys(for shortcut: KeyboardShortcut) -> [String] {
+        var keys: [String] = []
+        if shortcut.modifiers.contains(.control) { keys.append("⌃") }
+        if shortcut.modifiers.contains(.option) { keys.append("⌥") }
+        if shortcut.modifiers.contains(.shift) { keys.append("⇧") }
+        if shortcut.modifiers.contains(.command) { keys.append("⌘") }
+        keys.append(specialKeys[Int(shortcut.keyCode)]?.symbol ?? character(for: shortcut.keyCode)?.uppercased() ?? "?")
+        return keys
     }
 
     static func menuKeyEquivalent(for keyCode: UInt32) -> String? {
@@ -102,5 +107,10 @@ extension KeyboardShortcut {
     @MainActor
     var displayString: String {
         KeyNames.displayString(for: self)
+    }
+
+    @MainActor
+    var keys: [String] {
+        KeyNames.keys(for: self)
     }
 }

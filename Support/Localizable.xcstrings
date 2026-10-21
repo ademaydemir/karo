@@ -270,6 +270,16 @@
         }
       }
     },
+    "Choose a Switcher Style": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değiştirici Stilini Seçin"
+          }
+        }
+      }
+    },
     "Choose a window for this side": {
       "localizations": {
         "tr": {
@@ -545,6 +555,16 @@
         }
       }
     },
+    "How ⌥ + Tab shows your windows. You can change it later in Settings.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ + Tab pencerelerinizi nasıl göstersin? Bunu daha sonra Ayarlar’da değiştirebilirsiniz."
+          }
+        }
+      }
+    },
     "Karo can use a different language than macOS.": {
       "localizations": {
         "tr": {
@@ -575,12 +595,12 @@
         }
       }
     },
-    "Karo ⌥Tab: every window": {
+    "Karo ⌥ + Tab: every window": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Karo ⌥Tab: her pencere"
+            "value": "Karo ⌥ + Tab: her pencere"
           }
         }
       }
@@ -1530,12 +1550,12 @@
         }
       }
     },
-    "macOS ⌘Tab: one icon per app": {
+    "macOS ⌘ + Tab: one icon per app": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ⌘Tab: uygulama başına tek simge"
+            "value": "macOS ⌘ + Tab: uygulama başına tek simge"
           }
         }
       }
@@ -1550,22 +1570,22 @@
         }
       }
     },
-    "⌃⌥← and ⌃⌥→ for halves, ⌃⌥↩ to maximize, ⌃⌥⌫ to restore. All shortcuts can be changed.": {
+    "⌃ + ⌥ + ← and ⌃ + ⌥ + → for halves, ⌃ + ⌥ + ↩ to maximize, ⌃ + ⌥ + ⌫ to restore. All shortcuts can be changed.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yarımlar için ⌃⌥← ve ⌃⌥→, büyütmek için ⌃⌥↩, geri almak için ⌃⌥⌫. Tüm kısayollar değiştirilebilir."
+            "value": "Yarımlar için ⌃ + ⌥ + ← ve ⌃ + ⌥ + →, büyütmek için ⌃ + ⌥ + ↩, geri almak için ⌃ + ⌥ + ⌫. Tüm kısayollar değiştirilebilir."
           }
         }
       }
     },
-    "⌘Tab shows one icon per app. ⌥Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.": {
+    "⌘ + Tab shows one icon per app. ⌥ + Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌘Tab her uygulama için tek simge gösterir. ⌥Tab ise aynı uygulamanın pencereleri dahil her pencereyi canlı önizlemeyle gösterir; sağ tıklayınca hızlı işlemler çıkar."
+            "value": "⌘ + Tab her uygulama için tek simge gösterir. ⌥ + Tab ise aynı uygulamanın pencereleri dahil her pencereyi canlı önizlemeyle gösterir; sağ tıklayınca hızlı işlemler çıkar."
           }
         }
       }

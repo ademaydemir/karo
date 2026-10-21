@@ -122,6 +122,8 @@ struct DesktopScene: View {
 
     private var wallpaper: some View {
         ZStack(alignment: .top) {
+            // Solid underneath the tinted wallpaper, so the scene reads the same on glass.
+            Rectangle().fill(Color(nsColor: .windowBackgroundColor))
             // A tint fades from the top-left corner; `.tint` rather than the accent color so a
             // recording can use a neutral color (`ReadmeCapture`).
             Rectangle()
@@ -276,8 +278,8 @@ private enum SceneLabel {
 private extension Text {
     init(_ label: SceneLabel) {
         switch label {
-        case .appsOnly: self.init("macOS ⌘Tab: one icon per app")
-        case .everyWindow: self.init("Karo ⌥Tab: every window")
+        case .appsOnly: self.init("macOS ⌘ + Tab: one icon per app")
+        case .everyWindow: self.init("Karo ⌥ + Tab: every window")
         case .quickActions: self.init("Right-click for quick actions")
         }
     }
@@ -451,7 +453,13 @@ private struct KeyCaps: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            ForEach(Array(keys.split(separator: " ").enumerated()), id: \.offset) { _, key in
+            ForEach(Array(keys.split(separator: " ").enumerated()), id: \.offset) { index, key in
+                if index > 0 {
+                    // Spelled out between the keys, which is easier to read than glyphs side by side.
+                    Text(verbatim: "+")
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
                 Text(key)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .padding(.horizontal, 6)

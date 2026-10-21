@@ -2,8 +2,8 @@ import AppKit
 import SwiftUI
 import KaroAccessibility
 
-/// The welcome window shown on first launch: what Karo does, the permissions it needs and
-/// launch at login. It can be opened again from the menu bar.
+/// The welcome window shown on first launch: what Karo does, the permissions it needs, the
+/// switcher style and launch at login. It can be opened again from the menu bar.
 @MainActor
 final class WelcomeWindowController: NSObject, NSWindowDelegate {
     private static let hasBeenShownKey = "hasShownWelcome"
@@ -12,11 +12,13 @@ final class WelcomeWindowController: NSObject, NSWindowDelegate {
     var onOpenSettings: () -> Void = {}
 
     private let launchAtLogin: LaunchAtLogin
+    private let store: SettingsStore
     private let defaults: UserDefaults
     private var window: NSWindow?
 
-    init(launchAtLogin: LaunchAtLogin, defaults: UserDefaults = .standard) {
+    init(launchAtLogin: LaunchAtLogin, store: SettingsStore, defaults: UserDefaults = .standard) {
         self.launchAtLogin = launchAtLogin
+        self.store = store
         self.defaults = defaults
     }
 
@@ -46,15 +48,23 @@ final class WelcomeWindowController: NSObject, NSWindowDelegate {
     }
 
     private func makeWindow() -> NSWindow {
-        let view = WelcomeView(launchAtLogin: launchAtLogin) { [weak self] next in
+        let view = WelcomeView(launchAtLogin: launchAtLogin, store: store) { [weak self] next in
             self?.window?.close()
             if next == .settings { self?.onOpenSettings() }
         }
-        let hostingController = NSHostingController(rootView: view)
-        hostingController.sizingOptions = [.preferredContentSize]
+        let hostingView = NSHostingView(rootView: view)
+        hostingView.sizingOptions = []
 
-        let window = NSWindow(contentViewController: hostingController)
-        window.styleMask = [.titled, .closable, .fullSizeContentView]
+        let window = NSWindow(
+            contentRect: CGRect(origin: .zero, size: WelcomeView.size),
+            styleMask: [.titled, .closable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        // The whole window is glass, so the desktop shows through, blurred.
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.contentView = GlassSurface.make(cornerRadius: 0, content: hostingView)
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.title = String(localized: "Welcome to Karo")

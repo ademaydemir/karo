@@ -61,8 +61,6 @@ enum ReadmeCapture {
 
         var body: some View {
             DesktopScene(feature: feature, phase: state.phase)
-                // The scene's wallpaper is translucent over the welcome window's background.
-                .background(Color(nsColor: .windowBackgroundColor), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .padding(12)
                 .background(pageColor)
                 // The system blue rather than the user's own accent color.

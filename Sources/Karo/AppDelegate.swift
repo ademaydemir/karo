@@ -25,7 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         store: settingsStore,
         recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController)
     )
-    private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin())
+    private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin(), store: settingsStore)
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
 

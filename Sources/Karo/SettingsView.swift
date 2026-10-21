@@ -193,9 +193,10 @@ struct SwitcherSettingsView: View {
         Form {
             Section {
                 LabeledContent {
-                    Text(verbatim: "\(DefaultShortcuts.switchWindowsForward.displayString)  \(DefaultShortcuts.switchWindowsBackward.displayString)")
-                        .monospaced()
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        KeycapRow(shortcut: DefaultShortcuts.switchWindowsForward)
+                        KeycapRow(shortcut: DefaultShortcuts.switchWindowsBackward)
+                    }
                 } label: {
                     Text("Switch windows")
                     Text("Hold ⌥ and press Tab to step through windows; release ⌥ to switch.")
@@ -322,11 +323,10 @@ private struct ShortcutField: View {
     var body: some View {
         HStack(spacing: 4) {
             Button(action: isRecording ? onCancel : onRecord) {
-                Text(label)
-                    .monospaced()
-                    .foregroundStyle(shortcut == nil && !isRecording ? .secondary : .primary)
-                    .frame(minWidth: 96)
+                field
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel(accessibilityText)
             .accessibilityHint(isRecording ? Text("Type a shortcut, or press Escape to cancel") : Text("Records a new shortcut"))
             Button(action: onClear) {
                 Image(systemName: "xmark.circle.fill")
@@ -339,9 +339,69 @@ private struct ShortcutField: View {
         }
     }
 
-    private var label: String {
-        if isRecording { return String(localized: "Type shortcut…") }
-        return shortcut?.displayString ?? String(localized: "None", comment: "No shortcut assigned")
+    /// Each key in its own keycap, which reads more easily than glyphs run together.
+    @ViewBuilder
+    private var field: some View {
+        if isRecording {
+            Text("Type shortcut…")
+                .padding(.horizontal, 8)
+                .frame(minWidth: 104, minHeight: 24)
+                .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(.tint, lineWidth: 1.5)
+                }
+        } else if let shortcut {
+            KeycapRow(shortcut: shortcut)
+                .frame(minWidth: 104, minHeight: 24, alignment: .trailing)
+            .contentShape(Rectangle())
+        } else {
+            Text("None", comment: "No shortcut assigned")
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .frame(minWidth: 104, minHeight: 24)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .strokeBorder(.separator, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                }
+                .contentShape(Rectangle())
+        }
+    }
+
+    private var accessibilityText: Text {
+        if isRecording { return Text("Type shortcut…") }
+        guard let shortcut else { return Text("None", comment: "No shortcut assigned") }
+        return Text(verbatim: shortcut.displayString)
+    }
+}
+
+/// A shortcut as a row of keycaps.
+private struct KeycapRow: View {
+    let shortcut: KaroCore.KeyboardShortcut
+
+    var body: some View {
+        HStack(spacing: 3) {
+            ForEach(Array(shortcut.keys.enumerated()), id: \.offset) { _, key in
+                Keycap(key: key)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: shortcut.displayString))
+    }
+}
+
+/// One key of a shortcut, drawn like a key on the keyboard.
+private struct Keycap: View {
+    let key: String
+
+    var body: some View {
+        Text(verbatim: key)
+            .font(.system(.callout, design: .rounded).weight(.medium))
+            .padding(.horizontal, 5)
+            .frame(minWidth: 22, minHeight: 22)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(.separator, lineWidth: 0.5)
+            }
     }
 }
 

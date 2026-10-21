@@ -85,16 +85,18 @@ private struct PreviewCard: View {
 }
 
 /// The grid: one app's three windows stacked into a deck, then single windows. The selection
-/// walks across them, and the deck fans out while it is selected.
+/// walks across them, and the deck fans out within its own cell while it is selected.
 private struct GridPreview: View {
     let step: Int
 
     /// The deck counts as one stop.
-    private static let stops = 4
+    private static let stops = 3
+    /// Room for the fanned-out deck, so it never covers the cards next to it.
+    private static let deckWidth: CGFloat = 104
 
     var body: some View {
         let selected = step % Self.stops
-        HStack(spacing: 22) {
+        HStack(spacing: 14) {
             deck(isSelected: selected == 0)
             ForEach(1..<Self.stops, id: \.self) { stop in
                 PreviewCard(index: stop + 2)
@@ -106,17 +108,20 @@ private struct GridPreview: View {
 
     private func deck(isSelected: Bool) -> some View {
         ZStack {
-            ForEach(0..<3, id: \.self) { position in
-                let centered = CGFloat(position) - 1
+            // Back to front: the most recent window is on top.
+            ForEach((0..<3).reversed(), id: \.self) { position in
+                let centered = 1 - CGFloat(position)
                 PreviewCard(index: 0)
+                    // At rest a neat cascade, the windows behind fainter; selected, a small fan.
                     .offset(
-                        x: isSelected ? centered * 34 : CGFloat(position) * 3,
-                        y: isSelected ? abs(centered) * 3 : -CGFloat(position) * 3
+                        x: isSelected ? centered * 22 : CGFloat(position) * 5,
+                        y: isSelected ? abs(centered) * 2 : -CGFloat(position) * 5
                     )
-                    .rotationEffect(.degrees(isSelected ? Double(centered) * 4 : Double(position) * 3))
-                    .zIndex(Double(3 - position))
+                    .rotationEffect(.degrees(isSelected ? Double(centered) * 5 : 0))
+                    .opacity(isSelected || position == 0 ? 1 : 1 - Double(position) * 0.25)
             }
         }
+        .frame(width: Self.deckWidth)
         .padding(4)
         .background(selection(isSelected))
         .overlay(alignment: .topTrailing) {
@@ -126,10 +131,9 @@ private struct GridPreview: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 4)
                     .background(Color.accentColor, in: Capsule())
-                    .offset(x: 4, y: -4)
+                    .offset(x: -14, y: -4)
             }
         }
-        .zIndex(isSelected ? 1 : 0)
     }
 
     private func selection(_ isSelected: Bool) -> some View {
