@@ -1,22 +1,66 @@
-# Karo
+<p align="center">
+  <img src="docs/images/icon.png" width="128" height="128" alt="Karo app icon">
+</p>
 
-Windows-style window management for macOS: drag windows to screen edges and corners to snap them into halves and quarters, place them with keyboard shortcuts, and switch between individual windows with ⌥Tab.
+<h1 align="center">Karo</h1>
 
-Written in pure Swift (AppKit + SwiftUI), no third-party dependencies, no telemetry.
+<p align="center">
+  Windows-style window management for macOS.<br>
+  Snap windows to edges and corners, place them from the keyboard, and switch between every window with ⌥Tab.
+</p>
 
-> **Status:** in active development; no signed release yet, so build it from source (below). See [docs/PRODUCT_ANALYSIS.md](docs/PRODUCT_ANALYSIS.md) for scope and roadmap.
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-14%2B-informational" alt="macOS 14 or later">
+  <img src="https://img.shields.io/badge/Swift-6-orange" alt="Swift 6">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license">
+</p>
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/scene-snap-dark.gif">
+  <img src="docs/images/scene-snap-light.gif" width="664" alt="A window is dragged to the left edge, snaps to the left half, and Snap Assist offers windows for the right half">
+</picture>
+</p>
+
+Pure Swift (AppKit + SwiftUI), no third-party dependencies, no telemetry: nothing leaves your Mac.
+
+> **Status:** in active development; there is no signed release yet, so build it from source (below). See [docs/PRODUCT_ANALYSIS.md](docs/PRODUCT_ANALYSIS.md) for scope and roadmap.
 
 ## Features
 
-- **Drag to snap.** Drag a window to a screen edge or corner to fill a half or a quarter; the top edge maximizes. A preview shows where it will go. Hold ⇧ while dragging to move freely.
-- **Snap Assist.** After snapping to a half, a quarter or a third, Karo offers your other windows for every free area at once, with a live preview of the result.
-- **Keyboard shortcuts.** Halves, quarters, thirds, two thirds, maximize, center, restore and moving between displays, Rectangle-compatible and all changeable.
-- **Window switcher.** ⌥Tab shows every window, not just every app, in a grid that groups each app's windows into a deck or in Cover Flow. Right-click a window for quick actions: left or right half, maximize, next display, minimize, close, hide or quit the app.
+### Drag to snap, with Snap Assist
+
+Drag a window to a screen edge or corner to fill a half or a quarter; the top edge maximizes, and a preview shows where it will go. Hold ⇧ while dragging to move freely. After snapping, Snap Assist offers your other windows for every free area at once, with a live preview of the result.
+
+### Place windows from the keyboard
+
+Halves, quarters, thirds, two thirds, maximize, center, restore and moving between displays. The shortcuts are Rectangle-compatible and can all be changed.
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/scene-keyboard-dark.gif">
+  <img src="docs/images/scene-keyboard-light.gif" width="664" alt="A window jumps to the left half, the right half, full screen and back as shortcuts are pressed">
+</picture>
+</p>
+
+### Every window in ⌥Tab, not just every app
+
+macOS's ⌘Tab shows one icon per app, so two Safari windows are one icon. Karo's ⌥Tab shows every window, with live previews. An app's windows share a deck that fans out when you reach it, or browse them in Cover Flow. Right-click a window for quick actions: left or right half, maximize, next display, minimize, close, hide or quit the app.
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/scene-switcher-dark.gif">
+  <img src="docs/images/scene-switcher-light.gif" width="664" alt="macOS's app switcher shows app icons; Karo's switcher shows each window, fans out a deck of two browser windows and opens a ring of quick actions">
+</picture>
+</p>
+
+### And more
+
 - **Swap and shared edges.** Drag a snapped window onto another to swap them. Resize along an edge two windows share, and the neighbour follows.
 - **Move from anywhere.** Hold ⌃⌥ and drag anywhere inside a window to move it, or right-drag to resize it from the nearest corner.
 - **Layout memory.** Connect or disconnect a display, and windows go back to where they were the last time you used that setup.
 - **Multiple displays,** including separate Spaces per display: on a display without the Dock, windows use the full height.
-- English and Turkish, Liquid Glass on macOS 26, no telemetry, nothing leaves your Mac.
+- **At home on macOS.** A menu bar app (the icon can be hidden), Liquid Glass on macOS 26, English and Turkish.
 
 ## First launch
 
@@ -27,7 +71,7 @@ Karo opens a short welcome guide that asks for its permissions:
 | **Accessibility** (required) | Moving and resizing other apps' windows |
 | **Screen Recording** (optional) | Live window previews in the switcher and Snap Assist. Karo never records or saves the screen. Restart Karo after allowing it. |
 
-Karo lives in the menu bar. Open the guide again from the menu bar icon (**Welcome Guide…**), and everything else from **Settings… (⌘,)**.
+Karo lives in the menu bar. Open the guide again from the menu bar icon (**Welcome Guide…**), and everything else from **Settings… (⌘,)**. If you hide the menu bar icon in Settings, open Karo again from Finder or Spotlight to get to Settings.
 
 macOS 15 and later have their own edge tiling, which reacts to the same drags. Turn off "Drag windows to screen edges to tile" in System Settings → Desktop & Dock so only Karo snaps; the guide and Settings point this out when it is on.
 
@@ -72,6 +116,8 @@ To open Settings on a given tab at launch (handy when working on the UI):
 ```bash
 open build/Karo.app --args -ShowSettingsTab shortcuts
 ```
+
+The animations in this README are recorded from the welcome guide; after changing it, record them again with `scripts/readme-images.sh` (debug builds only, uses Karo's Screen Recording permission).
 
 To see the welcome guide again as on first launch: `defaults delete dev.ademaydemir.Karo hasShownWelcome`.
 

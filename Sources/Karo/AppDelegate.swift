@@ -93,6 +93,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             settingsWindowController.show(tab: tab)
         }
 
+        #if DEBUG
+        // Development aid: `open Karo.app --args -CaptureReadmeAssets <dir>` records the README animations.
+        if let path = UserDefaults.standard.string(forKey: "CaptureReadmeAssets") {
+            Task { await ReadmeCapture.run(to: URL(fileURLWithPath: path)) }
+        }
+        #endif
+
         if permissionMonitor.isGranted {
             startAccessibilityFeatures()
         } else {

@@ -40,8 +40,8 @@ struct DesktopScene: View {
 
             if let preview = layout.snapPreview {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(Color.accentColor.opacity(0.22))
-                    .strokeBorder(Color.accentColor.opacity(0.7), lineWidth: 1)
+                    .fill(.tint.opacity(0.22))
+                    .strokeBorder(.tint.opacity(0.7), lineWidth: 1)
                     .placed(in: preview)
                     .transition(.opacity)
                     .zIndex(1)
@@ -122,11 +122,11 @@ struct DesktopScene: View {
 
     private var wallpaper: some View {
         ZStack(alignment: .top) {
-            LinearGradient(
-                colors: [Color.accentColor.opacity(0.28), Color.accentColor.opacity(0.08)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // A tint fades from the top-left corner; `.tint` rather than the accent color so a
+            // recording can use a neutral color (`ReadmeCapture`).
+            Rectangle()
+                .fill(.tint.opacity(0.28))
+                .mask(LinearGradient(colors: [.black, .black.opacity(0.29)], startPoint: .topLeading, endPoint: .bottomTrailing))
             Rectangle()
                 .fill(.background.opacity(0.6))
                 .frame(height: Self.menuBarHeight)
@@ -349,7 +349,7 @@ private struct MiniPicker: View {
                     .padding(3)
                     .background(
                         RoundedRectangle(cornerRadius: 7, style: .continuous)
-                            .fill(index == selected ? Color.accentColor.opacity(0.35) : .clear)
+                            .fill(index == selected ? AnyShapeStyle(.tint.opacity(0.35)) : AnyShapeStyle(.clear))
                     )
             }
         }
@@ -414,7 +414,7 @@ private struct WindowSwitcherPanel: View {
             .padding(3)
             .background(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(isFanned ? .clear : Color.accentColor.opacity(0.35))
+                    .fill(isFanned ? AnyShapeStyle(.clear) : AnyShapeStyle(.tint.opacity(0.35)))
             )
             .overlay(alignment: .topTrailing) {
                 if !isFanned {
@@ -422,7 +422,7 @@ private struct WindowSwitcherPanel: View {
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 4)
-                        .background(Color.accentColor, in: Capsule())
+                        .background(.tint, in: Capsule())
                         .offset(x: 6, y: -4)
                 }
             }
@@ -441,7 +441,7 @@ private struct WindowSwitcherPanel: View {
             .padding(3)
             .overlay {
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2)
+                    .strokeBorder(isSelected ? AnyShapeStyle(.tint) : AnyShapeStyle(.clear), lineWidth: 2)
             }
     }
 }
@@ -582,7 +582,7 @@ private struct MiniSwitch: View {
 
     var body: some View {
         Capsule()
-            .fill(isOn ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.quaternary))
+            .fill(isOn ? AnyShapeStyle(.tint) : AnyShapeStyle(.quaternary))
             .frame(width: 26, height: 15)
             .overlay(alignment: isOn ? .trailing : .leading) {
                 Circle()
