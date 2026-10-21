@@ -49,12 +49,12 @@
         }
       }
     },
-    "About Tessera": {
+    "About Karo": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tessera Hakkında"
+            "value": "Karo Hakkında"
           }
         }
       }
@@ -109,22 +109,22 @@
         }
       }
     },
-    "Allow Tessera in System Settings to finish turning this on.": {
+    "Allow Karo in System Settings to finish turning this on.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Açmayı tamamlamak için Sistem Ayarları'nda Tessera'ya izin verin."
+            "value": "Açmayı tamamlamak için Sistem Ayarları'nda Karo'ya izin verin."
           }
         }
       }
     },
-    "Allow Tessera under Screen & System Audio Recording, then quit and reopen Tessera. Until then, app icons are shown.": {
+    "Allow Karo under Screen & System Audio Recording, then quit and reopen Karo. Until then, app icons are shown.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ekran ve Sistem Sesi Kaydı bölümünde Tessera'ya izin verin, ardından Tessera'yı kapatıp yeniden açın. O zamana kadar uygulama simgeleri gösterilir."
+            "value": "Ekran ve Sistem Sesi Kaydı bölümünde Karo'ya izin verin, ardından Karo'yu kapatıp yeniden açın. O zamana kadar uygulama simgeleri gösterilir."
           }
         }
       }
@@ -405,22 +405,22 @@
         }
       }
     },
+    "Hide Karo": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo'yu Gizle"
+          }
+        }
+      }
+    },
     "Hide Others": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Diğerlerini Gizle"
-          }
-        }
-      }
-    },
-    "Hide Tessera": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tessera'yı Gizle"
           }
         }
       }
@@ -451,6 +451,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "İmlecin kenara ne kadar yaklaşması gerektiği."
+          }
+        }
+      }
+    },
+    "Karo can use a different language than macOS.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo, macOS'tan farklı bir dil kullanabilir."
           }
         }
       }
@@ -768,12 +778,12 @@
         }
       }
     },
-    "Quit Tessera": {
+    "Quit Karo": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tessera'dan Çık"
+            "value": "Karo'dan Çık"
           }
         }
       }
@@ -818,22 +828,22 @@
         }
       }
     },
+    "Restart Karo to use the new language.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni dili kullanmak için Karo'yu yeniden başlatın."
+          }
+        }
+      }
+    },
     "Restart Now": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Şimdi Yeniden Başlat"
-          }
-        }
-      }
-    },
-    "Restart Tessera to use the new language.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yeni dili kullanmak için Tessera'yı yeniden başlatın."
           }
         }
       }
@@ -1058,12 +1068,12 @@
         }
       }
     },
-    "Start Tessera automatically when you log in.": {
+    "Start Karo automatically when you log in.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oturum açtığınızda Tessera otomatik olarak başlar."
+            "value": "Oturum açtığınızda Karo otomatik olarak başlar."
           }
         }
       }
@@ -1116,16 +1126,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sistem Varsayılanı"
-          }
-        }
-      }
-    },
-    "Tessera can use a different language than macOS.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tessera, macOS'tan farklı bir dil kullanabilir."
           }
         }
       }
@@ -1214,12 +1214,12 @@
         }
       }
     },
-    "“Drag windows to screen edges to tile” reacts to the same drags. Turn it off so only Tessera snaps.": {
+    "“Drag windows to screen edges to tile” reacts to the same drags. Turn it off so only Karo snaps.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS'un “Pencereleri döşemek için ekran kenarlarına sürükle” ayarı aynı sürüklemelere tepki verir. Yalnızca Tessera'nın yerleştirmesi için bu ayarı kapatın."
+            "value": "macOS'un “Pencereleri döşemek için ekran kenarlarına sürükle” ayarı aynı sürüklemelere tepki verir. Yalnızca Karo'nun yerleştirmesi için bu ayarı kapatın."
           }
         }
       }

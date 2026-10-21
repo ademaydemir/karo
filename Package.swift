@@ -2,18 +2,18 @@
 import PackageDescription
 
 let package = Package(
-    name: "Tessera",
+    name: "Karo",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "Tessera", targets: ["Tessera"]),
+        .executable(name: "Karo", targets: ["Karo"]),
     ],
     targets: [
         // Platform-independent logic: actions, layout math, zone detection. Fully unit-tested.
-        .target(name: "TesseraCore"),
+        .target(name: "KaroCore"),
         // Thin wrappers around the macOS Accessibility API.
-        .target(name: "TesseraAccessibility", dependencies: ["TesseraCore"]),
+        .target(name: "KaroAccessibility", dependencies: ["KaroCore"]),
         // The menu bar app itself (AppKit + SwiftUI).
-        .executableTarget(name: "Tessera", dependencies: ["TesseraCore", "TesseraAccessibility"]),
-        .testTarget(name: "TesseraCoreTests", dependencies: ["TesseraCore"]),
+        .executableTarget(name: "Karo", dependencies: ["KaroCore", "KaroAccessibility"]),
+        .testTarget(name: "KaroCoreTests", dependencies: ["KaroCore"]),
     ]
 )

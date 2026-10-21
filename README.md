@@ -1,4 +1,4 @@
-# Tessera
+# Karo
 
 Windows-style window management for macOS: drag windows to screen edges and corners to snap them into halves and quarters, place them with keyboard shortcuts, and switch between individual windows with ⌥Tab.
 
@@ -29,9 +29,11 @@ While the switcher is open: ⌥← / ⌥→ to move, ⌥Esc to cancel, or click 
 
 Drag a window to a screen edge or corner to snap it; hold ⇧ while dragging to skip snapping. After snapping to a half or a third, Snap Assist offers your other windows for the free side.
 
+Drag a snapped window onto another snapped window to swap them. Resize a snapped window along the edge it shares with another, and the neighbour follows.
+
 Hold ⌃⌥ and drag anywhere inside a window to move it, or right-drag to resize it from the nearest corner (the keys can be changed in Settings).
 
-When you connect or disconnect a display, Tessera puts windows back where they were the last time you used that display setup. Turn off macOS's own "Drag windows to screen edges to tile" (System Settings → Desktop & Dock) so the two do not compete.
+When you connect or disconnect a display, Karo puts windows back where they were the last time you used that display setup. Turn off macOS's own "Drag windows to screen edges to tile" (System Settings → Desktop & Dock) so the two do not compete.
 
 ## Requirements
 
@@ -41,7 +43,7 @@ When you connect or disconnect a display, Tessera puts windows back where they w
 ## Building
 
 ```bash
-scripts/run.sh            # build build/Tessera.app (debug) and launch it
+scripts/run.sh            # build build/Karo.app (debug) and launch it
 scripts/build-app.sh release
 swift test
 ```
@@ -49,10 +51,10 @@ swift test
 To open Settings on a given tab at launch (handy when working on the UI):
 
 ```bash
-open build/Tessera.app --args -ShowSettingsTab shortcuts
+open build/Karo.app --args -ShowSettingsTab shortcuts
 ```
 
-Tessera needs **Accessibility** permission (System Settings → Privacy & Security → Accessibility) to move other apps' windows.
+Karo needs **Accessibility** permission (System Settings → Privacy & Security → Accessibility) to move other apps' windows.
 
 ### Code signing during development
 
@@ -62,11 +64,11 @@ macOS ties the Accessibility permission to the app's code signature. An ad-hoc s
 security find-identity -v -p codesigning
 ```
 
-If the permission gets stuck, reset it with `tccutil reset Accessibility dev.ademaydemir.Tessera`.
+If the permission gets stuck, reset it with `tccutil reset Accessibility dev.ademaydemir.Karo`.
 
 ## Localization
 
-Tessera is available in English and Turkish. It follows the macOS language, or the language chosen in Settings → General.
+Karo is available in English and Turkish. It follows the macOS language, or the language chosen in Settings → General.
 
 User-facing text is written in English in the code (`String(localized:)`, SwiftUI literals) and translated in the String Catalog `Support/Localizable.xcstrings`. After adding or changing text, pull the new strings into the catalog, then add translations (Xcode's catalog editor works, or edit the JSON):
 
@@ -80,10 +82,11 @@ scripts/update-strings.sh
 
 | Path | Purpose |
 |---|---|
-| `Sources/TesseraCore` | Platform-independent logic (actions, layout math), unit-tested |
-| `Sources/TesseraAccessibility` | Wrappers around the macOS Accessibility API |
-| `Sources/Tessera` | Menu bar app |
+| `Sources/KaroCore` | Platform-independent logic (actions, layout math), unit-tested |
+| `Sources/KaroAccessibility` | Wrappers around the macOS Accessibility API |
+| `Sources/Karo` | Menu bar app |
 | `Support/Info.plist` | App bundle metadata |
+| `Support/AppIcon.icon` | App icon; open it in Icon Composer (comes with Xcode) to edit |
 | `scripts/` | Bundling and run scripts |
 
 ## License

@@ -10,15 +10,19 @@
 		<string>tr</string>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>Tessera</string>
+	<string>Karo</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>dev.ademaydemir.Tessera</string>
+	<string>dev.ademaydemir.Karo</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Tessera</string>
+	<string>Karo</string>
 	<key>CFBundleDisplayName</key>
-	<string>Tessera</string>
+	<string>Karo</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
