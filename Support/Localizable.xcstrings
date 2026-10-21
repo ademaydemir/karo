@@ -1470,12 +1470,12 @@
         }
       }
     },
-    "Windows-style window management for your Mac.": {
+    "Window management for your Mac.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac’iniz için Windows tarzı pencere yönetimi."
+            "value": "Mac’iniz için pencere yönetimi."
           }
         }
       }

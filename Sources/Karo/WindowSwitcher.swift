@@ -3,7 +3,7 @@ import OSLog
 import KaroAccessibility
 import KaroCore
 
-/// Windows-style ⌥Tab switching between individual windows.
+/// ⌥Tab switching between individual windows rather than apps.
 ///
 /// While ⌥ is held, Tab / ⇧Tab move the selection and releasing ⌥ activates the selected
 /// window. A quick tap switches to the previous window without the panel ever appearing.

@@ -2,7 +2,7 @@ import CoreGraphics
 
 /// Decides which snap zone the cursor is in while a window is being dragged.
 ///
-/// Like Windows, zones depend on the cursor, not the window: an edge snaps to a half,
+/// Zones depend on the cursor, not the window: an edge snaps to a half,
 /// the top edge maximizes, and the last `cornerSize` points along an edge snap to a quarter.
 public struct ZoneDetector: Sendable {
     public struct Zone: Equatable, Sendable {
@@ -54,7 +54,7 @@ public struct ZoneDetector: Sendable {
         } else if nearTop {
             action = inLeftSegment ? .topLeft : inRightSegment ? .topRight : .maximize
         } else if nearBottom {
-            // The bottom edge only snaps in its corners, as on Windows.
+            // The bottom edge only snaps in its corners; its middle is left for the Dock.
             action = inLeftSegment ? .bottomLeft : inRightSegment ? .bottomRight : nil
         } else {
             action = nil

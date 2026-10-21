@@ -3,7 +3,7 @@ import OSLog
 import KaroAccessibility
 import KaroCore
 
-/// Windows-style Snap Assist: after a window is snapped, every free part of the display
+/// Snap Assist: after a window is snapped, every free part of the display
 /// offers the other windows at once, and the chosen window fills that part.
 ///
 /// A half or a third leaves one region. A quarter leaves two (the other quarter on its side

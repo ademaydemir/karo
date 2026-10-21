@@ -4,7 +4,7 @@ public enum SwitcherOrdering {
         public var id: ID
         /// Front-to-back position on screen; `nil` when the window is not on screen.
         public var stackIndex: Int?
-        /// Minimized windows and windows of hidden apps go last, like on Windows.
+        /// Minimized windows and windows of hidden apps go last.
         public var isBackgrounded: Bool
 
         public init(id: ID, stackIndex: Int?, isBackgrounded: Bool) {

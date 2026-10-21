@@ -1,8 +1,8 @@
 import CoreGraphics
 
 /// Placed windows that sit side by side share an edge (with the configured gap between
-/// them). When one of them is resized along that edge, its neighbours follow, the way
-/// windows in a Windows snap layout do.
+/// them). When one of them is resized along that edge, its neighbours follow, so the layout
+/// stays gap-free.
 public enum SharedEdges {
     /// Where the neighbour sits relative to the resized window.
     public enum Side: Sendable {

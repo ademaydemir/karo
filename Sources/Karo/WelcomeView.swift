@@ -90,7 +90,7 @@ private struct IntroductionStep: View {
                     .accessibilityHidden(true)
                 Text("Welcome to Karo")
                     .font(.largeTitle.bold())
-                Text("Windows-style window management for your Mac.")
+                Text("Window management for your Mac.")
                     .font(.title3)
                     .foregroundStyle(.secondary)
             }

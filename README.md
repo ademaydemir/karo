@@ -5,7 +5,7 @@
 <h1 align="center">Karo</h1>
 
 <p align="center">
-  Windows-style window management for macOS.
+  Window management for macOS.
 </p>
 
 <p align="center">
