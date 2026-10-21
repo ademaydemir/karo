@@ -1,6 +1,5 @@
 #if DEBUG
 import AppKit
-import CoreImage
 import OSLog
 @preconcurrency import ScreenCaptureKit
 import SwiftUI
@@ -10,7 +9,7 @@ import UniformTypeIdentifiers
 /// permission: `open build/Karo.app --args -CaptureReadmeAssets <dir>`.
 ///
 /// Each welcome-guide scene is played once in a borderless window on GitHub's page color and
-/// recorded as a looping animated PNG, in light and dark; `scripts/readme-images.sh` turns
+/// recorded as a looping animated PNG, in light and dark; a local script turns
 /// them into GIFs. Only Karo's own window is recorded, never the rest of the screen.
 /// `done.txt` appears in the directory when finished.
 @MainActor
@@ -113,7 +112,11 @@ enum ReadmeCapture {
         let fileProperties = [kCGImagePropertyPNGDictionary: [kCGImagePropertyAPNGLoopCount: 0]]
         CGImageDestinationSetProperties(destination, fileProperties as CFDictionary)
         for frame in frames {
-            let properties = [kCGImagePropertyPNGDictionary: [kCGImagePropertyAPNGDelayTime: frame.duration]]
+            // ImageIO raises short delays when they are read back; the unclamped one keeps them.
+            let properties = [kCGImagePropertyPNGDictionary: [
+                kCGImagePropertyAPNGDelayTime: frame.duration,
+                kCGImagePropertyAPNGUnclampedDelayTime: frame.duration,
+            ]]
             CGImageDestinationAddImage(destination, frame.image, properties as CFDictionary)
         }
         guard CGImageDestinationFinalize(destination) else { throw CaptureError.cannotWrite(url) }
@@ -135,8 +138,7 @@ private final class WindowRecorder: NSObject, SCStreamOutput, @unchecked Sendabl
 
     private let stream: SCStream
     private let queue = DispatchQueue(label: "dev.ademaydemir.Karo.readme-capture")
-    private let context = CIContext()
-    /// Only touched on `queue`.
+    /// Capture times on the host clock. Only touched on `queue`.
     private var captured: [(image: CGImage, time: Double)] = []
 
     @MainActor
@@ -148,7 +150,9 @@ private final class WindowRecorder: NSObject, SCStreamOutput, @unchecked Sendabl
         let configuration = SCStreamConfiguration()
         configuration.width = Int(window.frame.width * scale)
         configuration.height = Int(window.frame.height * scale)
-        configuration.minimumFrameInterval = CMTime(value: 1, timescale: 30)
+        // Well above the GIF's 25 frames a second, so every GIF frame has a fresh picture.
+        configuration.minimumFrameInterval = CMTime(value: 1, timescale: 60)
+        configuration.queueDepth = 8
         configuration.pixelFormat = kCVPixelFormatType_32BGRA
         configuration.showsCursor = false
         configuration.ignoreShadowsSingleWindow = true
@@ -162,12 +166,13 @@ private final class WindowRecorder: NSObject, SCStreamOutput, @unchecked Sendabl
     }
 
     func stop() async throws -> [Frame] {
+        let end = CMClockGetTime(CMClockGetHostTimeClock()).seconds
         try await stream.stopCapture()
-        let end = CACurrentMediaTime()
         return queue.sync {
             captured.enumerated().map { index, frame in
                 let next = index + 1 < captured.count ? captured[index + 1].time : end
-                return Frame(image: frame.image, duration: max(next - frame.time, 1.0 / 30))
+                // Frames can be a sixtieth of a second apart; the GIF step merges them.
+                return Frame(image: frame.image, duration: next - frame.time)
             }
         }
     }
@@ -177,10 +182,27 @@ private final class WindowRecorder: NSObject, SCStreamOutput, @unchecked Sendabl
         guard let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
               let rawStatus = attachments.first?[.status] as? Int,
               SCFrameStatus(rawValue: rawStatus) == .complete,
-              let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        let image = CIImage(cvPixelBuffer: pixelBuffer)
-        guard let cgImage = context.createCGImage(image, from: image.extent) else { return }
-        captured.append((cgImage, CACurrentMediaTime()))
+              let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
+              let image = Self.copyImage(of: pixelBuffer) else { return }
+        // When the frame was captured, not when it got here: a late frame must not stretch time.
+        captured.append((image, sampleBuffer.presentationTimeStamp.seconds))
+    }
+
+    /// A plain copy of the pixels; converting through Core Image is too slow to keep up.
+    private static func copyImage(of pixelBuffer: CVPixelBuffer) -> CGImage? {
+        CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+        guard let base = CVPixelBufferGetBaseAddress(pixelBuffer) else { return nil }
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer)
+        let height = CVPixelBufferGetHeight(pixelBuffer)
+        guard let provider = CGDataProvider(data: Data(bytes: base, count: bytesPerRow * height) as CFData) else { return nil }
+        return CGImage(
+            width: CVPixelBufferGetWidth(pixelBuffer), height: height,
+            bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: bytesPerRow,
+            space: CGColorSpace(name: CGColorSpace.sRGB)!,
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue),
+            provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent
+        )
     }
 }
 #endif

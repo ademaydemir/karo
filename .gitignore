@@ -6,3 +6,8 @@
 xcuserdata/
 DerivedData/
 Signing.local.env
+
+# Local only: development scripts, signing template and planning notes.
+/scripts/
+/Signing.local.env.example
+/docs/PRODUCT_ANALYSIS.md
