@@ -7,6 +7,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     var onMenuWillOpen: (() -> Void)?
     var onAction: ((WindowAction) -> Void)?
     var onOpenSettings: (() -> Void)?
+    var onShowWelcome: (() -> Void)?
 
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let permissionStatusItem = NSMenuItem()
@@ -81,6 +82,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let settingsItem = NSMenuItem(title: String(localized: "Settings…"), action: #selector(openSettings), keyEquivalent: ",")
         settingsItem.target = self
         menu.addItem(settingsItem)
+        let welcomeItem = NSMenuItem(title: String(localized: "Welcome Guide…"), action: #selector(showWelcome), keyEquivalent: "")
+        welcomeItem.target = self
+        menu.addItem(welcomeItem)
         let aboutItem = NSMenuItem(title: String(localized: "About Karo"), action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
@@ -104,6 +108,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func openSettings() {
         onOpenSettings?()
+    }
+
+    @objc private func showWelcome() {
+        onShowWelcome?()
     }
 
     @objc private func showAbout() {

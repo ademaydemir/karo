@@ -43,7 +43,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         recorder.stopRecording()
-        NSApp.setActivationPolicy(.accessory)
+        if let window { NSApp.returnToAccessoryIfNoWindowsRemain(besides: window) }
     }
 
     private func makeWindow() -> NSWindow {

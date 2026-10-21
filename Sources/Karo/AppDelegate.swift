@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         store: settingsStore,
         recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController)
     )
+    private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin())
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
 
@@ -63,6 +64,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController.onOpenSettings = { [weak self] in
             self?.openSettings()
         }
+        menuBarController.onShowWelcome = { [weak self] in
+            self?.welcomeWindowController.show()
+        }
+        welcomeWindowController.onOpenSettings = { [weak self] in
+            self?.openSettings()
+        }
         menuBarController.update(isAccessibilityGranted: permissionMonitor.isGranted)
         self.menuBarController = menuBarController
         self.permissionMonitor = permissionMonitor
@@ -89,8 +96,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if permissionMonitor.isGranted {
             startAccessibilityFeatures()
         } else {
-            AccessibilityPermission.requestIfNeeded()
+            // On first launch the welcome window explains the permission before asking.
+            if welcomeWindowController.hasBeenShown { AccessibilityPermission.requestIfNeeded() }
             permissionMonitor.start()
+        }
+        if !welcomeWindowController.hasBeenShown {
+            welcomeWindowController.show()
         }
     }
 

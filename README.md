@@ -4,7 +4,32 @@ Windows-style window management for macOS: drag windows to screen edges and corn
 
 Written in pure Swift (AppKit + SwiftUI), no third-party dependencies, no telemetry.
 
-> **Status:** early development (M0 — project skeleton). See [docs/PRODUCT_ANALYSIS.md](docs/PRODUCT_ANALYSIS.md) for scope and roadmap.
+> **Status:** in active development; no signed release yet, so build it from source (below). See [docs/PRODUCT_ANALYSIS.md](docs/PRODUCT_ANALYSIS.md) for scope and roadmap.
+
+## Features
+
+- **Drag to snap.** Drag a window to a screen edge or corner to fill a half or a quarter; the top edge maximizes. A preview shows where it will go. Hold ⇧ while dragging to move freely.
+- **Snap Assist.** After snapping to a half, a quarter or a third, Karo offers your other windows for every free area at once, with a live preview of the result.
+- **Keyboard shortcuts.** Halves, quarters, thirds, two thirds, maximize, center, restore and moving between displays, Rectangle-compatible and all changeable.
+- **Window switcher.** ⌥Tab shows every window, not just every app, in a grid that groups each app's windows into a deck or in Cover Flow. Right-click a window for quick actions: left or right half, maximize, next display, minimize, close, hide or quit the app.
+- **Swap and shared edges.** Drag a snapped window onto another to swap them. Resize along an edge two windows share, and the neighbour follows.
+- **Move from anywhere.** Hold ⌃⌥ and drag anywhere inside a window to move it, or right-drag to resize it from the nearest corner.
+- **Layout memory.** Connect or disconnect a display, and windows go back to where they were the last time you used that setup.
+- **Multiple displays,** including separate Spaces per display: on a display without the Dock, windows use the full height.
+- English and Turkish, Liquid Glass on macOS 26, no telemetry, nothing leaves your Mac.
+
+## First launch
+
+Karo opens a short welcome guide that asks for its permissions:
+
+| Permission | Needed for |
+|---|---|
+| **Accessibility** (required) | Moving and resizing other apps' windows |
+| **Screen Recording** (optional) | Live window previews in the switcher and Snap Assist. Karo never records or saves the screen. Restart Karo after allowing it. |
+
+Karo lives in the menu bar. Open the guide again from the menu bar icon (**Welcome Guide…**), and everything else from **Settings… (⌘,)**.
+
+macOS 15 and later have their own edge tiling, which reacts to the same drags. Turn off "Drag windows to screen edges to tile" in System Settings → Desktop & Dock so only Karo snaps; the guide and Settings point this out when it is on.
 
 ## Default shortcuts
 
@@ -23,17 +48,11 @@ Rectangle-compatible, so switching over keeps your muscle memory.
 | Next / previous display | ⌃⌥⌘→ / ⌃⌥⌘← |
 | Switch windows (hold ⌥, release to switch) | ⌥Tab / ⌥⇧Tab (in Cover Flow, also swipe sideways) |
 
-All window shortcuts can be changed or removed in **Settings… (⌘,)** from the menu bar icon, along with launch at login, drag-snapping sensitivity and the gap between windows.
-
 While the switcher is open: ⌥← / ⌥→ to move, ⌥Esc to cancel, or click a window.
 
-Drag a window to a screen edge or corner to snap it; hold ⇧ while dragging to skip snapping. After snapping to a half or a third, Snap Assist offers your other windows for the free side.
+### A gap below windows on an external display?
 
-Drag a snapped window onto another snapped window to swap them. Resize a snapped window along the edge it shares with another, and the neighbour follows.
-
-Hold ⌃⌥ and drag anywhere inside a window to move it, or right-drag to resize it from the nearest corner (the keys can be changed in Settings).
-
-When you connect or disconnect a display, Karo puts windows back where they were the last time you used that display setup. Turn off macOS's own "Drag windows to screen edges to tile" (System Settings → Desktop & Dock) so the two do not compete.
+With "Displays have separate Spaces" on, macOS reserves room for the Dock on every display. Karo ignores that reservation on displays without the Dock, but apps built with AppKit (Safari, Mail, Finder…) still limit their own height to it, leaving a strip at the bottom. To remove it, turn on "Automatically hide and show the Dock", or turn off "Displays have separate Spaces" (both in System Settings → Desktop & Dock; the latter needs a log out).
 
 ## Requirements
 
@@ -54,7 +73,7 @@ To open Settings on a given tab at launch (handy when working on the UI):
 open build/Karo.app --args -ShowSettingsTab shortcuts
 ```
 
-Karo needs **Accessibility** permission (System Settings → Privacy & Security → Accessibility) to move other apps' windows.
+To see the welcome guide again as on first launch: `defaults delete dev.ademaydemir.Karo hasShownWelcome`.
 
 ### Code signing during development
 

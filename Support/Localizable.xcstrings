@@ -89,6 +89,16 @@
         }
       }
     },
+    "After allowing it, restart Karo to see window previews.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İzin verdikten sonra önizlemeleri görmek için Karo’yu yeniden başlatın."
+          }
+        }
+      }
+    },
     "After snapping to a half or a third, pick a window to fill the rest of the screen.": {
       "localizations": {
         "tr": {
@@ -105,6 +115,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tüm pencereler bir arada; bir uygulamanın pencereleri tek destede."
+          }
+        }
+      }
+    },
+    "Allow Access": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişime İzin Verin"
           }
         }
       }
@@ -139,6 +159,16 @@
         }
       }
     },
+    "Allow…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İzin Ver…"
+          }
+        }
+      }
+    },
     "Also %@ / %@ while the switcher is open.": {
       "localizations": {
         "en": {
@@ -161,6 +191,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Onay gerekiyor"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geri"
           }
         }
       }
@@ -261,6 +301,16 @@
         }
       }
     },
+    "Continue": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devam"
+          }
+        }
+      }
+    },
     "Corner size": {
       "localizations": {
         "tr": {
@@ -302,12 +352,32 @@
         }
       }
     },
+    "Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir pencereyi ekranın kenarına ya da köşesine sürükleyerek yarıya veya çeyreğe yerleştirin. Karo kalan alan için pencere önerir."
+          }
+        }
+      }
+    },
     "Drag to Snap": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Sürükleyerek Yerleştir"
+          }
+        }
+      }
+    },
+    "Drag to snap": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sürükleyip yerleştirin"
           }
         }
       }
@@ -349,6 +419,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Genel"
+          }
+        }
+      }
+    },
+    "Get Started": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başlayın"
           }
         }
       }
@@ -435,6 +515,16 @@
         }
       }
     },
+    "Hold ⌥ and press Tab to see every window, not just every app.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ tuşunu basılı tutup Tab’a basın; yalnızca uygulamaları değil, tüm pencereleri görün."
+          }
+        }
+      }
+    },
     "Hold ⌥ and press Tab to step through windows; release ⌥ to switch.": {
       "localizations": {
         "tr": {
@@ -461,6 +551,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Karo, macOS'tan farklı bir dil kullanabilir."
+          }
+        }
+      }
+    },
+    "Karo lives in the menu bar. Click its icon for window actions and Settings.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo menü çubuğunda çalışır. Pencere işlemleri ve Ayarlar için simgesine tıklayın."
+          }
+        }
+      }
+    },
+    "Karo works through macOS privacy permissions. Everything stays on your Mac.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo, macOS gizlilik izinleriyle çalışır. Hiçbir veri Mac’inizden çıkmaz."
           }
         }
       }
@@ -556,6 +666,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Çeyreğe yerleştiren köşe alanlarının uzunluğu."
+          }
+        }
+      }
+    },
+    "Lets Karo move and resize other apps’ windows.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo’nun diğer uygulamaların pencerelerini taşıyıp boyutlandırmasını sağlar."
           }
         }
       }
@@ -716,6 +836,36 @@
         }
       }
     },
+    "Open Settings": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarları Aç"
+          }
+        }
+      }
+    },
+    "Optional": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İsteğe bağlı"
+          }
+        }
+      }
+    },
+    "Place with the keyboard": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klavyeyle yerleştirin"
+          }
+        }
+      }
+    },
     "Press Esc or click elsewhere to skip.": {
       "localizations": {
         "tr": {
@@ -814,6 +964,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kısayolu kaldır"
+          }
+        }
+      }
+    },
+    "Required": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerekli"
           }
         }
       }
@@ -934,6 +1094,16 @@
         }
       }
     },
+    "Screen Recording": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekran Kaydı"
+          }
+        }
+      }
+    },
     "Screen Recording needed": {
       "localizations": {
         "tr": {
@@ -1005,12 +1175,32 @@
         }
       }
     },
+    "Shows live window previews in the switcher and Snap Assist. Nothing is recorded or saved.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere değiştiricide ve Snap Assist’te canlı önizlemeler gösterir. Hiçbir şey kaydedilmez."
+          }
+        }
+      }
+    },
     "Size": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Boyut"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atla"
           }
         }
       }
@@ -1078,6 +1268,22 @@
         }
       }
     },
+    "Step %lld of %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Step %1$lld of %2$lld"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adım %1$lld / %2$lld"
+          }
+        }
+      }
+    },
     "Style": {
       "localizations": {
         "tr": {
@@ -1094,6 +1300,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Diğer taraf için pencere öner"
+          }
+        }
+      }
+    },
+    "Switch between windows": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencereler arasında geçin"
           }
         }
       }
@@ -1183,6 +1399,26 @@
         }
       }
     },
+    "Welcome Guide…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karşılama Rehberi…"
+          }
+        }
+      }
+    },
+    "Welcome to Karo": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo’ya Hoş Geldiniz"
+          }
+        }
+      }
+    },
     "When you connect or disconnect a display, windows go back to where they were the last time you used that setup.": {
       "localizations": {
         "tr": {
@@ -1204,6 +1440,26 @@
         }
       }
     },
+    "Windows-style window management for your Mac.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac’iniz için Windows tarzı pencere yönetimi."
+          }
+        }
+      }
+    },
+    "You’re All Set": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Her Şey Hazır"
+          }
+        }
+      }
+    },
     "macOS tiling is also on": {
       "localizations": {
         "tr": {
@@ -1220,6 +1476,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS'un “Pencereleri döşemek için ekran kenarlarına sürükle” ayarı aynı sürüklemelere tepki verir. Yalnızca Karo'nun yerleştirmesi için bu ayarı kapatın."
+          }
+        }
+      }
+    },
+    "⌃⌥← and ⌃⌥→ for halves, ⌃⌥↩ to maximize, ⌃⌥⌫ to restore. All shortcuts can be changed.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarımlar için ⌃⌥← ve ⌃⌥→, büyütmek için ⌃⌥↩, geri almak için ⌃⌥⌫. Tüm kısayollar değiştirilebilir."
           }
         }
       }
