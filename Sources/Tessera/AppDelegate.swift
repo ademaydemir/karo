@@ -1,9 +1,13 @@
 import AppKit
+import OSLog
 import TesseraAccessibility
+import TesseraCore
 
 @main
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "placement")
+    private let windowPlacer = WindowPlacer()
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
 
@@ -28,6 +32,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController.onMenuWillOpen = { [weak permissionMonitor] in
             permissionMonitor?.check()
         }
+        menuBarController.onAction = { [weak self] action in
+            self?.perform(action)
+        }
         menuBarController.update(isAccessibilityGranted: permissionMonitor.isGranted)
 
         if !permissionMonitor.isGranted {
@@ -37,5 +44,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         self.menuBarController = menuBarController
         self.permissionMonitor = permissionMonitor
+    }
+
+    private func perform(_ action: WindowAction) {
+        do {
+            try windowPlacer.apply(action)
+        } catch {
+            logger.error("\(action.rawValue, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+            NSSound.beep()
+        }
     }
 }

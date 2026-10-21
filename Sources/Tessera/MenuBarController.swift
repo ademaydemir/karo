@@ -1,9 +1,19 @@
 import AppKit
 import TesseraAccessibility
+import TesseraCore
 
 @MainActor
 final class MenuBarController: NSObject, NSMenuDelegate {
     var onMenuWillOpen: (() -> Void)?
+    var onAction: ((WindowAction) -> Void)?
+
+    /// Actions offered in the menu, grouped by separators.
+    private static let actionGroups: [[WindowAction]] = [
+        [.leftHalf, .rightHalf, .topHalf, .bottomHalf],
+        [.topLeft, .topRight, .bottomLeft, .bottomRight],
+        [.leftThird, .centerThird, .rightThird, .leftTwoThirds, .rightTwoThirds],
+        [.maximize, .center],
+    ]
 
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let permissionStatusItem = NSMenuItem()
@@ -12,6 +22,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         action: #selector(grantPermission),
         keyEquivalent: ""
     )
+    private var actionItems: [NSMenuItem] = []
 
     override init() {
         super.init()
@@ -31,6 +42,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             accessibilityDescription: nil
         )
         grantPermissionItem.isHidden = isAccessibilityGranted
+        for item in actionItems {
+            item.isEnabled = isAccessibilityGranted
+        }
     }
 
     func menuWillOpen(_ menu: NSMenu) {
@@ -40,6 +54,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
         menu.delegate = self
+        // Enabled state is driven by the permission, not by responder-chain validation.
+        menu.autoenablesItems = false
 
         permissionStatusItem.isEnabled = false
         menu.addItem(permissionStatusItem)
@@ -47,11 +63,30 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(grantPermissionItem)
 
         menu.addItem(.separator())
+        menu.addItem(.sectionHeader(title: "Move Window"))
+        for (index, group) in Self.actionGroups.enumerated() {
+            if index > 0 { menu.addItem(.separator()) }
+            for action in group {
+                let item = NSMenuItem(title: action.title, action: #selector(performAction(_:)), keyEquivalent: "")
+                item.target = self
+                item.representedObject = action.rawValue
+                menu.addItem(item)
+                actionItems.append(item)
+            }
+        }
+
+        menu.addItem(.separator())
         let aboutItem = NSMenuItem(title: "About Tessera", action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
         menu.addItem(NSMenuItem(title: "Quit Tessera", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return menu
+    }
+
+    @objc private func performAction(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let action = WindowAction(rawValue: rawValue) else { return }
+        onAction?(action)
     }
 
     @objc private func grantPermission() {
