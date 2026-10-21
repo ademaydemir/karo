@@ -43,8 +43,9 @@ final class WindowCatalog {
 
     /// Standard windows of regular apps in switcher order: visible windows first, most
     /// recently focused first; then minimized windows and those of hidden apps.
-    func windows(includingWindowIDs: Bool) -> [Entry] {
-        let applications = Self.applications()
+    /// - Parameter processIdentifier: Only this app's windows, e.g. for a Dock icon.
+    func windows(includingWindowIDs: Bool, ofApplication processIdentifier: pid_t? = nil) -> [Entry] {
+        let applications = Self.applications().filter { processIdentifier == nil || $0.processIdentifier == processIdentifier }
         let stack = WindowServer.windows()
         // Window IDs are needed for every window, minimized ones included.
         let allWindows = includingWindowIDs ? WindowServer.windows(onScreenOnly: false) : []

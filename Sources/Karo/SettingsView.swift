@@ -230,6 +230,15 @@ struct SwitcherSettingsView: View {
             }
 
             Section {
+                Toggle(isOn: store.binding(\.isDockPreviewEnabled)) {
+                    Text("Show windows from the Dock")
+                    Text("Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward.")
+                }
+            } header: {
+                Text("Dock")
+            }
+
+            Section {
                 Toggle(isOn: Binding(get: { store.settings.showsWindowPreviews }, set: setShowsPreviews)) {
                     Text("Show window previews")
                     Text("Show a thumbnail of each window instead of only its app icon.")

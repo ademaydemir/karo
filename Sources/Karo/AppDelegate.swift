@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var windowSwitcher = WindowSwitcher(hotkeys: hotkeyManager, placer: windowPlacer, catalog: windowCatalog)
     private lazy var snapAssist = SnapAssistController(catalog: windowCatalog, placer: windowPlacer, hotkeys: hotkeyManager)
     private lazy var layoutMemory = LayoutMemoryController(catalog: windowCatalog)
+    private lazy var dockPreview = DockPreviewController(catalog: windowCatalog)
     private lazy var settingsWindowController = SettingsWindowController(
         store: settingsStore,
         recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController)
@@ -118,6 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowCatalog.startTracking()
         layoutMemory.start()
         modifierDragController.start()
+        dockPreview.start()
     }
 
     /// Opening Karo again while it runs (Finder, Spotlight, Launchpad) shows Settings. With the
@@ -139,6 +141,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         snapAssist.isEnabled = settings.isSnapAssistEnabled
         snapAssist.showsPreviews = settings.showsWindowPreviews
         layoutMemory.isEnabled = settings.restoresLayoutOnDisplayChange
+        dockPreview.isEnabled = settings.isDockPreviewEnabled
         windowSwitcher.showsPreviews = settings.showsWindowPreviews
         windowSwitcher.size = settings.switcherSize
         windowSwitcher.style = settings.switcherStyle

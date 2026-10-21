@@ -18,6 +18,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     public var modifierDrag = ModifierDrag.controlOption
     /// When hidden, opening Karo again shows Settings.
     public var showsMenuBarIcon = true
+    /// An app's windows appear when the pointer rests on its Dock icon.
+    public var isDockPreviewEnabled = true
     public var customShortcuts: [WindowAction: KeyboardShortcut] = [:]
     public var disabledShortcuts: Set<WindowAction> = []
 
@@ -72,6 +74,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize, switcherStyle
         case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag, showsMenuBarIcon
+        case isDockPreviewEnabled
         case customShortcuts, disabledShortcuts
     }
 
@@ -94,6 +97,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
             ?? defaults.isSnapAssistEnabled
         modifierDrag = (try? container.decodeIfPresent(ModifierDrag.self, forKey: .modifierDrag)) ?? defaults.modifierDrag
         showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? defaults.showsMenuBarIcon
+        isDockPreviewEnabled = try container.decodeIfPresent(Bool.self, forKey: .isDockPreviewEnabled)
+            ?? defaults.isDockPreviewEnabled
         customShortcuts = try container.decodeIfPresent([WindowAction: KeyboardShortcut].self, forKey: .customShortcuts)
             ?? defaults.customShortcuts
         disabledShortcuts = try container.decodeIfPresent(Set<WindowAction>.self, forKey: .disabledShortcuts)

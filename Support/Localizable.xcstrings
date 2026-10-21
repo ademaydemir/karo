@@ -352,6 +352,16 @@
         }
       }
     },
+    "Dock": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dock"
+          }
+        }
+      }
+    },
     "Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space.": {
       "localizations": {
         "tr": {
@@ -988,6 +998,16 @@
         }
       }
     },
+    "Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir uygulamanın pencerelerini görmek için imleci Dock’taki simgesinin üstünde tutun. Öne getirmek için bir pencereye tıklayın."
+          }
+        }
+      }
+    },
     "Restart Karo to use the new language.": {
       "localizations": {
         "tr": {
@@ -1191,6 +1211,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pencere önizlemelerini göster"
+          }
+        }
+      }
+    },
+    "Show windows from the Dock": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dock’tan pencereleri göster"
           }
         }
       }
