@@ -15,6 +15,10 @@ public struct AXWindow {
     private let element: AXUIElement
     private let application: AXUIElement
 
+    public var identity: WindowIdentity {
+        WindowIdentity(element: element)
+    }
+
     /// The focused window of the frontmost application.
     public static func focused() throws -> AXWindow {
         guard AccessibilityPermission.isGranted else { throw AccessibilityError.permissionDenied }

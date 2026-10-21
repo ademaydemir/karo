@@ -8,6 +8,7 @@ import TesseraCore
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "placement")
     private let windowPlacer = WindowPlacer()
+    private let hotkeyManager = HotkeyManager()
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
 
@@ -25,7 +26,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Info.plist sets LSUIElement for the bundled app; this also covers `swift run`.
         NSApp.setActivationPolicy(.accessory)
 
-        let menuBarController = MenuBarController()
+        let shortcuts = DefaultShortcuts.all
+        registerHotkeys(shortcuts)
+
+        let menuBarController = MenuBarController(shortcuts: shortcuts)
         let permissionMonitor = AccessibilityPermissionMonitor { [weak menuBarController] isGranted in
             menuBarController?.update(isAccessibilityGranted: isGranted)
         }
@@ -44,6 +48,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         self.menuBarController = menuBarController
         self.permissionMonitor = permissionMonitor
+    }
+
+    private func registerHotkeys(_ shortcuts: [WindowAction: KeyboardShortcut]) {
+        for (action, shortcut) in shortcuts {
+            do {
+                try hotkeyManager.register(shortcut) { [weak self] in
+                    self?.perform(action)
+                }
+            } catch {
+                // Usually another app owns the combination; the rest still work.
+                logger.error("Shortcut for \(action.rawValue, privacy: .public) not registered: \(String(describing: error), privacy: .public)")
+            }
+        }
     }
 
     private func perform(_ action: WindowAction) {

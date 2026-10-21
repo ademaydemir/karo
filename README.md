@@ -6,6 +6,21 @@ Written in pure Swift (AppKit + SwiftUI), no third-party dependencies, no teleme
 
 > **Status:** early development (M0 — project skeleton). See [docs/PRODUCT_ANALYSIS.md](docs/PRODUCT_ANALYSIS.md) for scope and roadmap.
 
+## Default shortcuts
+
+Rectangle-compatible, so switching over keeps your muscle memory.
+
+| Action | Shortcut |
+|---|---|
+| Left / right half | ⌃⌥← / ⌃⌥→ |
+| Top / bottom half | ⌃⌥↑ / ⌃⌥↓ |
+| Top left / top right / bottom left / bottom right | ⌃⌥U / ⌃⌥I / ⌃⌥J / ⌃⌥K |
+| Left / center / right third | ⌃⌥D / ⌃⌥F / ⌃⌥G |
+| Left / right two thirds | ⌃⌥E / ⌃⌥T |
+| Maximize | ⌃⌥↩ |
+| Center | ⌃⌥C |
+| Restore | ⌃⌥⌫ |
+
 ## Requirements
 
 - macOS 14 Sonoma or later

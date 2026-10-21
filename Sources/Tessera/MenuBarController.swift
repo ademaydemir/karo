@@ -12,8 +12,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         [.leftHalf, .rightHalf, .topHalf, .bottomHalf],
         [.topLeft, .topRight, .bottomLeft, .bottomRight],
         [.leftThird, .centerThird, .rightThird, .leftTwoThirds, .rightTwoThirds],
-        [.maximize, .center],
+        [.maximize, .center, .restore],
     ]
+
+    private let shortcuts: [WindowAction: KeyboardShortcut]
 
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let permissionStatusItem = NSMenuItem()
@@ -24,7 +26,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     )
     private var actionItems: [NSMenuItem] = []
 
-    override init() {
+    init(shortcuts: [WindowAction: KeyboardShortcut]) {
+        self.shortcuts = shortcuts
         super.init()
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "rectangle.split.2x2", accessibilityDescription: "Tessera")
@@ -70,6 +73,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                 let item = NSMenuItem(title: action.title, action: #selector(performAction(_:)), keyEquivalent: "")
                 item.target = self
                 item.representedObject = action.rawValue
+                shortcuts[action]?.apply(to: item)
                 menu.addItem(item)
                 actionItems.append(item)
             }
