@@ -515,16 +515,6 @@
         }
       }
     },
-    "Hold ⌥ and press Tab to see every window, not just every app.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌥ tuşunu basılı tutup Tab’a basın; yalnızca uygulamaları değil, tüm pencereleri görün."
-          }
-        }
-      }
-    },
     "Hold ⌥ and press Tab to step through windows; release ⌥ to switch.": {
       "localizations": {
         "tr": {
@@ -571,6 +561,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Karo, macOS gizlilik izinleriyle çalışır. Hiçbir veri Mac’inizden çıkmaz."
+          }
+        }
+      }
+    },
+    "Karo ⌥Tab: every window": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo ⌥Tab: her pencere"
           }
         }
       }
@@ -1094,6 +1094,16 @@
         }
       }
     },
+    "Right-click for quick actions": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hızlı işlemler için sağ tıklayın"
+          }
+        }
+      }
+    },
     "Screen Recording": {
       "localizations": {
         "tr": {
@@ -1470,6 +1480,16 @@
         }
       }
     },
+    "macOS ⌘Tab: one icon per app": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS ⌘Tab: uygulama başına tek simge"
+          }
+        }
+      }
+    },
     "“Drag windows to screen edges to tile” reacts to the same drags. Turn it off so only Karo snaps.": {
       "localizations": {
         "tr": {
@@ -1486,6 +1506,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yarımlar için ⌃⌥← ve ⌃⌥→, büyütmek için ⌃⌥↩, geri almak için ⌃⌥⌫. Tüm kısayollar değiştirilebilir."
+          }
+        }
+      }
+    },
+    "⌘Tab shows one icon per app. ⌥Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Tab her uygulama için tek simge gösterir. ⌥Tab ise aynı uygulamanın pencereleri dahil her pencereyi canlı önizlemeyle gösterir; sağ tıklayınca hızlı işlemler çıkar."
           }
         }
       }

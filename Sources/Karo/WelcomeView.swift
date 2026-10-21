@@ -29,7 +29,7 @@ struct WelcomeView: View {
 
             footer
         }
-        .frame(width: 560, height: 500)
+        .frame(width: 720, height: 690)
     }
 
     private var footer: some View {
@@ -75,12 +75,18 @@ struct WelcomeView: View {
 // MARK: - Steps
 
 private struct IntroductionStep: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var feature = DesktopScene.Feature.snap
+    @State private var phase = 0
+    /// Bumped when the user picks a feature, to restart the loop from it.
+    @State private var restart = 0
+
     var body: some View {
-        VStack(spacing: 28) {
-            VStack(spacing: 10) {
+        VStack(spacing: 18) {
+            VStack(spacing: 6) {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable()
-                    .frame(width: 96, height: 96)
+                    .frame(width: 64, height: 64)
                     .accessibilityHidden(true)
                 Text("Welcome to Karo")
                     .font(.largeTitle.bold())
@@ -88,27 +94,103 @@ private struct IntroductionStep: View {
                     .font(.title3)
                     .foregroundStyle(.secondary)
             }
-            VStack(alignment: .leading, spacing: 16) {
-                FeatureRow(
-                    symbol: "rectangle.split.2x1",
-                    title: "Drag to snap",
-                    detail: "Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space."
-                )
-                FeatureRow(
-                    symbol: "keyboard",
-                    title: "Place with the keyboard",
-                    detail: "⌃⌥← and ⌃⌥→ for halves, ⌃⌥↩ to maximize, ⌃⌥⌫ to restore. All shortcuts can be changed."
-                )
-                FeatureRow(
-                    symbol: "rectangle.stack",
-                    title: "Switch between windows",
-                    detail: "Hold ⌥ and press Tab to see every window, not just every app."
-                )
+
+            DesktopScene(feature: feature, phase: reduceMotion ? DesktopScene.phaseCount - 1 : phase)
+                .accessibilityHidden(true)
+
+            HStack(spacing: 8) {
+                ForEach(DesktopScene.Feature.allCases, id: \.self) { option in
+                    FeatureTile(feature: option, isSelected: option == feature) {
+                        feature = option
+                        phase = 0
+                        restart += 1
+                    }
+                }
             }
-            .frame(maxWidth: 420)
+            .frame(width: DesktopScene.displayWidth)
+
+            feature.detail
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(width: DesktopScene.displayWidth, height: 40, alignment: .top)
+                .id(feature)
+                .transition(.opacity)
         }
         .padding(.horizontal, 40)
-        .padding(.top, 24)
+        .padding(.top, 20)
+        .animation(.easeInOut(duration: 0.25), value: feature)
+        .task(id: restart) {
+            // Plays each feature once, then moves on to the next; a picked feature starts the loop.
+            guard !reduceMotion else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: DesktopScene.duration(of: feature, phase: phase))
+                guard !Task.isCancelled else { return }
+                if phase + 1 < DesktopScene.phaseCount {
+                    phase += 1
+                } else {
+                    phase = 0
+                    let all = DesktopScene.Feature.allCases
+                    feature = all[(all.firstIndex(of: feature)! + 1) % all.count]
+                }
+            }
+        }
+    }
+}
+
+private struct FeatureTile: View {
+    let feature: DesktopScene.Feature
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: feature.symbol)
+                    .font(.title3)
+                    .foregroundStyle(isSelected ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+                feature.title
+                    .font(.callout.weight(isSelected ? .semibold : .regular))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+            }
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(isSelected ? AnyShapeStyle(Color.accentColor.opacity(0.15)) : AnyShapeStyle(.quinary))
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint(feature.detail)
+    }
+}
+
+private extension DesktopScene.Feature {
+    var symbol: String {
+        switch self {
+        case .snap: "rectangle.split.2x1"
+        case .keyboard: "keyboard"
+        case .switcher: "rectangle.stack"
+        }
+    }
+
+    var title: Text {
+        switch self {
+        case .snap: Text("Drag to snap")
+        case .keyboard: Text("Place with the keyboard")
+        case .switcher: Text("Switch between windows")
+        }
+    }
+
+    var detail: Text {
+        switch self {
+        case .snap: Text("Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space.")
+        case .keyboard: Text("⌃⌥← and ⌃⌥→ for halves, ⌃⌥↩ to maximize, ⌃⌥⌫ to restore. All shortcuts can be changed.")
+        case .switcher: Text("⌘Tab shows one icon per app. ⌥Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.")
+        }
     }
 }
 
@@ -119,8 +201,9 @@ private struct PermissionsStep: View {
 
     var body: some View {
         VStack(spacing: 24) {
+            PermissionIllustration(isGranted: isAccessibilityGranted)
             StepHeader(
-                symbol: "hand.raised.fill",
+                symbol: nil,
                 title: "Allow Access",
                 detail: "Karo works through macOS privacy permissions. Everything stays on your Mac."
             )
@@ -153,10 +236,10 @@ private struct PermissionsStep: View {
                     }
                 }
             }
-            .frame(maxWidth: 460)
+            .frame(maxWidth: 560)
         }
         .padding(.horizontal, 40)
-        .padding(.top, 36)
+        .padding(.top, 24)
         .task {
             // macOS has no notification for permission changes; check while this step is shown.
             while !Task.isCancelled {
@@ -213,7 +296,7 @@ private struct ReadyStep: View {
                     }
                 }
             }
-            .frame(maxWidth: 460)
+            .frame(maxWidth: 560)
         }
         .padding(.horizontal, 40)
         .padding(.top, 36)
@@ -237,16 +320,18 @@ private struct ReadyStep: View {
 // MARK: - Components
 
 private struct StepHeader: View {
-    let symbol: String
+    let symbol: String?
     let title: LocalizedStringKey
     let detail: LocalizedStringKey
 
     var body: some View {
         VStack(spacing: 10) {
-            Image(systemName: symbol)
-                .font(.system(size: 44))
-                .foregroundStyle(.tint)
-                .accessibilityHidden(true)
+            if let symbol {
+                Image(systemName: symbol)
+                    .font(.system(size: 44))
+                    .foregroundStyle(.tint)
+                    .accessibilityHidden(true)
+            }
             Text(title)
                 .font(.largeTitle.bold())
             Text(detail)
@@ -255,30 +340,6 @@ private struct StepHeader: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
-    }
-}
-
-private struct FeatureRow: View {
-    let symbol: String
-    let title: LocalizedStringKey
-    let detail: LocalizedStringKey
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: symbol)
-                .font(.title2)
-                .foregroundStyle(.tint)
-                .frame(width: 32)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .fontWeight(.semibold)
-                Text(detail)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .accessibilityElement(children: .combine)
     }
 }
 
