@@ -10,6 +10,7 @@ struct DefaultShortcutsTests {
 
     @Test func shortcutsAreUnique() {
         let shortcuts = Array(DefaultShortcuts.all.values)
+            + [DefaultShortcuts.switchWindowsForward, DefaultShortcuts.switchWindowsBackward]
         #expect(Set(shortcuts).count == shortcuts.count)
     }
 
@@ -24,6 +25,7 @@ struct DefaultShortcutsTests {
             (KeyCode.leftArrow, kVK_LeftArrow), (KeyCode.rightArrow, kVK_RightArrow),
             (KeyCode.downArrow, kVK_DownArrow), (KeyCode.upArrow, kVK_UpArrow),
             (KeyCode.returnKey, kVK_Return), (KeyCode.delete, kVK_Delete),
+            (KeyCode.tab, kVK_Tab), (KeyCode.escape, kVK_Escape),
             (KeyCode.c, kVK_ANSI_C), (KeyCode.d, kVK_ANSI_D), (KeyCode.e, kVK_ANSI_E),
             (KeyCode.f, kVK_ANSI_F), (KeyCode.g, kVK_ANSI_G), (KeyCode.i, kVK_ANSI_I),
             (KeyCode.j, kVK_ANSI_J), (KeyCode.k, kVK_ANSI_K), (KeyCode.t, kVK_ANSI_T),

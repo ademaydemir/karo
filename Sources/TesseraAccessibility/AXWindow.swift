@@ -33,6 +33,8 @@ public struct AXWindow {
         AXUIElementSetMessagingTimeout(application, messagingTimeout)
         do {
             let window = try application.element(of: kAXFocusedWindowAttribute)
+            // Timeouts are per element; child elements would otherwise use the ~6 s default.
+            AXUIElementSetMessagingTimeout(window, messagingTimeout)
             return AXWindow(element: window, application: application, processIdentifier: app.processIdentifier)
         } catch {
             throw AccessibilityError.noFocusedWindow
@@ -55,6 +57,7 @@ public struct AXWindow {
         }
         let application = AXUIElementCreateApplication(processIdentifier)
         AXUIElementSetMessagingTimeout(application, messagingTimeout)
+        AXUIElementSetMessagingTimeout(hit, messagingTimeout)
 
         let window: AXUIElement
         if (try? hit.value(of: kAXRoleAttribute)) as? String == kAXWindowRole {
@@ -64,11 +67,56 @@ public struct AXWindow {
         } else {
             throw AccessibilityError.noWindowAtPosition
         }
+        AXUIElementSetMessagingTimeout(window, messagingTimeout)
         guard (try? window.value(of: kAXSubroleAttribute)) as? String == kAXStandardWindowSubrole,
               (try? window.value(of: fullScreenAttribute)) as? Bool != true else {
             throw AccessibilityError.noWindowAtPosition
         }
         return AXWindow(element: window, application: application, processIdentifier: processIdentifier)
+    }
+
+    /// Standard windows of an app, including minimized ones.
+    ///
+    /// Most apps only report windows on the current Space. A short timeout keeps a hung
+    /// app from stalling the window switcher.
+    public static func windows(ofApplication processIdentifier: pid_t, timeout: Float = 0.25) -> [AXWindow] {
+        let application = AXUIElementCreateApplication(processIdentifier)
+        AXUIElementSetMessagingTimeout(application, timeout)
+        guard let value = try? application.value(of: kAXWindowsAttribute),
+              let elements = value as? [AXUIElement] else { return [] }
+        // Timeouts are per element; child elements would otherwise use the ~6 s system default.
+        elements.forEach { AXUIElementSetMessagingTimeout($0, timeout) }
+        return elements
+            .filter { (try? $0.value(of: kAXSubroleAttribute)) as? String == kAXStandardWindowSubrole }
+            .map { AXWindow(element: $0, application: application, processIdentifier: processIdentifier) }
+    }
+
+    public var title: String {
+        ((try? element.value(of: kAXTitleAttribute)) as? String) ?? ""
+    }
+
+    public var isMinimized: Bool {
+        ((try? element.value(of: kAXMinimizedAttribute)) as? Bool) ?? false
+    }
+
+    /// Makes this window the active window: un-minimizes it, raises it and brings its app
+    /// to the front.
+    ///
+    /// The app is activated through `kAXFrontmostAttribute` because since macOS 14
+    /// `NSRunningApplication.activate()` is cooperative and is ignored when requested by a
+    /// background app such as Tessera.
+    public func bringToFront() throws {
+        if isMinimized {
+            try element.setValue(kCFBooleanFalse, of: kAXMinimizedAttribute)
+        }
+        raise()
+        try application.setValue(kCFBooleanTrue, of: kAXFrontmostAttribute)
+    }
+
+    /// Puts the window above the app's other windows without activating the app.
+    public func raise() {
+        AXUIElementPerformAction(element, kAXRaiseAction as CFString)
+        try? element.setValue(kCFBooleanTrue, of: kAXMainAttribute)
     }
 
     public func frame() throws -> CGRect {

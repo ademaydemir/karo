@@ -28,6 +28,23 @@ enum WindowServer {
         return best?.id
     }
 
+    struct StackedWindow {
+        let processIdentifier: pid_t
+        let bounds: CGRect
+    }
+
+    /// Normal-level on-screen windows, front to back.
+    static func stackingOrder() -> [StackedWindow] {
+        guard let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
+            as? [[String: Any]] else { return [] }
+        return list.compactMap { info in
+            guard (info[kCGWindowLayer as String] as? NSNumber)?.intValue == 0,
+                  let processIdentifier = (info[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value,
+                  let bounds = bounds(from: info) else { return nil }
+            return StackedWindow(processIdentifier: processIdentifier, bounds: bounds)
+        }
+    }
+
     static func bounds(of windowID: CGWindowID) -> CGRect? {
         guard let list = CGWindowListCopyWindowInfo(.optionIncludingWindow, windowID) as? [[String: Any]],
               let info = list.first else { return nil }

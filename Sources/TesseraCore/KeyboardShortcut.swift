@@ -29,6 +29,8 @@ public enum KeyCode {
     public static let upArrow: UInt32 = 0x7E
     public static let returnKey: UInt32 = 0x24
     public static let delete: UInt32 = 0x33
+    public static let tab: UInt32 = 0x30
+    public static let escape: UInt32 = 0x35
     public static let c: UInt32 = 0x08
     public static let d: UInt32 = 0x02
     public static let e: UInt32 = 0x0E

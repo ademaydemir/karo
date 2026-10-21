@@ -1,4 +1,9 @@
 public enum DefaultShortcuts {
+    /// ⌥ is the Mac counterpart of the Alt key, so ⌥Tab matches Windows' Alt+Tab
+    /// without taking over the system's ⌘Tab.
+    public static let switchWindowsForward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option])
+    public static let switchWindowsBackward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option, .shift])
+
     /// Rectangle-compatible defaults, so users switching from Rectangle keep their muscle memory.
     ///
     /// `.nextDisplay` / `.previousDisplay` (⌃⌥⌘→ / ⌃⌥⌘←) are added once moving between

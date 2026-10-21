@@ -18,12 +18,16 @@ enum HotkeyError: Error {
 final class HotkeyManager {
     private static let signature: OSType = 0x5453_5241 // "TSRA"
 
-    private var handlers: [UInt32: @MainActor () -> Void] = [:]
-    private var hotKeyRefs: [EventHotKeyRef] = []
-    private var nextID: UInt32 = 1
+    typealias Token = UInt32
+
+    private var handlers: [Token: @MainActor () -> Void] = [:]
+    private var hotKeyRefs: [Token: EventHotKeyRef] = [:]
+    private var nextID: Token = 1
     private var eventHandler: EventHandlerRef?
 
-    func register(_ shortcut: KeyboardShortcut, handler: @escaping @MainActor () -> Void) throws {
+    /// - Returns: A token for `unregister(_:)`.
+    @discardableResult
+    func register(_ shortcut: KeyboardShortcut, handler: @escaping @MainActor () -> Void) throws -> Token {
         try installEventHandlerIfNeeded()
 
         let id = nextID
@@ -40,16 +44,15 @@ final class HotkeyManager {
         guard status == noErr, let hotKeyRef else {
             throw HotkeyError.registrationFailed(shortcut, status)
         }
-        hotKeyRefs.append(hotKeyRef)
+        hotKeyRefs[id] = hotKeyRef
         handlers[id] = handler
+        return id
     }
 
-    func unregisterAll() {
-        for hotKeyRef in hotKeyRefs {
-            UnregisterEventHotKey(hotKeyRef)
-        }
-        hotKeyRefs.removeAll()
-        handlers.removeAll()
+    func unregister(_ token: Token) {
+        guard let hotKeyRef = hotKeyRefs.removeValue(forKey: token) else { return }
+        UnregisterEventHotKey(hotKeyRef)
+        handlers.removeValue(forKey: token)
     }
 
     private func handle(_ hotKeyID: EventHotKeyID) {

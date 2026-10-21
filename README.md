@@ -20,6 +20,11 @@ Rectangle-compatible, so switching over keeps your muscle memory.
 | Maximize | ⌃⌥↩ |
 | Center | ⌃⌥C |
 | Restore | ⌃⌥⌫ |
+| Switch windows (hold ⌥, release to switch) | ⌥Tab / ⌥⇧Tab |
+
+While the switcher is open: ⌥← / ⌥→ to move, ⌥Esc to cancel, or click a window.
+
+Drag a window to a screen edge or corner to snap it; hold ⇧ while dragging to skip snapping. Turn off macOS's own "Drag windows to screen edges to tile" (System Settings → Desktop & Dock) so the two do not compete.
 
 ## Requirements
 

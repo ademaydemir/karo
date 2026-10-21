@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let windowPlacer = WindowPlacer()
     private let hotkeyManager = HotkeyManager()
     private lazy var dragSnapController = DragSnapController(placer: windowPlacer)
+    private lazy var windowSwitcher = WindowSwitcher(hotkeys: hotkeyManager)
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
 
@@ -30,10 +31,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let shortcuts = DefaultShortcuts.all
         registerHotkeys(shortcuts)
         dragSnapController.start()
+        do {
+            try windowSwitcher.registerShortcuts()
+        } catch {
+            logger.error("Window switcher shortcuts not registered: \(String(describing: error), privacy: .public)")
+        }
 
         let menuBarController = MenuBarController(shortcuts: shortcuts)
-        let permissionMonitor = AccessibilityPermissionMonitor { [weak menuBarController] isGranted in
+        let permissionMonitor = AccessibilityPermissionMonitor { [weak self, weak menuBarController] isGranted in
             menuBarController?.update(isAccessibilityGranted: isGranted)
+            if isGranted { self?.windowSwitcher.startTrackingFocus() }
         }
         menuBarController.onMenuWillOpen = { [weak permissionMonitor] in
             permissionMonitor?.check()
@@ -43,7 +50,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menuBarController.update(isAccessibilityGranted: permissionMonitor.isGranted)
 
-        if !permissionMonitor.isGranted {
+        if permissionMonitor.isGranted {
+            windowSwitcher.startTrackingFocus()
+        } else {
             AccessibilityPermission.requestIfNeeded()
             permissionMonitor.start()
         }
