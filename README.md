@@ -20,7 +20,10 @@ Rectangle-compatible, so switching over keeps your muscle memory.
 | Maximize | ⌃⌥↩ |
 | Center | ⌃⌥C |
 | Restore | ⌃⌥⌫ |
+| Next / previous display | ⌃⌥⌘→ / ⌃⌥⌘← |
 | Switch windows (hold ⌥, release to switch) | ⌥Tab / ⌥⇧Tab |
+
+All window shortcuts can be changed or removed in **Settings… (⌘,)** from the menu bar icon, along with launch at login, drag-snapping sensitivity and the gap between windows.
 
 While the switcher is open: ⌥← / ⌥→ to move, ⌥Esc to cancel, or click a window.
 
@@ -39,6 +42,12 @@ scripts/build-app.sh release
 swift test
 ```
 
+To open Settings on a given tab at launch (handy when working on the UI):
+
+```bash
+open build/Tessera.app --args -ShowSettingsTab shortcuts
+```
+
 Tessera needs **Accessibility** permission (System Settings → Privacy & Security → Accessibility) to move other apps' windows.
 
 ### Code signing during development
@@ -50,6 +59,18 @@ security find-identity -v -p codesigning
 ```
 
 If the permission gets stuck, reset it with `tccutil reset Accessibility dev.ademaydemir.Tessera`.
+
+## Localization
+
+Tessera is available in English and Turkish. It follows the macOS language, or the language chosen in Settings → General.
+
+User-facing text is written in English in the code (`String(localized:)`, SwiftUI literals) and translated in the String Catalog `Support/Localizable.xcstrings`. After adding or changing text, pull the new strings into the catalog, then add translations (Xcode's catalog editor works, or edit the JSON):
+
+```bash
+scripts/update-strings.sh
+```
+
+`scripts/build-app.sh` compiles the catalog into the app bundle.
 
 ## Project layout
 

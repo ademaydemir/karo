@@ -21,16 +21,11 @@ final class SnapPreviewOverlay {
         panel.animationBehavior = .none
         panel.collectionBehavior = [.canJoinAllSpaces, .transient, .ignoresCycle, .fullScreenAuxiliary]
 
-        let content = NSVisualEffectView()
-        content.material = .hudWindow
-        content.blendingMode = .behindWindow
-        content.state = .active
-        content.wantsLayer = true
-        content.layer?.cornerRadius = 12
-        content.layer?.masksToBounds = true
-        content.layer?.borderWidth = 1
-        content.layer?.borderColor = NSColor.white.withAlphaComponent(0.35).cgColor
-        panel.contentView = content
+        // A light accent tint keeps the target readable over busy window content.
+        panel.contentView = GlassSurface.make(
+            cornerRadius: 14,
+            tint: NSColor.controlAccentColor.withAlphaComponent(0.18)
+        )
     }
 
     /// - Parameter frame: Target frame in Accessibility coordinates.

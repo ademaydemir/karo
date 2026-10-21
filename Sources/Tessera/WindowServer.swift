@@ -5,44 +5,41 @@ import Foundation
 ///
 /// While the user drags a window, the window server moves it directly and the app's
 /// Accessibility position is not updated until the drag ends, so drag movement has to be
-/// read here. Only bounds, owner and layer are read, which needs no Screen Recording
+/// read here. Only IDs, bounds, owner and layer are read, which needs no Screen Recording
 /// permission. Bounds use the same top-left-origin coordinates as Accessibility.
 enum WindowServer {
-    /// Finds the on-screen window of `processIdentifier` whose bounds match `frame`.
-    static func windowID(ownedBy processIdentifier: pid_t, matching frame: CGRect) -> CGWindowID? {
-        guard let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
-            as? [[String: Any]] else { return nil }
-
-        var best: (id: CGWindowID, distance: CGFloat)?
-        for info in list {
-            guard (info[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == processIdentifier,
-                  (info[kCGWindowLayer as String] as? NSNumber)?.intValue == 0,
-                  let id = (info[kCGWindowNumber as String] as? NSNumber)?.uint32Value,
-                  let bounds = bounds(from: info),
-                  abs(bounds.width - frame.width) <= 1, abs(bounds.height - frame.height) <= 1 else { continue }
-            let distance = hypot(bounds.minX - frame.minX, bounds.minY - frame.minY)
-            if distance <= 2, distance < (best?.distance ?? .infinity) {
-                best = (id, distance)
-            }
-        }
-        return best?.id
-    }
-
-    struct StackedWindow {
+    struct WindowInfo {
+        let id: CGWindowID
         let processIdentifier: pid_t
         let bounds: CGRect
     }
 
-    /// Normal-level on-screen windows, front to back.
-    static func stackingOrder() -> [StackedWindow] {
-        guard let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
-            as? [[String: Any]] else { return [] }
+    /// Normal-level windows, front to back. Off-screen windows include minimized ones.
+    static func windows(onScreenOnly: Bool = true) -> [WindowInfo] {
+        let options: CGWindowListOption = onScreenOnly
+            ? [.optionOnScreenOnly, .excludeDesktopElements]
+            : [.optionAll, .excludeDesktopElements]
+        guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return [] }
         return list.compactMap { info in
             guard (info[kCGWindowLayer as String] as? NSNumber)?.intValue == 0,
+                  let id = (info[kCGWindowNumber as String] as? NSNumber)?.uint32Value,
                   let processIdentifier = (info[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value,
                   let bounds = bounds(from: info) else { return nil }
-            return StackedWindow(processIdentifier: processIdentifier, bounds: bounds)
+            return WindowInfo(id: id, processIdentifier: processIdentifier, bounds: bounds)
         }
+    }
+
+    /// The window of `processIdentifier` in `windows` whose bounds match an Accessibility frame.
+    static func match(processIdentifier: pid_t, frame: CGRect, in windows: [WindowInfo]) -> (index: Int, window: WindowInfo)? {
+        var best: (index: Int, window: WindowInfo, distance: CGFloat)?
+        for (index, window) in windows.enumerated() where window.processIdentifier == processIdentifier {
+            guard abs(window.bounds.width - frame.width) <= 2, abs(window.bounds.height - frame.height) <= 2 else { continue }
+            let distance = hypot(window.bounds.minX - frame.minX, window.bounds.minY - frame.minY)
+            if distance <= 2, distance < (best?.distance ?? .infinity) {
+                best = (index, window, distance)
+            }
+        }
+        return best.map { ($0.index, $0.window) }
     }
 
     static func bounds(of windowID: CGWindowID) -> CGRect? {

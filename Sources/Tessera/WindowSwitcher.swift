@@ -15,6 +15,7 @@ final class WindowSwitcher {
         var temporaryHotkeys: [HotkeyManager.Token] = []
         var eventMonitors: [Any] = []
         var showTask: Task<Void, Never>?
+        var previewTask: Task<Void, Never>?
         /// Cursor location when the panel appeared; hover only selects after the mouse moves,
         /// so a panel opening under a resting cursor does not steal the selection.
         var cursorAtShow: CGPoint?
@@ -26,8 +27,12 @@ final class WindowSwitcher {
     /// shortly after makes the chosen window win.
     private static let reraiseDelay: Duration = .milliseconds(60)
 
+    /// Live window thumbnails; only effective with Screen Recording permission.
+    var showsPreviews = false
+
     private let hotkeys: HotkeyManager
     private let panel = SwitcherPanel()
+    private let previewProvider = WindowPreviewProvider()
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "switcher")
     private var recent = RecentList<WindowIdentity>()
     private var focusObserver: FocusedWindowObserver?
@@ -85,8 +90,21 @@ final class WindowSwitcher {
         let entries = collectWindows()
         guard !entries.isEmpty else { return false }
 
+        let capturesPreviews = showsPreviews && ScreenRecordingPermission.isGranted
+        panel.model.showsPreviews = capturesPreviews
         panel.model.items = entries.map(\.item)
         var session = Session(windows: entries.map(\.window), selection: SwitcherSelection(count: entries.count))
+        if capturesPreviews {
+            let targets = entries.enumerated().compactMap { index, entry in
+                entry.windowID.map { (item: index, windowID: $0) }
+            }
+            session.previewTask = Task { [weak self] in
+                await self?.previewProvider.capturePreviews(for: targets) { index, preview in
+                    guard let self, self.panel.model.items.indices.contains(index) else { return }
+                    self.panel.model.items[index].preview = preview
+                }
+            }
+        }
         session.temporaryHotkeys = registerSessionHotkeys()
         session.eventMonitors = installModifierMonitors()
         session.showTask = Task { [weak self] in
@@ -134,6 +152,7 @@ final class WindowSwitcher {
     private func close() {
         guard let session else { return }
         session.showTask?.cancel()
+        session.previewTask?.cancel()
         session.temporaryHotkeys.forEach(hotkeys.unregister)
         session.eventMonitors.forEach(NSEvent.removeMonitor)
         panel.hide()
@@ -170,27 +189,42 @@ final class WindowSwitcher {
 
     // MARK: - Window list
 
-    private func collectWindows() -> [(window: AXWindow, item: SwitcherItem)] {
+    private struct FoundWindow {
+        let window: AXWindow
+        let application: NSRunningApplication
+        let isBackgrounded: Bool
+        let windowID: CGWindowID?
+    }
+
+    private func collectWindows() -> [(window: AXWindow, windowID: CGWindowID?, item: SwitcherItem)] {
         let ownProcess = ProcessInfo.processInfo.processIdentifier
         let applications = NSWorkspace.shared.runningApplications.filter {
             $0.activationPolicy == .regular && $0.processIdentifier != ownProcess
         }
-        let stack = WindowServer.stackingOrder()
+        let stack = WindowServer.windows()
+        // Previews need window IDs for every window, minimized ones included.
+        let allWindows = showsPreviews ? WindowServer.windows(onScreenOnly: false) : []
 
-        var found: [WindowIdentity: (window: AXWindow, application: NSRunningApplication, isBackgrounded: Bool)] = [:]
+        var found: [WindowIdentity: FoundWindow] = [:]
         var candidates: [SwitcherOrdering.Candidate<WindowIdentity>] = []
         for application in applications {
             for window in AXWindow.windows(ofApplication: application.processIdentifier) {
                 let isBackgrounded = window.isMinimized || application.isHidden
-                // Stacking order only matters for windows never focused since launch, and
-                // costs two extra AX calls per window.
+                // The frame costs two AX calls, so it is only read when needed: for the
+                // stacking order of windows never focused since launch, and for previews.
                 let needsStackIndex = !isBackgrounded && recent.rank(of: window.identity) == nil
-                candidates.append(SwitcherOrdering.Candidate(
-                    id: window.identity,
-                    stackIndex: needsStackIndex ? stackIndex(of: window, in: stack) : nil,
-                    isBackgrounded: isBackgrounded
-                ))
-                found[window.identity] = (window, application, isBackgrounded)
+                let frame = (needsStackIndex || showsPreviews) ? try? window.frame() : nil
+                let stackIndex = needsStackIndex ? frame.flatMap {
+                    WindowServer.match(processIdentifier: window.processIdentifier, frame: $0, in: stack)?.index
+                } : nil
+                let windowID = showsPreviews ? frame.flatMap {
+                    WindowServer.match(processIdentifier: window.processIdentifier, frame: $0, in: allWindows)?.window.id
+                } : nil
+
+                candidates.append(SwitcherOrdering.Candidate(id: window.identity, stackIndex: stackIndex, isBackgrounded: isBackgrounded))
+                found[window.identity] = FoundWindow(
+                    window: window, application: application, isBackgrounded: isBackgrounded, windowID: windowID
+                )
             }
         }
 
@@ -203,18 +237,10 @@ final class WindowSwitcher {
                 title: title.isEmpty ? applicationName : title,
                 applicationName: applicationName,
                 icon: entry.application.icon ?? NSImage(),
-                isBackgrounded: entry.isBackgrounded
+                isBackgrounded: entry.isBackgrounded,
+                preview: entry.windowID.flatMap(previewProvider.cachedPreview)
             )
-            return (entry.window, item)
-        }
-    }
-
-    private func stackIndex(of window: AXWindow, in stack: [WindowServer.StackedWindow]) -> Int? {
-        guard let frame = try? window.frame() else { return nil }
-        return stack.firstIndex {
-            $0.processIdentifier == window.processIdentifier
-                && abs($0.bounds.minX - frame.minX) <= 2 && abs($0.bounds.minY - frame.minY) <= 2
-                && abs($0.bounds.width - frame.width) <= 2 && abs($0.bounds.height - frame.height) <= 2
+            return (entry.window, entry.windowID, item)
         }
     }
 }

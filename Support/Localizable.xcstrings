@@ -1,0 +1,872 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ is already used by %@.": {
+      "comment": "Shortcut conflict: the shortcut, then the action already using it",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ is already used by %2$@."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ zaten %2$@ için kullanılıyor."
+          }
+        }
+      }
+    },
+    "%@ is used by the window switcher.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ pencere değiştirici tarafından kullanılıyor."
+          }
+        }
+      }
+    },
+    "%lld points": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nokta"
+          }
+        }
+      }
+    },
+    "%lld pt": {
+      "comment": "Slider value in points",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pt"
+          }
+        }
+      }
+    },
+    "About Tessera": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tessera Hakkında"
+          }
+        }
+      }
+    },
+    "Accessibility": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişilebilirlik"
+          }
+        }
+      }
+    },
+    "Accessibility access granted": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişilebilirlik izni verildi"
+          }
+        }
+      }
+    },
+    "Accessibility access required": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişilebilirlik izni gerekli"
+          }
+        }
+      }
+    },
+    "Allow Tessera in System Settings to finish turning this on.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Açmayı tamamlamak için Sistem Ayarları'nda Tessera'ya izin verin."
+          }
+        }
+      }
+    },
+    "Allow Tessera under Screen & System Audio Recording, then quit and reopen Tessera. Until then, app icons are shown.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekran ve Sistem Sesi Kaydı bölümünde Tessera'ya izin verin, ardından Tessera'yı kapatıp yeniden açın. O zamana kadar uygulama simgeleri gösterilir."
+          }
+        }
+      }
+    },
+    "Allowed": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İzin verildi"
+          }
+        }
+      }
+    },
+    "Approval needed": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onay gerekiyor"
+          }
+        }
+      }
+    },
+    "Bottom Half": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alt Yarı"
+          }
+        }
+      }
+    },
+    "Bottom Left": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol Alt"
+          }
+        }
+      }
+    },
+    "Bottom Right": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ Alt"
+          }
+        }
+      }
+    },
+    "Bring All to Front": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü Öne Getir"
+          }
+        }
+      }
+    },
+    "Center": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ortala"
+          }
+        }
+      }
+    },
+    "Center Third": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orta Üçte Bir"
+          }
+        }
+      }
+    },
+    "Click a shortcut, then type the new combination. Press ⎋ to cancel.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir kısayola tıklayın, ardından yeni tuş birleşimine basın. Vazgeçmek için ⎋ tuşuna basın."
+          }
+        }
+      }
+    },
+    "Close": {
+      "comment": "Close the window",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapat"
+          }
+        }
+      }
+    },
+    "Corner size": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Köşe boyutu"
+          }
+        }
+      }
+    },
+    "Could not change the login item: %@": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giriş öğesi değiştirilemedi: %@"
+          }
+        }
+      }
+    },
+    "Drag to Snap": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sürükleyerek Yerleştir"
+          }
+        }
+      }
+    },
+    "Edge sensitivity": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kenar hassasiyeti"
+          }
+        }
+      }
+    },
+    "Edges snap to halves, corners to quarters, the top edge maximizes. Hold ⇧ while dragging to move freely.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kenarlar yarıma, köşeler çeyreğe yerleştirir, üst kenar pencereyi büyütür. Serbestçe taşımak için sürüklerken ⇧ tuşunu basılı tutun."
+          }
+        }
+      }
+    },
+    "Gap between windows": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencereler arası boşluk"
+          }
+        }
+      }
+    },
+    "General": {
+      "comment": "Settings tab",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genel"
+          }
+        }
+      }
+    },
+    "Grant Accessibility Access…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişilebilirlik İzni Ver…"
+          }
+        }
+      }
+    },
+    "Hide Others": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diğerlerini Gizle"
+          }
+        }
+      }
+    },
+    "Hide Tessera": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tessera'yı Gizle"
+          }
+        }
+      }
+    },
+    "Hold ⌥ and press Tab to step through windows; release ⌥ to switch.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencereler arasında ilerlemek için ⌥ tuşunu basılı tutup Tab'a basın; geçiş yapmak için ⌥ tuşunu bırakın."
+          }
+        }
+      }
+    },
+    "How close to the edge the pointer must be.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İmlecin kenara ne kadar yaklaşması gerektiği."
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dil"
+          }
+        }
+      }
+    },
+    "Launch at login": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oturum açıldığında başlat"
+          }
+        }
+      }
+    },
+    "Layout": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yerleşim"
+          }
+        }
+      }
+    },
+    "Left Half": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol Yarı"
+          }
+        }
+      }
+    },
+    "Left Third": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol Üçte Bir"
+          }
+        }
+      }
+    },
+    "Left Two Thirds": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol Üçte İki"
+          }
+        }
+      }
+    },
+    "Length of the corner areas that snap to quarters.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çeyreğe yerleştiren köşe alanlarının uzunluğu."
+          }
+        }
+      }
+    },
+    "Maximize": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Büyüt"
+          }
+        }
+      }
+    },
+    "Minimized or hidden": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Küçültülmüş veya gizli"
+          }
+        }
+      }
+    },
+    "Move Window": {
+      "comment": "Menu section header",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencereyi Taşı"
+          }
+        }
+      }
+    },
+    "Next Display": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sonraki Ekran"
+          }
+        }
+      }
+    },
+    "None": {
+      "comment": "No shortcut assigned",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yok"
+          }
+        }
+      }
+    },
+    "Open Desktop & Dock…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masaüstü ve Dock'u Aç…"
+          }
+        }
+      }
+    },
+    "Open Login Items…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giriş Öğelerini Aç…"
+          }
+        }
+      }
+    },
+    "Open Privacy Settings…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gizlilik Ayarlarını Aç…"
+          }
+        }
+      }
+    },
+    "Previous Display": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Önceki Ekran"
+          }
+        }
+      }
+    },
+    "Quit Tessera": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tessera'dan Çık"
+          }
+        }
+      }
+    },
+    "Records a new shortcut": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni bir kısayol kaydeder"
+          }
+        }
+      }
+    },
+    "Remove shortcut": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kısayolu kaldır"
+          }
+        }
+      }
+    },
+    "Required to move and resize other apps’ windows.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diğer uygulamaların pencerelerini taşımak ve boyutlandırmak için gerekli."
+          }
+        }
+      }
+    },
+    "Restart Now": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şimdi Yeniden Başlat"
+          }
+        }
+      }
+    },
+    "Restart Tessera to use the new language.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni dili kullanmak için Tessera'yı yeniden başlatın."
+          }
+        }
+      }
+    },
+    "Restore": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eski Haline Getir"
+          }
+        }
+      }
+    },
+    "Restore Defaults": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varsayılanlara Döndür"
+          }
+        }
+      }
+    },
+    "Right Half": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ Yarı"
+          }
+        }
+      }
+    },
+    "Right Third": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ Üçte Bir"
+          }
+        }
+      }
+    },
+    "Right Two Thirds": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ Üçte İki"
+          }
+        }
+      }
+    },
+    "Screen Recording needed": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekran Kaydı izni gerekli"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar…"
+          }
+        }
+      }
+    },
+    "Shortcuts": {
+      "comment": "Settings tab",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kısayollar"
+          }
+        }
+      }
+    },
+    "Shortcuts need ⌃, ⌥ or ⌘.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kısayollar ⌃, ⌥ veya ⌘ içermelidir."
+          }
+        }
+      }
+    },
+    "Show All": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü Göster"
+          }
+        }
+      }
+    },
+    "Show a thumbnail of each window instead of only its app icon.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yalnızca uygulama simgesi yerine her pencerenin küçük bir önizlemesini gösterir."
+          }
+        }
+      }
+    },
+    "Show window previews": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere önizlemelerini göster"
+          }
+        }
+      }
+    },
+    "Snap windows dragged to screen edges": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekran kenarlarına sürüklenen pencereleri yerleştir"
+          }
+        }
+      }
+    },
+    "Snapping": {
+      "comment": "Settings tab",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yerleştirme"
+          }
+        }
+      }
+    },
+    "Space": {
+      "comment": "Space bar in a shortcut",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boşluk"
+          }
+        }
+      }
+    },
+    "Space around snapped windows and between neighbours.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yerleştirilen pencerelerin çevresindeki ve aralarındaki boşluk."
+          }
+        }
+      }
+    },
+    "Start Tessera automatically when you log in.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oturum açtığınızda Tessera otomatik olarak başlar."
+          }
+        }
+      }
+    },
+    "Switch windows": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencereler arası geçiş"
+          }
+        }
+      }
+    },
+    "Switcher": {
+      "comment": "Settings tab",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçiş"
+          }
+        }
+      }
+    },
+    "System Default": {
+      "comment": "Language option that follows macOS",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistem Varsayılanı"
+          }
+        }
+      }
+    },
+    "Tessera can use a different language than macOS.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tessera, macOS'tan farklı bir dil kullanabilir."
+          }
+        }
+      }
+    },
+    "Top Half": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Üst Yarı"
+          }
+        }
+      }
+    },
+    "Top Left": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol Üst"
+          }
+        }
+      }
+    },
+    "Top Right": {
+      "comment": "Window action",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ Üst"
+          }
+        }
+      }
+    },
+    "Type a shortcut, or press Escape to cancel": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir kısayola basın veya vazgeçmek için Escape tuşuna basın"
+          }
+        }
+      }
+    },
+    "Type shortcut…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kısayola basın…"
+          }
+        }
+      }
+    },
+    "Window": {
+      "comment": "Menu bar menu",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere"
+          }
+        }
+      }
+    },
+    "macOS tiling is also on": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS döşemesi de açık"
+          }
+        }
+      }
+    },
+    "“Drag windows to screen edges to tile” reacts to the same drags. Turn it off so only Tessera snaps.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS'un “Pencereleri döşemek için ekran kenarlarına sürükle” ayarı aynı sürüklemelere tepki verir. Yalnızca Tessera'nın yerleştirmesi için bu ayarı kapatın."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

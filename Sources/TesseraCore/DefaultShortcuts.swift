@@ -5,13 +5,10 @@ public enum DefaultShortcuts {
     public static let switchWindowsBackward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option, .shift])
 
     /// Rectangle-compatible defaults, so users switching from Rectangle keep their muscle memory.
-    ///
-    /// `.nextDisplay` / `.previousDisplay` (⌃⌥⌘→ / ⌃⌥⌘←) are added once moving between
-    /// displays is implemented.
     public static let all: [WindowAction: KeyboardShortcut] = {
         let controlOption: KeyboardShortcut.Modifiers = [.control, .option]
-        func shortcut(_ keyCode: UInt32) -> KeyboardShortcut {
-            KeyboardShortcut(keyCode: keyCode, modifiers: controlOption)
+        func shortcut(_ keyCode: UInt32, extra: KeyboardShortcut.Modifiers = []) -> KeyboardShortcut {
+            KeyboardShortcut(keyCode: keyCode, modifiers: controlOption.union(extra))
         }
         return [
             .leftHalf: shortcut(KeyCode.leftArrow),
@@ -30,6 +27,8 @@ public enum DefaultShortcuts {
             .maximize: shortcut(KeyCode.returnKey),
             .center: shortcut(KeyCode.c),
             .restore: shortcut(KeyCode.delete),
+            .nextDisplay: shortcut(KeyCode.rightArrow, extra: .command),
+            .previousDisplay: shortcut(KeyCode.leftArrow, extra: .command),
         ]
     }()
 }

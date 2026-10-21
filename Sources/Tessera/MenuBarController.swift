@@ -6,47 +6,46 @@ import TesseraCore
 final class MenuBarController: NSObject, NSMenuDelegate {
     var onMenuWillOpen: (() -> Void)?
     var onAction: ((WindowAction) -> Void)?
-
-    /// Actions offered in the menu, grouped by separators.
-    private static let actionGroups: [[WindowAction]] = [
-        [.leftHalf, .rightHalf, .topHalf, .bottomHalf],
-        [.topLeft, .topRight, .bottomLeft, .bottomRight],
-        [.leftThird, .centerThird, .rightThird, .leftTwoThirds, .rightTwoThirds],
-        [.maximize, .center, .restore],
-    ]
-
-    private let shortcuts: [WindowAction: KeyboardShortcut]
+    var onOpenSettings: (() -> Void)?
 
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let permissionStatusItem = NSMenuItem()
     private let grantPermissionItem = NSMenuItem(
-        title: "Grant Accessibility Access…",
+        title: String(localized: "Grant Accessibility Access…"),
         action: #selector(grantPermission),
         keyEquivalent: ""
     )
-    private var actionItems: [NSMenuItem] = []
+    private var actionItems: [WindowAction: NSMenuItem] = [:]
 
     init(shortcuts: [WindowAction: KeyboardShortcut]) {
-        self.shortcuts = shortcuts
         super.init()
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "rectangle.split.2x2", accessibilityDescription: "Tessera")
             button.image?.isTemplate = true
         }
         statusItem.menu = makeMenu()
+        updateShortcuts(shortcuts)
     }
 
     func update(isAccessibilityGranted: Bool) {
         permissionStatusItem.title = isAccessibilityGranted
-            ? "Accessibility access granted"
-            : "Accessibility access required"
+            ? String(localized: "Accessibility access granted")
+            : String(localized: "Accessibility access required")
         permissionStatusItem.image = NSImage(
             systemSymbolName: isAccessibilityGranted ? "checkmark.circle.fill" : "exclamationmark.triangle.fill",
             accessibilityDescription: nil
         )
         grantPermissionItem.isHidden = isAccessibilityGranted
-        for item in actionItems {
+        for item in actionItems.values {
             item.isEnabled = isAccessibilityGranted
+        }
+    }
+
+    func updateShortcuts(_ shortcuts: [WindowAction: KeyboardShortcut]) {
+        for (action, item) in actionItems {
+            item.keyEquivalent = ""
+            item.keyEquivalentModifierMask = []
+            shortcuts[action]?.apply(to: item)
         }
     }
 
@@ -66,24 +65,30 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(grantPermissionItem)
 
         menu.addItem(.separator())
-        menu.addItem(.sectionHeader(title: "Move Window"))
-        for (index, group) in Self.actionGroups.enumerated() {
+        menu.addItem(.sectionHeader(title: String(localized: "Move Window", comment: "Menu section header")))
+        for (index, group) in WindowAction.groups.enumerated() {
             if index > 0 { menu.addItem(.separator()) }
             for action in group {
                 let item = NSMenuItem(title: action.title, action: #selector(performAction(_:)), keyEquivalent: "")
                 item.target = self
                 item.representedObject = action.rawValue
-                shortcuts[action]?.apply(to: item)
                 menu.addItem(item)
-                actionItems.append(item)
+                actionItems[action] = item
             }
         }
 
         menu.addItem(.separator())
-        let aboutItem = NSMenuItem(title: "About Tessera", action: #selector(showAbout), keyEquivalent: "")
+        let settingsItem = NSMenuItem(title: String(localized: "Settings…"), action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+        let aboutItem = NSMenuItem(title: String(localized: "About Tessera"), action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
-        menu.addItem(NSMenuItem(title: "Quit Tessera", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(
+            title: String(localized: "Quit Tessera"),
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        ))
         return menu
     }
 
@@ -97,9 +102,13 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         AccessibilityPermission.openSystemSettings()
     }
 
+    @objc private func openSettings() {
+        onOpenSettings?()
+    }
+
     @objc private func showAbout() {
-        // Accessory apps are not active by default, so the panel would open behind other windows.
-        NSApp.activate()
         NSApp.orderFrontStandardAboutPanel(nil)
+        // Accessory apps are not active by default, so the panel would open behind other windows.
+        ApplicationActivation.activateCurrentApplication()
     }
 }

@@ -26,6 +26,34 @@ public enum LayoutCalculator {
         return place(region, in: visibleFrame, gap: gap)
     }
 
+    /// Maps a snapped window to another display, keeping its proportions, so a left half
+    /// stays a left half.
+    public static func scaled(_ frame: CGRect, from source: CGRect, to destination: CGRect) -> CGRect {
+        let scaleX = destination.width / source.width
+        let scaleY = destination.height / source.height
+        let left = (destination.minX + (frame.minX - source.minX) * scaleX).rounded()
+        let top = (destination.minY + (frame.minY - source.minY) * scaleY).rounded()
+        let right = (destination.minX + (frame.maxX - source.minX) * scaleX).rounded()
+        let bottom = (destination.minY + (frame.maxY - source.minY) * scaleY).rounded()
+        return clamped(CGRect(x: left, y: top, width: right - left, height: bottom - top), to: destination)
+    }
+
+    /// Moves a free-floating window to another display, keeping its size (shrunk only if it
+    /// does not fit) and its relative position.
+    public static func translated(_ frame: CGRect, from source: CGRect, to destination: CGRect) -> CGRect {
+        let width = min(frame.width, destination.width)
+        let height = min(frame.height, destination.height)
+        let relativeCenterX = (frame.midX - source.minX) / source.width
+        let relativeCenterY = (frame.midY - source.minY) / source.height
+        let moved = CGRect(
+            x: (destination.minX + relativeCenterX * destination.width - width / 2).rounded(),
+            y: (destination.minY + relativeCenterY * destination.height - height / 2).rounded(),
+            width: width,
+            height: height
+        )
+        return clamped(moved, to: destination)
+    }
+
     /// Moves `frame` the minimum distance needed to keep it inside `visibleFrame`.
     ///
     /// Used when an app refuses the requested size (minimum window size) and the larger

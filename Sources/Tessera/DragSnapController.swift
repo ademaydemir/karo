@@ -35,9 +35,11 @@ final class DragSnapController {
     /// Cursor travel after which a window that has not moved means this is not a window drag.
     private static let dragGiveUpDistance: CGFloat = 40
 
+    var isEnabled = true
+    var detector = ZoneDetector()
+
     private let placer: WindowPlacer
     private let overlay = SnapPreviewOverlay()
-    private let detector = ZoneDetector()
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "drag")
     private var state = State.idle
     private var monitor: Any?
@@ -67,11 +69,17 @@ final class DragSnapController {
 
     private func mouseDown() {
         overlay.hide()
+        guard isEnabled else {
+            state = .ignored
+            return
+        }
         let cursor = ScreenGeometry.cursorLocation()
         do {
             let window = try AXWindow.window(at: cursor)
             let frame = try window.frame()
-            guard let windowID = WindowServer.windowID(ownedBy: window.processIdentifier, matching: frame) else {
+            guard let windowID = WindowServer.match(
+                processIdentifier: window.processIdentifier, frame: frame, in: WindowServer.windows()
+            )?.window.id else {
                 logger.debug("Press on window at \(String(describing: frame), privacy: .public) ignored: no window server match")
                 state = .ignored
                 return

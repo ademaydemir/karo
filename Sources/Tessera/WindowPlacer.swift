@@ -23,7 +23,32 @@ final class WindowPlacer {
         guard let index = DisplaySelector.indexOfDisplay(
             containing: currentFrame, among: displays.map(\.visibleFrame)
         ) else { return }
+
+        if action == .nextDisplay || action == .previousDisplay {
+            guard let destination = DisplayOrdering.index(
+                adjacentTo: index, among: displays.map(\.frame), backward: action == .previousDisplay
+            ) else { return }
+            try move(window, from: currentFrame, between: displays[index], and: displays[destination])
+            return
+        }
         try place(window, action, from: currentFrame, on: displays[index])
+    }
+
+    /// Snapped windows keep their proportions on the new display; free-floating windows keep their size.
+    private func move(_ window: AXWindow, from currentFrame: CGRect, between source: Display, and destination: Display) throws {
+        let isSnapped = history.isPlaced(window.identity, at: currentFrame)
+        let target = isSnapped
+            ? LayoutCalculator.scaled(currentFrame, from: source.visibleFrame, to: destination.visibleFrame)
+            : LayoutCalculator.translated(currentFrame, from: source.visibleFrame, to: destination.visibleFrame)
+        try window.setFrame(target)
+        var actual = try window.frame()
+        if actual.size != target.size {
+            actual = LayoutCalculator.clamped(actual, to: destination.visibleFrame)
+            try window.setPosition(actual.origin)
+        }
+        if isSnapped {
+            history.recordPlacement(of: window.identity, from: currentFrame, to: actual)
+        }
     }
 
     /// Target frame for an action, e.g. for previewing a snap before it happens.

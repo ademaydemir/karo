@@ -3,9 +3,8 @@ import Testing
 @testable import TesseraCore
 
 struct DefaultShortcutsTests {
-    @Test func everyActionExceptDisplayMovesHasAShortcut() {
-        let expected = Set(WindowAction.allCases).subtracting([.nextDisplay, .previousDisplay])
-        #expect(Set(DefaultShortcuts.all.keys) == expected)
+    @Test func everyActionHasAShortcut() {
+        #expect(Set(DefaultShortcuts.all.keys) == Set(WindowAction.allCases))
     }
 
     @Test func shortcutsAreUnique() {

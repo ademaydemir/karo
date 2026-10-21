@@ -1,26 +1,35 @@
 import TesseraCore
 
 extension WindowAction {
+    /// Actions grouped as they appear in the menu and in Settings.
+    static let groups: [[WindowAction]] = [
+        [.leftHalf, .rightHalf, .topHalf, .bottomHalf],
+        [.topLeft, .topRight, .bottomLeft, .bottomRight],
+        [.leftThird, .centerThird, .rightThird, .leftTwoThirds, .rightTwoThirds],
+        [.maximize, .center, .restore],
+        [.nextDisplay, .previousDisplay],
+    ]
+
     var title: String {
         switch self {
-        case .leftHalf: "Left Half"
-        case .rightHalf: "Right Half"
-        case .topHalf: "Top Half"
-        case .bottomHalf: "Bottom Half"
-        case .topLeft: "Top Left"
-        case .topRight: "Top Right"
-        case .bottomLeft: "Bottom Left"
-        case .bottomRight: "Bottom Right"
-        case .leftThird: "Left Third"
-        case .centerThird: "Center Third"
-        case .rightThird: "Right Third"
-        case .leftTwoThirds: "Left Two Thirds"
-        case .rightTwoThirds: "Right Two Thirds"
-        case .maximize: "Maximize"
-        case .center: "Center"
-        case .restore: "Restore"
-        case .nextDisplay: "Next Display"
-        case .previousDisplay: "Previous Display"
+        case .leftHalf: String(localized: "Left Half", comment: "Window action")
+        case .rightHalf: String(localized: "Right Half", comment: "Window action")
+        case .topHalf: String(localized: "Top Half", comment: "Window action")
+        case .bottomHalf: String(localized: "Bottom Half", comment: "Window action")
+        case .topLeft: String(localized: "Top Left", comment: "Window action")
+        case .topRight: String(localized: "Top Right", comment: "Window action")
+        case .bottomLeft: String(localized: "Bottom Left", comment: "Window action")
+        case .bottomRight: String(localized: "Bottom Right", comment: "Window action")
+        case .leftThird: String(localized: "Left Third", comment: "Window action")
+        case .centerThird: String(localized: "Center Third", comment: "Window action")
+        case .rightThird: String(localized: "Right Third", comment: "Window action")
+        case .leftTwoThirds: String(localized: "Left Two Thirds", comment: "Window action")
+        case .rightTwoThirds: String(localized: "Right Two Thirds", comment: "Window action")
+        case .maximize: String(localized: "Maximize", comment: "Window action")
+        case .center: String(localized: "Center", comment: "Window action")
+        case .restore: String(localized: "Restore", comment: "Window action")
+        case .nextDisplay: String(localized: "Next Display", comment: "Window action")
+        case .previousDisplay: String(localized: "Previous Display", comment: "Window action")
         }
     }
 }

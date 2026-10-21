@@ -39,6 +39,12 @@ public struct FrameHistory<WindowID: Hashable> {
         }
     }
 
+    /// Whether the window is still where Tessera last placed it.
+    public func isPlaced(_ window: WindowID, at frame: CGRect) -> Bool {
+        guard let entry = entries[window] else { return false }
+        return Self.isApproximatelyEqual(entry.applied, frame)
+    }
+
     /// Returns the frame to restore and forgets the window.
     public mutating func takeRestoreFrame(for window: WindowID) -> CGRect? {
         guard let entry = entries.removeValue(forKey: window) else { return nil }
