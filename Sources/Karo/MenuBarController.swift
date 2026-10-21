@@ -20,10 +20,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     init(shortcuts: [WindowAction: KeyboardShortcut]) {
         super.init()
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "rectangle.split.2x2", accessibilityDescription: "Karo")
-            button.image?.isTemplate = true
-        }
+        statusItem.button?.image = Self.icon()
         statusItem.menu = makeMenu()
         updateShortcuts(shortcuts)
     }
@@ -42,6 +39,11 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         }
     }
 
+    var isIconVisible: Bool {
+        get { statusItem.isVisible }
+        set { statusItem.isVisible = newValue }
+    }
+
     func updateShortcuts(_ shortcuts: [WindowAction: KeyboardShortcut]) {
         for (action, item) in actionItems {
             item.keyEquivalent = ""
@@ -52,6 +54,38 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     func menuWillOpen(_ menu: NSMenu) {
         onMenuWillOpen?()
+    }
+
+    /// The app icon's four tiles as a template image: the active tile solid with its title
+    /// bar cut out, the others fainter, in the same proportions as `Support/AppIcon.icon`.
+    private static func icon() -> NSImage {
+        let image = NSImage(size: NSSize(width: 18, height: 18), flipped: true) { _ in
+            // The icon's tiles span 560 of its 1024 units; here they span 16 points.
+            let unit: CGFloat = 16 / 560
+            let tile = 262 * unit
+            let step = 298 * unit
+            let radius = 56 * unit
+            let origin = CGPoint(x: 1, y: 1)
+            func rect(column: Int, row: Int) -> CGRect {
+                CGRect(x: origin.x + CGFloat(column) * step, y: origin.y + CGFloat(row) * step, width: tile, height: tile)
+            }
+
+            let active = NSBezierPath(roundedRect: rect(column: 0, row: 0), xRadius: radius, yRadius: radius)
+            let titleBar = CGRect(x: origin.x + 36 * unit, y: origin.y + 34 * unit, width: 140 * unit, height: 24 * unit)
+            active.append(NSBezierPath(roundedRect: titleBar, xRadius: 12 * unit, yRadius: 12 * unit))
+            active.windingRule = .evenOdd
+            NSColor.black.setFill()
+            active.fill()
+
+            for (column, row, alpha) in [(1, 0, 0.55), (0, 1, 0.35), (1, 1, 0.55)] {
+                NSColor.black.withAlphaComponent(alpha).setFill()
+                NSBezierPath(roundedRect: rect(column: column, row: row), xRadius: radius, yRadius: radius).fill()
+            }
+            return true
+        }
+        image.isTemplate = true
+        image.accessibilityDescription = "Karo"
+        return image
     }
 
     private func makeMenu() -> NSMenu {

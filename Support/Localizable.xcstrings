@@ -1175,6 +1175,16 @@
         }
       }
     },
+    "Show in menu bar": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menü çubuğunda göster"
+          }
+        }
+      }
+    },
     "Show window previews": {
       "localizations": {
         "tr": {
@@ -1425,6 +1435,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Karo’ya Hoş Geldiniz"
+          }
+        }
+      }
+    },
+    "When hidden, open Karo again from Finder or Spotlight to see Settings.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gizliyken Ayarlar’a ulaşmak için Karo’yu Finder’dan veya Spotlight’tan yeniden açın."
           }
         }
       }

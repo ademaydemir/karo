@@ -8,6 +8,7 @@ private let settingsWidth: CGFloat = 500
 // MARK: - General
 
 struct GeneralSettingsView: View {
+    let store: SettingsStore
     let launchAtLogin: LaunchAtLogin
     @State private var isAccessibilityGranted = AccessibilityPermission.isGranted
     @State private var loginItemError: String?
@@ -51,6 +52,10 @@ struct GeneralSettingsView: View {
                 if let loginItemError {
                     Text(loginItemError)
                         .foregroundStyle(.red)
+                }
+                Toggle(isOn: store.binding(\.showsMenuBarIcon)) {
+                    Text("Show in menu bar")
+                    Text("When hidden, open Karo again from Finder or Spotlight to see Settings.")
                 }
             }
 

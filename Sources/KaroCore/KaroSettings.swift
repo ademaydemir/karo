@@ -16,6 +16,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     public var restoresLayoutOnDisplayChange = true
     public var isSnapAssistEnabled = true
     public var modifierDrag = ModifierDrag.controlOption
+    /// When hidden, opening Karo again shows Settings.
+    public var showsMenuBarIcon = true
     public var customShortcuts: [WindowAction: KeyboardShortcut] = [:]
     public var disabledShortcuts: Set<WindowAction> = []
 
@@ -69,7 +71,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     // Decoding field by field keeps settings saved by older versions readable when fields are added.
     private enum CodingKeys: String, CodingKey {
         case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize, switcherStyle
-        case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag
+        case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag, showsMenuBarIcon
         case customShortcuts, disabledShortcuts
     }
 
@@ -91,6 +93,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
         isSnapAssistEnabled = try container.decodeIfPresent(Bool.self, forKey: .isSnapAssistEnabled)
             ?? defaults.isSnapAssistEnabled
         modifierDrag = (try? container.decodeIfPresent(ModifierDrag.self, forKey: .modifierDrag)) ?? defaults.modifierDrag
+        showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? defaults.showsMenuBarIcon
         customShortcuts = try container.decodeIfPresent([WindowAction: KeyboardShortcut].self, forKey: .customShortcuts)
             ?? defaults.customShortcuts
         disabledShortcuts = try container.decodeIfPresent(Set<WindowAction>.self, forKey: .disabledShortcuts)

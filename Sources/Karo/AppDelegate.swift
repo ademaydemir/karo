@@ -113,6 +113,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modifierDragController.start()
     }
 
+    /// Opening Karo again while it runs (Finder, Spotlight, Launchpad) shows Settings. With the
+    /// menu bar icon hidden, this is the way back to them.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        openSettings()
+        return false
+    }
+
     @objc private func openSettings() {
         settingsWindowController.show()
     }
@@ -131,6 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let shortcuts = settings.effectiveShortcuts
         shortcutController.apply(shortcuts)
         menuBarController?.updateShortcuts(shortcuts)
+        menuBarController?.isIconVisible = settings.showsMenuBarIcon
     }
 
     private func perform(_ action: WindowAction) {

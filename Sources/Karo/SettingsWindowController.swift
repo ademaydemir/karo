@@ -70,7 +70,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         let symbol: String
         switch tab {
         case .general:
-            content = AnyView(GeneralSettingsView(launchAtLogin: launchAtLogin))
+            content = AnyView(GeneralSettingsView(store: store, launchAtLogin: launchAtLogin))
             (label, symbol) = (String(localized: "General", comment: "Settings tab"), "gearshape")
         case .snapping:
             content = AnyView(SnappingSettingsView(store: store))
