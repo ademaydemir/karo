@@ -6,6 +6,9 @@ import TesseraCore
 @MainActor
 final class WindowPlacer {
     var gap: CGFloat = 0
+    /// Called after a window was placed by any means (keyboard, menu, drag, switcher), e.g.
+    /// to offer Snap Assist.
+    var onPlace: (_ window: AXWindow, _ action: WindowAction, _ frame: CGRect, _ display: Display) -> Void = { _, _, _, _ in }
     private var history = FrameHistory<WindowIdentity>()
 
     /// Applies an action to the focused window on the display it mostly overlaps.
@@ -43,12 +46,7 @@ final class WindowPlacer {
         let target = isSnapped
             ? LayoutCalculator.scaled(currentFrame, from: source.visibleFrame, to: destination.visibleFrame)
             : LayoutCalculator.translated(currentFrame, from: source.visibleFrame, to: destination.visibleFrame)
-        try window.setFrame(target)
-        var actual = try window.frame()
-        if actual.size != target.size {
-            actual = LayoutCalculator.clamped(actual, to: destination.visibleFrame)
-            try window.setPosition(actual.origin)
-        }
+        let actual = try fit(window, to: target, within: destination.visibleFrame)
         if isSnapped {
             history.recordPlacement(of: window.identity, from: currentFrame, to: actual)
         }
@@ -59,17 +57,69 @@ final class WindowPlacer {
         LayoutCalculator.frame(for: action, in: display.visibleFrame, currentFrame: currentFrame, gap: gap)
     }
 
-    func place(_ window: AXWindow, _ action: WindowAction, from currentFrame: CGRect, on display: Display) throws {
+    /// - Parameter announces: Whether to call `onPlace`; Snap Assist passes `false` for the
+    ///   window it places itself, so it does not offer itself again.
+    func place(
+        _ window: AXWindow,
+        _ action: WindowAction,
+        from currentFrame: CGRect,
+        on display: Display,
+        announces: Bool = true
+    ) throws {
         guard let target = targetFrame(for: action, currentFrame: currentFrame, on: display) else { return }
-        try window.setFrame(target)
-
-        // Apps with a minimum size end up larger than requested and may spill off the display.
-        var actual = try window.frame()
-        if actual.size != target.size {
-            actual = LayoutCalculator.clamped(actual, to: display.visibleFrame)
-            try window.setPosition(actual.origin)
-        }
+        let actual = try fit(window, to: target, within: display.visibleFrame)
         history.recordPlacement(of: window.identity, from: currentFrame, to: actual)
+        if announces {
+            onPlace(window, action, actual, display)
+        }
+    }
+
+    /// Moves and resizes a window to `target` and copes with apps that will not take that
+    /// exact size.
+    /// - Returns: The frame the window ended up with.
+    @discardableResult
+    func fit(_ window: AXWindow, to target: CGRect, within visibleFrame: CGRect) throws -> CGRect {
+        try window.setFrame(target)
+        var actual = try window.frame()
+
+        // A minimum size makes the window larger than asked; keep it on the display.
+        if actual.width > target.width + 1 || actual.height > target.height + 1 {
+            actual = LayoutCalculator.clamped(actual, to: visibleFrame)
+            try window.setPosition(actual.origin)
+            return actual
+        }
+
+        // Step sizes (Terminal rows and columns) make it slightly smaller. On outer edges,
+        // search for the next step up; see `StepSizeFitting`.
+        let widthShortfall = target.width - actual.width
+        let heightShortfall = target.height - actual.height
+        var extraWidth: CGFloat? = StepSizeFitting.isStepShortfall(widthShortfall)
+            && StepSizeFitting.canGrowRight(target, in: visibleFrame) ? widthShortfall : nil
+        var extraHeight: CGFloat? = StepSizeFitting.isStepShortfall(heightShortfall)
+            && StepSizeFitting.canGrowDown(target, in: visibleFrame) ? heightShortfall : nil
+        guard StepSizeFitting.isStepShortfall(widthShortfall) || StepSizeFitting.isStepShortfall(heightShortfall) else {
+            return actual
+        }
+        while extraWidth != nil || extraHeight != nil {
+            try window.setSize(CGSize(width: target.width + (extraWidth ?? 0), height: target.height + (extraHeight ?? 0)))
+            let size = try window.frame().size
+            if let extra = extraWidth {
+                extraWidth = size.width >= target.width - 0.5 ? nil : StepSizeFitting.nextExtra(after: extra)
+            }
+            if let extra = extraHeight {
+                extraHeight = size.height >= target.height - 0.5 ? nil : StepSizeFitting.nextExtra(after: extra)
+            }
+        }
+
+        // Whatever is still short leans on the inner edges, next to the neighbouring windows.
+        let size = try window.frame().size
+        let aligned = StepSizeFitting.alignedOrigin(for: size, in: target, visibleFrame: visibleFrame)
+        let origin = CGPoint(
+            x: size.width < target.width - 0.5 ? aligned.x : target.minX,
+            y: size.height < target.height - 0.5 ? aligned.y : target.minY
+        )
+        try window.setPosition(origin)
+        return CGRect(origin: origin, size: size)
     }
 
     /// Gives a snapped window its pre-snap size back when the user starts dragging it away,

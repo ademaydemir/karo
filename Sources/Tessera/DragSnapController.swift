@@ -17,15 +17,10 @@ final class DragSnapController {
         let cursor: CGPoint
     }
 
-    private struct Drag {
-        let window: AXWindow
-        var zone: ZoneDetector.Zone?
-    }
-
     private enum State {
         case idle
         case pressed(Press)
-        case dragging(Drag)
+        case dragging(AXWindow)
         /// The rest of this gesture is not a window drag.
         case ignored
     }
@@ -36,16 +31,16 @@ final class DragSnapController {
     private static let dragGiveUpDistance: CGFloat = 40
 
     var isEnabled = true
-    var detector = ZoneDetector()
 
     private let placer: WindowPlacer
-    private let overlay = SnapPreviewOverlay()
+    private let tracker: SnapZoneTracker
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "drag")
     private var state = State.idle
     private var monitor: Any?
 
-    init(placer: WindowPlacer) {
+    init(placer: WindowPlacer, tracker: SnapZoneTracker) {
         self.placer = placer
+        self.tracker = tracker
     }
 
     func start() {
@@ -68,7 +63,7 @@ final class DragSnapController {
     }
 
     private func mouseDown() {
-        overlay.hide()
+        tracker.cancel()
         guard isEnabled else {
             state = .ignored
             return
@@ -97,14 +92,9 @@ final class DragSnapController {
         switch state {
         case .pressed(let press):
             beginDragIfWindowMoved(press, cursor: cursor)
-        case .dragging(var drag):
+        case .dragging(let window):
             // Holding Shift moves the window freely without snapping.
-            let zone = modifiers.contains(.shift) ? nil : detector.zone(at: cursor, displays: ScreenGeometry.displays().map(\.frame))
-            guard zone != drag.zone else { return }
-            logger.debug("Zone at \(String(describing: cursor), privacy: .public): \(String(describing: zone?.action), privacy: .public)")
-            drag.zone = zone
-            state = .dragging(drag)
-            updatePreview(for: drag)
+            tracker.update(cursor: cursor, window: window, isSuppressed: modifiers.contains(.shift))
         case .idle, .ignored:
             break
         }
@@ -112,16 +102,11 @@ final class DragSnapController {
 
     private func mouseUp() {
         defer { state = .idle }
-        overlay.hide()
-        guard case .dragging(let drag) = state, let zone = drag.zone else { return }
-        let displays = ScreenGeometry.displays()
-        guard displays.indices.contains(zone.displayIndex) else { return }
-        do {
-            let currentFrame = try drag.window.frame()
-            try placer.place(drag.window, zone.action, from: currentFrame, on: displays[zone.displayIndex])
-        } catch {
-            logger.error("Snap to \(zone.action.rawValue, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+        guard case .dragging(let window) = state else {
+            tracker.cancel()
+            return
         }
+        tracker.finish(window: window)
     }
 
     private func beginDragIfWindowMoved(_ press: Press, cursor: CGPoint) {
@@ -140,21 +125,9 @@ final class DragSnapController {
             } catch {
                 logger.error("Restore on drag failed: \(String(describing: error), privacy: .public)")
             }
-            state = .dragging(Drag(window: press.window, zone: nil))
+            state = .dragging(press.window)
         } else if travel >= Self.dragGiveUpDistance {
             state = .ignored
         }
-    }
-
-    private func updatePreview(for drag: Drag) {
-        let displays = ScreenGeometry.displays()
-        guard let zone = drag.zone,
-              displays.indices.contains(zone.displayIndex),
-              let currentFrame = try? drag.window.frame(),
-              let target = placer.targetFrame(for: zone.action, currentFrame: currentFrame, on: displays[zone.displayIndex]) else {
-            overlay.hide()
-            return
-        }
-        overlay.show(target)
     }
 }

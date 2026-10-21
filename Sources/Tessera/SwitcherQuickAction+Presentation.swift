@@ -10,6 +10,26 @@ extension SwitcherSize {
     }
 }
 
+extension SwitcherStyle {
+    var title: String {
+        switch self {
+        case .grid: String(localized: "Grid", comment: "Switcher style")
+        case .coverFlow: "Cover Flow"
+        }
+    }
+}
+
+extension ModifierDrag {
+    var title: String {
+        switch self {
+        case .disabled: String(localized: "Off", comment: "Move and resize from anywhere: off")
+        case .controlOption: "⌃⌥"
+        case .commandControl: "⌃⌘"
+        case .option: "⌥"
+        }
+    }
+}
+
 extension SwitcherQuickAction {
     var title: String {
         switch self {

@@ -13,8 +13,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var shortcutController = ShortcutController(hotkeys: hotkeyManager) { [weak self] action in
         self?.perform(action)
     }
-    private lazy var dragSnapController = DragSnapController(placer: windowPlacer)
-    private lazy var windowSwitcher = WindowSwitcher(hotkeys: hotkeyManager, placer: windowPlacer)
+    private let windowCatalog = WindowCatalog()
+    private lazy var snapZoneTracker = SnapZoneTracker(placer: windowPlacer)
+    private lazy var dragSnapController = DragSnapController(placer: windowPlacer, tracker: snapZoneTracker)
+    private lazy var modifierDragController = ModifierDragController(placer: windowPlacer, tracker: snapZoneTracker)
+    private lazy var windowSwitcher = WindowSwitcher(hotkeys: hotkeyManager, placer: windowPlacer, catalog: windowCatalog)
+    private lazy var snapAssist = SnapAssistController(catalog: windowCatalog, placer: windowPlacer, hotkeys: hotkeyManager)
+    private lazy var layoutMemory = LayoutMemoryController(catalog: windowCatalog)
     private lazy var settingsWindowController = SettingsWindowController(
         store: settingsStore,
         recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController)
@@ -47,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menuBarController = MenuBarController(shortcuts: settingsStore.settings.effectiveShortcuts)
         let permissionMonitor = AccessibilityPermissionMonitor { [weak self, weak menuBarController] isGranted in
             menuBarController?.update(isAccessibilityGranted: isGranted)
-            if isGranted { self?.windowSwitcher.startTrackingFocus() }
+            if isGranted { self?.startAccessibilityFeatures() }
         }
         menuBarController.onMenuWillOpen = { [weak permissionMonitor] in
             permissionMonitor?.check()
@@ -68,6 +73,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowSwitcher.onSizeChange = { [weak self] size in
             self?.settingsStore.update { $0.switcherSize = size }
         }
+        windowPlacer.onPlace = { [weak self] window, action, frame, display in
+            self?.snapAssist.offer(after: window, action: action, frame: frame, display: display)
+        }
+        windowCatalog.onWindowChange = { [weak self] in
+            self?.layoutMemory.windowsChanged()
+        }
         apply(settingsStore.settings)
 
         // Development aid: `open Tessera.app --args -ShowSettingsTab shortcuts` opens Settings on launch.
@@ -76,11 +87,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if permissionMonitor.isGranted {
-            windowSwitcher.startTrackingFocus()
+            startAccessibilityFeatures()
         } else {
             AccessibilityPermission.requestIfNeeded()
             permissionMonitor.start()
         }
+    }
+
+    /// Everything that observes or intercepts other apps needs Accessibility permission, so it
+    /// starts once the permission is there. Each part ignores repeated calls.
+    private func startAccessibilityFeatures() {
+        windowCatalog.startTracking()
+        layoutMemory.start()
+        modifierDragController.start()
     }
 
     @objc private func openSettings() {
@@ -90,9 +109,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func apply(_ settings: TesseraSettings) {
         windowPlacer.gap = settings.gap
         dragSnapController.isEnabled = settings.isDragSnappingEnabled
-        dragSnapController.detector = ZoneDetector(edgeThreshold: settings.edgeThreshold, cornerSize: settings.cornerSize)
+        snapZoneTracker.detector = ZoneDetector(edgeThreshold: settings.edgeThreshold, cornerSize: settings.cornerSize)
+        modifierDragController.modifiers = settings.modifierDrag.modifiers
+        snapAssist.isEnabled = settings.isSnapAssistEnabled
+        snapAssist.showsPreviews = settings.showsWindowPreviews
+        layoutMemory.isEnabled = settings.restoresLayoutOnDisplayChange
         windowSwitcher.showsPreviews = settings.showsWindowPreviews
         windowSwitcher.size = settings.switcherSize
+        windowSwitcher.style = settings.switcherStyle
         let shortcuts = settings.effectiveShortcuts
         shortcutController.apply(shortcuts)
         menuBarController?.updateShortcuts(shortcuts)

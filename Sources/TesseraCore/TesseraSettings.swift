@@ -12,6 +12,10 @@ public struct TesseraSettings: Codable, Equatable, Sendable {
     /// Live window thumbnails in the switcher; needs Screen Recording permission, so off by default.
     public var showsWindowPreviews = false
     public var switcherSize = SwitcherSize.medium
+    public var switcherStyle = SwitcherStyle.grid
+    public var restoresLayoutOnDisplayChange = true
+    public var isSnapAssistEnabled = true
+    public var modifierDrag = ModifierDrag.controlOption
     public var customShortcuts: [WindowAction: KeyboardShortcut] = [:]
     public var disabledShortcuts: Set<WindowAction> = []
 
@@ -64,7 +68,8 @@ public struct TesseraSettings: Codable, Equatable, Sendable {
 
     // Decoding field by field keeps settings saved by older versions readable when fields are added.
     private enum CodingKeys: String, CodingKey {
-        case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize
+        case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize, switcherStyle
+        case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag
         case customShortcuts, disabledShortcuts
     }
 
@@ -80,6 +85,12 @@ public struct TesseraSettings: Codable, Equatable, Sendable {
             ?? defaults.showsWindowPreviews
         // An unknown size from a newer version falls back to the default instead of failing.
         switcherSize = (try? container.decodeIfPresent(SwitcherSize.self, forKey: .switcherSize)) ?? defaults.switcherSize
+        switcherStyle = (try? container.decodeIfPresent(SwitcherStyle.self, forKey: .switcherStyle)) ?? defaults.switcherStyle
+        restoresLayoutOnDisplayChange = try container.decodeIfPresent(Bool.self, forKey: .restoresLayoutOnDisplayChange)
+            ?? defaults.restoresLayoutOnDisplayChange
+        isSnapAssistEnabled = try container.decodeIfPresent(Bool.self, forKey: .isSnapAssistEnabled)
+            ?? defaults.isSnapAssistEnabled
+        modifierDrag = (try? container.decodeIfPresent(ModifierDrag.self, forKey: .modifierDrag)) ?? defaults.modifierDrag
         customShortcuts = try container.decodeIfPresent([WindowAction: KeyboardShortcut].self, forKey: .customShortcuts)
             ?? defaults.customShortcuts
         disabledShortcuts = try container.decodeIfPresent(Set<WindowAction>.self, forKey: .disabledShortcuts)

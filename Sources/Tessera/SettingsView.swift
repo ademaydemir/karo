@@ -130,8 +130,25 @@ struct SnappingSettingsView: View {
                     range: 10...150
                 )
                 .disabled(!store.settings.isDragSnappingEnabled)
+                Toggle(isOn: store.binding(\.isSnapAssistEnabled)) {
+                    Text("Suggest windows for the other side")
+                    Text("After snapping to a half or a third, pick a window to fill the rest of the screen.")
+                }
             } header: {
                 Text("Drag to Snap")
+            }
+
+            Section {
+                Picker(selection: store.binding(\.modifierDrag)) {
+                    ForEach(ModifierDrag.allCases, id: \.self) { option in
+                        Text(verbatim: option.title).tag(option)
+                    }
+                } label: {
+                    Text("Move and resize from anywhere")
+                    Text("Hold these keys and drag anywhere in a window to move it, or right-drag to resize it from the nearest corner.")
+                }
+            } header: {
+                Text("Move and Resize")
             }
 
             Section {
@@ -143,6 +160,15 @@ struct SnappingSettingsView: View {
                 )
             } header: {
                 Text("Layout")
+            }
+
+            Section {
+                Toggle(isOn: store.binding(\.restoresLayoutOnDisplayChange)) {
+                    Text("Remember window positions for each display setup")
+                    Text("When you connect or disconnect a display, windows go back to where they were the last time you used that setup.")
+                }
+            } header: {
+                Text("Displays")
             }
         }
         .settingsFormStyle()
@@ -172,6 +198,15 @@ struct SwitcherSettingsView: View {
             }
 
             Section {
+                Picker(selection: store.binding(\.switcherStyle)) {
+                    ForEach(SwitcherStyle.allCases, id: \.self) { style in
+                        Text(verbatim: style.title).tag(style)
+                    }
+                } label: {
+                    Text("Style")
+                    Text("Grid shows every window at once, stacking an app’s windows into a deck. Cover Flow shows one large window; swipe sideways on a Magic Mouse or trackpad to browse.")
+                }
+                .pickerStyle(.segmented)
                 Picker(selection: store.binding(\.switcherSize)) {
                     ForEach(SwitcherSize.allCases, id: \.self) { size in
                         Text(verbatim: size.title).tag(size)

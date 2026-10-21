@@ -49,6 +49,16 @@
         }
       }
     },
+    "%lld windows": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pencere"
+          }
+        }
+      }
+    },
     "About Tessera": {
       "localizations": {
         "tr": {
@@ -85,6 +95,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erişilebilirlik izni gerekli"
+          }
+        }
+      }
+    },
+    "After snapping to a half or a third, pick a window to fill the rest of the screen.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir pencereyi yarıya veya üçte bire yerleştirdikten sonra ekranın kalanını dolduracak pencereyi seçin."
           }
         }
       }
@@ -194,6 +214,16 @@
         }
       }
     },
+    "Choose a window for this side": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu taraf için bir pencere seçin"
+          }
+        }
+      }
+    },
     "Click a shortcut, then type the new combination. Press ⎋ to cancel.": {
       "localizations": {
         "tr": {
@@ -242,6 +272,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ekran"
+          }
+        }
+      }
+    },
+    "Displays": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekranlar"
           }
         }
       }
@@ -307,6 +347,27 @@
         }
       }
     },
+    "Grid": {
+      "comment": "Switcher style",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izgara"
+          }
+        }
+      }
+    },
+    "Grid shows every window at once, stacking an app’s windows into a deck. Cover Flow shows one large window; swipe sideways on a Magic Mouse or trackpad to browse.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izgara tüm pencereleri aynı anda gösterir ve bir uygulamanın pencerelerini tek bir destede toplar. Cover Flow tek bir pencereyi büyük gösterir; gezinmek için Magic Mouse veya trackpad'de yana kaydırın."
+          }
+        }
+      }
+    },
     "Halves": {
       "localizations": {
         "tr": {
@@ -354,6 +415,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tessera'yı Gizle"
+          }
+        }
+      }
+    },
+    "Hold these keys and drag anywhere in a window to move it, or right-drag to resize it from the nearest corner.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu tuşları basılı tutup pencerenin herhangi bir yerinden sürükleyerek taşıyın veya sağ tıkla sürükleyerek en yakın köşesinden boyutlandırın."
           }
         }
       }
@@ -526,6 +597,26 @@
         }
       }
     },
+    "Move and Resize": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taşıma ve Boyutlandırma"
+          }
+        }
+      }
+    },
+    "Move and resize from anywhere": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Her yerden taşı ve boyutlandır"
+          }
+        }
+      }
+    },
     "Move to Next Display": {
       "localizations": {
         "tr": {
@@ -554,6 +645,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yok"
+          }
+        }
+      }
+    },
+    "Off": {
+      "comment": "Move and resize from anywhere: off",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapalı"
           }
         }
       }
@@ -610,6 +712,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pencere değiştirici açıkken değiştirmek için %1$@ veya %2$@ tuşlarına basın."
+          }
+        }
+      }
+    },
+    "Press Esc or click elsewhere to skip.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçmek için Esc'e basın veya başka bir yere tıklayın."
           }
         }
       }
@@ -672,6 +784,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yeni bir kısayol kaydeder"
+          }
+        }
+      }
+    },
+    "Remember window positions for each display setup": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Her ekran düzeni için pencere konumlarını hatırla"
           }
         }
       }
@@ -925,6 +1047,26 @@
         }
       }
     },
+    "Style": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Görünüm"
+          }
+        }
+      }
+    },
+    "Suggest windows for the other side": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diğer taraf için pencere öner"
+          }
+        }
+      }
+    },
     "Switch windows": {
       "localizations": {
         "tr": {
@@ -1016,6 +1158,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kısayola basın…"
+          }
+        }
+      }
+    },
+    "When you connect or disconnect a display, windows go back to where they were the last time you used that setup.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir ekran takıldığında veya çıkarıldığında pencereler, o ekran düzenini en son kullandığınızdaki yerlerine döner."
           }
         }
       }

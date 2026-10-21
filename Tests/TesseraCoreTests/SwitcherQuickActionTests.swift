@@ -36,6 +36,14 @@ struct SwitcherSizeTests {
         #expect(SwitcherSize.small.smaller == .small)
     }
 
+    @Test func styleDefaultsToGridAndRoundTrips() throws {
+        var settings = TesseraSettings()
+        #expect(settings.switcherStyle == .grid)
+        settings.switcherStyle = .coverFlow
+        let data = try JSONEncoder().encode(settings)
+        #expect(try JSONDecoder().decode(TesseraSettings.self, from: data).switcherStyle == .coverFlow)
+    }
+
     @Test func settingsFallBackToDefaultForUnknownSize() throws {
         let decoded = try JSONDecoder().decode(TesseraSettings.self, from: Data(#"{"switcherSize": "huge"}"#.utf8))
         #expect(decoded.switcherSize == .medium)

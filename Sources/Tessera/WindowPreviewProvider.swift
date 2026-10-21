@@ -7,8 +7,9 @@ import ScreenCaptureKit
 /// while fresh ones are captured.
 @MainActor
 final class WindowPreviewProvider {
-    /// Longest side of a thumbnail in points; the switcher draws them at most ~200 pt wide.
-    private static let maximumSize: CGFloat = 320
+    /// Longest side of a thumbnail in points: enough for large switcher items and for the
+    /// Snap Assist backdrop, which fills half a display, without looking soft.
+    private static let maximumSize: CGFloat = 560
 
     private var cache: [CGWindowID: NSImage] = [:]
 

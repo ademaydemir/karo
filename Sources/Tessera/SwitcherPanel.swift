@@ -8,6 +8,8 @@ struct SwitcherItem: Identifiable {
     let title: String
     let applicationName: String
     let icon: NSImage
+    /// The owning app's process, to stack an app's windows into one deck.
+    let applicationID: pid_t
     /// Minimized, or its app is hidden.
     var isBackgrounded: Bool
     var preview: NSImage?
@@ -28,11 +30,16 @@ final class SwitcherModel {
     var selectedIndex = 0
     var showsPreviews = false
     var size = SwitcherSize.medium
+    var style = SwitcherStyle.grid
     var maximumColumns = 6
     var hints: [SwitcherHint] = []
     @ObservationIgnored var onHover: (Int) -> Void = { _ in }
     @ObservationIgnored var onChoose: (Int) -> Void = { _ in }
     @ObservationIgnored var onQuickAction: (Int, SwitcherQuickAction) -> Void = { _, _ in }
+    /// Selects an item without switching (Cover Flow: clicking a side card, scrolling).
+    @ObservationIgnored var onSelect: (Int) -> Void = { _ in }
+    /// +1 / -1 from scrolling over the panel.
+    @ObservationIgnored var onScrollStep: (Int) -> Void = { _ in }
 
     var layout: SwitcherLayout {
         SwitcherLayout(size: size, showsPreviews: showsPreviews)
@@ -73,6 +80,12 @@ final class SwitcherPanel {
         container.addSubview(background)
         hostingView = FirstMouseHostingView(rootView: SwitcherView(model: model))
         hostingView.autoresizingMask = [.width, .height]
+        var accumulator = ScrollStepAccumulator()
+        hostingView.onScroll = { [model] event in
+            if let step = accumulator.step(for: event) {
+                model.onScrollStep(step)
+            }
+        }
         container.addSubview(hostingView)
         panel.contentView = container
     }
@@ -113,7 +126,46 @@ final class SwitcherPanel {
 /// The panel never becomes key, so without this the first click on an item or a quick
 /// action would be swallowed.
 final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    /// Scroll events over the view, e.g. to move through Cover Flow.
+    var onScroll: ((NSEvent) -> Void)?
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    override func scrollWheel(with event: NSEvent) {
+        if let onScroll {
+            onScroll(event)
+        } else {
+            super.scrollWheel(with: event)
+        }
+    }
+}
+
+/// Turns scroll gestures into single steps. A Magic Mouse or trackpad swipe delivers many
+/// small precise deltas; a wheel delivers one line per notch.
+struct ScrollStepAccumulator {
+    /// Points of precise scrolling per step.
+    private static let threshold: CGFloat = 36
+    private var accumulated: CGFloat = 0
+
+    /// - Returns: +1 to move to the next item, -1 for the previous one, or `nil`.
+    mutating func step(for event: NSEvent) -> Int? {
+        // Momentum after the fingers lift would keep flinging the selection; only the
+        // gesture itself counts.
+        guard event.momentumPhase.isEmpty else { return nil }
+        if event.phase == .began { accumulated = 0 }
+        // Sideways swipes are the natural gesture; a plain wheel only scrolls vertically.
+        let delta = abs(event.scrollingDeltaX) >= abs(event.scrollingDeltaY) ? event.scrollingDeltaX : event.scrollingDeltaY
+        guard delta != 0 else { return nil }
+        guard event.hasPreciseScrollingDeltas else {
+            return delta < 0 ? 1 : -1
+        }
+        accumulated += delta
+        guard abs(accumulated) >= Self.threshold else { return nil }
+        // Content follows the fingers: swiping left brings the next card in from the right.
+        let step = accumulated < 0 ? 1 : -1
+        accumulated = 0
+        return step
+    }
 }
 
 /// Item metrics per size, for icon-only and preview styles.
@@ -158,6 +210,11 @@ struct SwitcherLayout {
     /// previews; the space is transparent, so being generous costs nothing visible.
     var ringMargin: CGFloat { max(8, radialRadius - padding + 4) }
 
+    /// Cards shown on each side of the selected one in Cover Flow; the outermost fade out.
+    static let coverFlowVisibleNeighbours = 4
+    var coverFlowWidth: CGFloat { itemWidth * 4.6 }
+    var coverFlowHeight: CGFloat { (showsPreviews ? previewSize.height : iconSize) * 1.15 + 90 }
+
     func columns(fitting width: CGFloat) -> Int {
         max(1, Int((width - (padding + ringMargin) * 2 + spacing) / (itemWidth + spacing)))
     }
@@ -177,27 +234,14 @@ struct SwitcherView: View {
 
     var body: some View {
         let layout = model.layout
-        let columnCount = max(1, min(model.items.count, model.maximumColumns))
-        let rows = stride(from: 0, to: model.items.count, by: columnCount).map {
-            Array($0..<min($0 + columnCount, model.items.count))
-        }
-
         VStack(spacing: 14) {
-            // Plain rows rather than a grid: zIndex only orders siblings, so both the active
-            // item and its row are raised for an open radial menu to cover the next row.
-            VStack(alignment: .leading, spacing: layout.spacing) {
-                ForEach(rows, id: \.first) { row in
-                    HStack(spacing: layout.spacing) {
-                        ForEach(row, id: \.self) { index in
-                            itemView(at: index, layout: layout)
-                        }
-                    }
-                    .zIndex(row.contains { model.items[$0].id == activeID } ? 1 : 0)
-                }
+            switch model.style {
+            case .grid: grid(layout: layout)
+            case .coverFlow: coverFlow(layout: layout)
             }
 
             HintBar(hints: model.hints)
-                .frame(width: layout.contentWidth(columns: columnCount))
+                .frame(width: contentWidth(layout: layout))
                 .opacity(openRadialID == nil ? 1 : 0)
                 .animation(.easeOut(duration: 0.15), value: openRadialID)
         }
@@ -206,18 +250,101 @@ struct SwitcherView: View {
         .fixedSize()
     }
 
-    private func itemView(at index: Int, layout: SwitcherLayout) -> some View {
+    // MARK: Grid with app decks
+
+    /// Indices of `model.items`, grouped by app in order of each app's most recent window.
+    private var decks: [[Int]] {
+        var order: [pid_t] = []
+        var groups: [pid_t: [Int]] = [:]
+        for (index, item) in model.items.enumerated() {
+            if groups[item.applicationID] == nil { order.append(item.applicationID) }
+            groups[item.applicationID, default: []].append(index)
+        }
+        return order.compactMap { groups[$0] }
+    }
+
+    private func gridColumns(_ decks: [[Int]]) -> Int {
+        max(1, min(decks.count, model.maximumColumns))
+    }
+
+    private func contentWidth(layout: SwitcherLayout) -> CGFloat {
+        switch model.style {
+        case .grid: layout.contentWidth(columns: gridColumns(decks))
+        case .coverFlow: layout.coverFlowWidth
+        }
+    }
+
+    private func grid(layout: SwitcherLayout) -> some View {
+        let decks = self.decks
+        let columnCount = gridColumns(decks)
+        let rows = stride(from: 0, to: decks.count, by: columnCount).map { Array(decks[$0..<min($0 + columnCount, decks.count)]) }
+        // Plain rows rather than a grid: zIndex only orders siblings, so the active deck and
+        // its row are raised for a fanned deck or an open radial menu to cover the others.
+        return VStack(alignment: .leading, spacing: layout.spacing) {
+            ForEach(rows, id: \.first) { row in
+                HStack(spacing: layout.spacing) {
+                    ForEach(row, id: \.first) { deck in
+                        DeckView(
+                            indices: deck,
+                            isExpanded: isExpanded(deck),
+                            layout: layout,
+                            itemView: { index in itemView(at: index, layout: layout) }
+                        )
+                        .zIndex(isRaised(deck) ? 1 : 0)
+                    }
+                }
+                .zIndex(row.contains(where: isRaised) ? 1 : 0)
+            }
+        }
+    }
+
+    /// A deck fans out while the pointer is on one of its windows or the selection is in it.
+    private func isExpanded(_ deck: [Int]) -> Bool {
+        deck.count > 1 && isRaised(deck)
+    }
+
+    private func isRaised(_ deck: [Int]) -> Bool {
+        deck.contains { $0 == model.selectedIndex || model.items[$0].id == activeID }
+    }
+
+    // MARK: Cover Flow
+
+    private func coverFlow(layout: SwitcherLayout) -> some View {
+        let selected = model.selectedIndex
+        return ZStack {
+            ForEach(Array(model.items.enumerated()), id: \.element.id) { index, _ in
+                let distance = index - selected
+                if abs(distance) <= SwitcherLayout.coverFlowVisibleNeighbours {
+                    itemView(at: index, layout: layout, isCentered: distance == 0)
+                        .modifier(CoverFlowPlacement(distance: distance, layout: layout))
+                        .zIndex(Double(100 - abs(distance)))
+                        .transition(.opacity)
+                }
+            }
+        }
+        .frame(width: layout.coverFlowWidth, height: layout.coverFlowHeight)
+        .animation(.spring(response: 0.4, dampingFraction: 0.82), value: selected)
+    }
+
+    // MARK: Items
+
+    private func itemView(at index: Int, layout: SwitcherLayout, isCentered: Bool = true) -> some View {
         let item = model.items[index]
+        let isCoverFlow = model.style == .coverFlow
         return SwitcherItemView(
             item: item,
             isSelected: index == model.selectedIndex,
             layout: layout,
-            onChoose: { model.onChoose(index) },
+            allowsRadial: isCentered,
+            // In Cover Flow a side card is brought to the middle first; the middle one switches.
+            onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
             onQuickAction: { model.onQuickAction(index, $0) },
             onActiveChange: { isActive in
                 if isActive {
                     activeID = item.id
-                    model.onHover(index)
+                    // Pointing selects in the grid; Cover Flow moves by scrolling and clicks,
+                    // so the cards do not rotate away under the pointer.
+                    if !isCoverFlow { model.onHover(index) }
                 } else if activeID == item.id {
                     activeID = nil
                 }
@@ -235,6 +362,80 @@ struct SwitcherView: View {
     }
 }
 
+/// An app's windows as a stack of cards that fans out when expanded. The most recent window
+/// is on top and is the only one that takes the pointer while the deck is closed.
+private struct DeckView<Item: View>: View {
+    let indices: [Int]
+    let isExpanded: Bool
+    let layout: SwitcherLayout
+    let itemView: (Int) -> Item
+
+    var body: some View {
+        ZStack {
+            ForEach(Array(indices.enumerated()), id: \.element) { position, index in
+                itemView(index)
+                    .modifier(DeckPlacement(position: position, count: indices.count, isExpanded: isExpanded, layout: layout))
+                    .zIndex(Double(indices.count - position))
+                    .allowsHitTesting(isExpanded || position == 0)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if indices.count > 1, !isExpanded {
+                Text(verbatim: "\(indices.count)")
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2)
+                    .background(Color.accentColor, in: Capsule())
+                    .foregroundStyle(.white)
+                    .offset(x: 6, y: -6)
+                    .transition(.scale.combined(with: .opacity))
+                    .accessibilityLabel(Text("\(indices.count) windows"))
+            }
+        }
+        .frame(width: layout.itemWidth)
+        .animation(.spring(response: 0.38, dampingFraction: 0.74), value: isExpanded)
+    }
+}
+
+/// Where a card sits in a deck: slightly offset and turned when stacked, spread out in a gentle
+/// arc when the deck is fanned.
+private struct DeckPlacement: ViewModifier {
+    let position: Int
+    let count: Int
+    let isExpanded: Bool
+    let layout: SwitcherLayout
+
+    func body(content: Content) -> some View {
+        let centered = CGFloat(position) - CGFloat(count - 1) / 2
+        // Fanned cards overlap more as the deck grows, so a large deck stays compact.
+        let step = min(layout.itemWidth + 10, layout.itemWidth * 2.4 / CGFloat(max(count - 1, 1)))
+        return content
+            .offset(
+                x: isExpanded ? centered * step : CGFloat(position) * 6,
+                y: isExpanded ? abs(centered) * 6 : -CGFloat(position) * 6
+            )
+            .rotationEffect(.degrees(isExpanded ? Double(centered) * 3 : Double(position) * 3))
+            .scaleEffect(isExpanded ? 1 : 1 - CGFloat(position) * 0.03)
+    }
+}
+
+/// Where a card sits in Cover Flow: flat and large in the middle, tilted away on the sides.
+private struct CoverFlowPlacement: ViewModifier {
+    let distance: Int
+    let layout: SwitcherLayout
+
+    func body(content: Content) -> some View {
+        let side = CGFloat(distance.signum())
+        let offset = distance == 0 ? 0 : side * layout.itemWidth * 0.62 + CGFloat(distance) * layout.itemWidth * 0.34
+        return content
+            .scaleEffect(distance == 0 ? 1.15 : 0.86)
+            .rotation3DEffect(.degrees(distance == 0 ? 0 : -side * 52), axis: (x: 0, y: 1, z: 0), perspective: 0.55)
+            .offset(x: offset)
+            .opacity(abs(distance) == SwitcherLayout.coverFlowVisibleNeighbours ? 0.45 : 1)
+    }
+}
+
 private struct SwitcherItemView: View {
     /// Long enough not to open while the pointer passes over items, short enough that the
     /// menu feels like a reaction to pointing at the item.
@@ -246,6 +447,8 @@ private struct SwitcherItemView: View {
     let item: SwitcherItem
     let isSelected: Bool
     let layout: SwitcherLayout
+    /// Off for Cover Flow's tilted side cards.
+    let allowsRadial: Bool
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
     let onActiveChange: (Bool) -> Void
@@ -336,7 +539,7 @@ private struct SwitcherItemView: View {
             closeTask?.cancel()
             closeTask = nil
             onActiveChange(true)
-            guard !isRadialOpen, openTask == nil else { return }
+            guard allowsRadial, !isRadialOpen, openTask == nil else { return }
             openTask = Task { @MainActor in
                 try? await Task.sleep(for: Self.radialDelay)
                 guard !Task.isCancelled else { return }

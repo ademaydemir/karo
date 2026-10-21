@@ -35,6 +35,14 @@ public enum SwitcherQuickAction: CaseIterable, Sendable {
     }
 }
 
+/// How the switcher lays out windows.
+public enum SwitcherStyle: String, Codable, CaseIterable, Sendable {
+    /// All windows at once, with an app's windows stacked into one deck. Fastest to scan.
+    case grid
+    /// The selected window large in the middle, its neighbours tilted away; scrolls sideways.
+    case coverFlow
+}
+
 /// How large the switcher draws its items.
 public enum SwitcherSize: String, Codable, CaseIterable, Sendable {
     case small, medium, large

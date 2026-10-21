@@ -14,6 +14,23 @@ enum ScreenGeometry {
         }
     }
 
+    /// Hardware identity and arrangement of the connected displays, for `DisplayConfiguration`.
+    static func displayDescriptors() -> [DisplayConfiguration.Descriptor] {
+        let height = primaryScreenHeight
+        return NSScreen.screens.compactMap { screen in
+            guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber else {
+                return nil
+            }
+            let displayID = CGDirectDisplayID(number.uint32Value)
+            return DisplayConfiguration.Descriptor(
+                vendor: CGDisplayVendorNumber(displayID),
+                model: CGDisplayModelNumber(displayID),
+                serial: CGDisplaySerialNumber(displayID),
+                frame: CoordinateConverter.flip(screen.frame, primaryScreenHeight: height)
+            )
+        }
+    }
+
     static func cursorLocation() -> CGPoint {
         CoordinateConverter.flip(NSEvent.mouseLocation, primaryScreenHeight: primaryScreenHeight)
     }

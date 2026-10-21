@@ -158,6 +158,10 @@ public struct AXWindow {
         try element.setPoint(origin, of: kAXPositionAttribute)
     }
 
+    public func setSize(_ size: CGSize) throws {
+        try element.setSize(size, of: kAXSizeAttribute)
+    }
+
     private func withEnhancedUserInterfaceDisabled(_ body: () throws -> Void) throws {
         let attribute = Self.enhancedUserInterfaceAttribute
         // Most apps do not expose the attribute at all; treat that as "off".

@@ -1,23 +1,39 @@
 import AppKit
 import ApplicationServices
 
-/// Reports every window that gains focus, in any app.
+/// Reports every window that gains focus, in any app, and every window move or resize.
 ///
-/// Combines app activations (`NSWorkspace`) with per-app focus changes (`AXObserver`), so
+/// Combines app activations (`NSWorkspace`) with per-app notifications (`AXObserver`), so
 /// switching windows inside one app (e.g. between two Chrome windows) is seen too.
 @MainActor
 public final class FocusedWindowObserver {
-    private static let notifications = [
+    private static let focusNotifications: Set<String> = [
         kAXFocusedWindowChangedNotification,
         kAXMainWindowChangedNotification,
     ]
+    private static let geometryNotifications: Set<String> = [
+        kAXWindowMovedNotification,
+        kAXWindowResizedNotification,
+    ]
 
     private let onFocus: (WindowIdentity) -> Void
+    private let onWindowChange: () -> Void
     private var observers: [pid_t: AXObserver] = [:]
     private var workspaceTokens: [NSObjectProtocol] = []
 
-    public init(onFocus: @escaping (WindowIdentity) -> Void) {
+    /// - Parameter onWindowChange: Called when any window moves or resizes, or an app with
+    ///   windows launches or quits.
+    public init(onFocus: @escaping (WindowIdentity) -> Void, onWindowChange: @escaping () -> Void = {}) {
         self.onFocus = onFocus
+        self.onWindowChange = onWindowChange
+    }
+
+    private func handle(_ notification: String, element: AXUIElement) {
+        if Self.geometryNotifications.contains(notification) {
+            onWindowChange()
+        } else {
+            onFocus(WindowIdentity(element: element))
+        }
     }
 
     public func start() {
@@ -29,11 +45,17 @@ public final class FocusedWindowObserver {
         workspaceTokens = [
             center.addObserver(forName: NSWorkspace.didLaunchApplicationNotification, object: nil, queue: .main) { [weak self] note in
                 guard let pid = Self.processIdentifier(in: note) else { return }
-                MainActor.assumeIsolated { self?.observe(pid, retryingOnce: true) }
+                MainActor.assumeIsolated {
+                    self?.observe(pid, retryingOnce: true)
+                    self?.onWindowChange()
+                }
             },
             center.addObserver(forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main) { [weak self] note in
                 guard let pid = Self.processIdentifier(in: note) else { return }
-                MainActor.assumeIsolated { self?.stopObserving(pid) }
+                MainActor.assumeIsolated {
+                    self?.stopObserving(pid)
+                    self?.onWindowChange()
+                }
             },
             center.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
                 guard let pid = Self.processIdentifier(in: note) else { return }
@@ -51,19 +73,20 @@ public final class FocusedWindowObserver {
               processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
 
         var created: AXObserver?
-        let callback: AXObserverCallback = { _, element, _, refcon in
+        let callback: AXObserverCallback = { _, element, notification, refcon in
             guard let refcon else { return }
             let observer = Unmanaged<FocusedWindowObserver>.fromOpaque(refcon).takeUnretainedValue()
+            let name = notification as String
             // The run loop source is added to the main run loop.
             MainActor.assumeIsolated {
-                observer.onFocus(WindowIdentity(element: element))
+                observer.handle(name, element: element)
             }
         }
         guard AXObserverCreate(processIdentifier, callback, &created) == .success, let observer = created else { return }
 
         let application = AXUIElementCreateApplication(processIdentifier)
         let refcon = Unmanaged.passUnretained(self).toOpaque()
-        let added = Self.notifications.map {
+        let added = Self.focusNotifications.union(Self.geometryNotifications).map {
             AXObserverAddNotification(observer, application, $0 as CFString, refcon) == .success
         }
         guard added.contains(true) else {

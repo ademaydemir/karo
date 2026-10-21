@@ -34,21 +34,23 @@ final class WindowSwitcher {
     var size = SwitcherSize.medium {
         didSet { panel.model.size = size }
     }
+    var style = SwitcherStyle.grid {
+        didSet { panel.model.style = style }
+    }
     /// Called when the user resizes the switcher with ⌥+ / ⌥−, so the choice is saved.
     var onSizeChange: (SwitcherSize) -> Void = { _ in }
 
     private let hotkeys: HotkeyManager
     private let placer: WindowPlacer
+    private let catalog: WindowCatalog
     private let panel = SwitcherPanel()
-    private let previewProvider = WindowPreviewProvider()
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "switcher")
-    private var recent = RecentList<WindowIdentity>()
-    private var focusObserver: FocusedWindowObserver?
     private var session: Session?
 
-    init(hotkeys: HotkeyManager, placer: WindowPlacer) {
+    init(hotkeys: HotkeyManager, placer: WindowPlacer, catalog: WindowCatalog) {
         self.hotkeys = hotkeys
         self.placer = placer
+        self.catalog = catalog
         panel.model.onHover = { [weak self] index in
             guard let self, let cursorAtShow = session?.cursorAtShow, NSEvent.mouseLocation != cursorAtShow else { return }
             select(index)
@@ -60,25 +62,26 @@ final class WindowSwitcher {
         panel.model.onQuickAction = { [weak self] index, action in
             self?.perform(action, at: index)
         }
+        panel.model.onSelect = { [weak self] index in
+            self?.select(index)
+            Haptics.tick()
+        }
+        panel.model.onScrollStep = { [weak self] step in
+            guard let self, session != nil else { return }
+            if step > 0 {
+                session?.selection.moveForward()
+            } else {
+                session?.selection.moveBackward()
+            }
+            panel.model.selectedIndex = session?.selection.index ?? 0
+            Haptics.tick()
+        }
         panel.model.hints = Self.hints
     }
 
     func registerShortcuts() throws {
         try hotkeys.register(DefaultShortcuts.switchWindowsForward) { [weak self] in self?.press(backward: false) }
         try hotkeys.register(DefaultShortcuts.switchWindowsBackward) { [weak self] in self?.press(backward: true) }
-    }
-
-    /// Starts recording window focus for most-recently-used ordering. Needs Accessibility permission.
-    func startTrackingFocus() {
-        guard focusObserver == nil else { return }
-        let observer = FocusedWindowObserver { [weak self] identity in
-            self?.recent.touch(identity)
-        }
-        observer.start()
-        focusObserver = observer
-        if let current = try? AXWindow.focused() {
-            recent.touch(current.identity)
-        }
     }
 
     // MARK: - Session
@@ -100,12 +103,13 @@ final class WindowSwitcher {
             NSSound.beep()
             return false
         }
-        let entries = collectWindows()
+        let entries = catalog.windows(includingWindowIDs: showsPreviews)
         guard !entries.isEmpty else { return false }
 
         let capturesPreviews = showsPreviews && ScreenRecordingPermission.isGranted
         panel.model.showsPreviews = capturesPreviews
         panel.model.size = size
+        panel.model.style = style
         panel.model.items = entries.map(\.item)
         panel.model.selectedIndex = 0
         var session = Session(windows: entries.map(\.window), selection: SwitcherSelection(count: entries.count))
@@ -114,7 +118,7 @@ final class WindowSwitcher {
                 entry.windowID.map { (item: entry.item.id, windowID: $0) }
             }
             session.previewTask = Task { [weak self] in
-                await self?.previewProvider.capturePreviews(for: targets) { itemID, preview in
+                await self?.catalog.previewProvider.capturePreviews(for: targets) { itemID, preview in
                     // Items may have been removed meanwhile, so match by ID rather than position.
                     guard let self, let index = self.panel.model.items.firstIndex(where: { $0.id == itemID }) else { return }
                     self.panel.model.items[index].preview = preview
@@ -161,7 +165,7 @@ final class WindowSwitcher {
     private func activate(_ window: AXWindow) {
         do {
             try window.bringToFront()
-            recent.touch(window.identity)
+            catalog.touch(window.identity)
             Task {
                 try? await Task.sleep(for: Self.reraiseDelay)
                 window.raise()
@@ -301,62 +305,5 @@ final class WindowSwitcher {
             return event
         }
         return [global, local].compactMap { $0 }
-    }
-
-    // MARK: - Window list
-
-    private struct FoundWindow {
-        let window: AXWindow
-        let application: NSRunningApplication
-        let isBackgrounded: Bool
-        let windowID: CGWindowID?
-    }
-
-    private func collectWindows() -> [(window: AXWindow, windowID: CGWindowID?, item: SwitcherItem)] {
-        let ownProcess = ProcessInfo.processInfo.processIdentifier
-        let applications = NSWorkspace.shared.runningApplications.filter {
-            $0.activationPolicy == .regular && $0.processIdentifier != ownProcess
-        }
-        let stack = WindowServer.windows()
-        // Previews need window IDs for every window, minimized ones included.
-        let allWindows = showsPreviews ? WindowServer.windows(onScreenOnly: false) : []
-
-        var found: [WindowIdentity: FoundWindow] = [:]
-        var candidates: [SwitcherOrdering.Candidate<WindowIdentity>] = []
-        for application in applications {
-            for window in AXWindow.windows(ofApplication: application.processIdentifier) {
-                let isBackgrounded = window.isMinimized || application.isHidden
-                // The frame costs two AX calls, so it is only read when needed: for the
-                // stacking order of windows never focused since launch, and for previews.
-                let needsStackIndex = !isBackgrounded && recent.rank(of: window.identity) == nil
-                let frame = (needsStackIndex || showsPreviews) ? try? window.frame() : nil
-                let stackIndex = needsStackIndex ? frame.flatMap {
-                    WindowServer.match(processIdentifier: window.processIdentifier, frame: $0, in: stack)?.index
-                } : nil
-                let windowID = showsPreviews ? frame.flatMap {
-                    WindowServer.match(processIdentifier: window.processIdentifier, frame: $0, in: allWindows)?.window.id
-                } : nil
-
-                candidates.append(SwitcherOrdering.Candidate(id: window.identity, stackIndex: stackIndex, isBackgrounded: isBackgrounded))
-                found[window.identity] = FoundWindow(
-                    window: window, application: application, isBackgrounded: isBackgrounded, windowID: windowID
-                )
-            }
-        }
-
-        return SwitcherOrdering.order(candidates, recent: recent).enumerated().compactMap { index, identity in
-            guard let entry = found[identity] else { return nil }
-            let applicationName = entry.application.localizedName ?? ""
-            let title = entry.window.title
-            let item = SwitcherItem(
-                id: index,
-                title: title.isEmpty ? applicationName : title,
-                applicationName: applicationName,
-                icon: entry.application.icon ?? NSImage(),
-                isBackgrounded: entry.isBackgrounded,
-                preview: entry.windowID.flatMap(previewProvider.cachedPreview)
-            )
-            return (entry.window, entry.windowID, item)
-        }
     }
 }

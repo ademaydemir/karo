@@ -21,13 +21,17 @@ Rectangle-compatible, so switching over keeps your muscle memory.
 | Center | ⌃⌥C |
 | Restore | ⌃⌥⌫ |
 | Next / previous display | ⌃⌥⌘→ / ⌃⌥⌘← |
-| Switch windows (hold ⌥, release to switch) | ⌥Tab / ⌥⇧Tab |
+| Switch windows (hold ⌥, release to switch) | ⌥Tab / ⌥⇧Tab (in Cover Flow, also swipe sideways) |
 
 All window shortcuts can be changed or removed in **Settings… (⌘,)** from the menu bar icon, along with launch at login, drag-snapping sensitivity and the gap between windows.
 
 While the switcher is open: ⌥← / ⌥→ to move, ⌥Esc to cancel, or click a window.
 
-Drag a window to a screen edge or corner to snap it; hold ⇧ while dragging to skip snapping. Turn off macOS's own "Drag windows to screen edges to tile" (System Settings → Desktop & Dock) so the two do not compete.
+Drag a window to a screen edge or corner to snap it; hold ⇧ while dragging to skip snapping. After snapping to a half or a third, Snap Assist offers your other windows for the free side.
+
+Hold ⌃⌥ and drag anywhere inside a window to move it, or right-drag to resize it from the nearest corner (the keys can be changed in Settings).
+
+When you connect or disconnect a display, Tessera puts windows back where they were the last time you used that display setup. Turn off macOS's own "Drag windows to screen edges to tile" (System Settings → Desktop & Dock) so the two do not compete.
 
 ## Requirements
 
