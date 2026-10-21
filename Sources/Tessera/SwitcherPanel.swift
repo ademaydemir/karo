@@ -240,7 +240,7 @@ struct SwitcherView: View {
             case .coverFlow: coverFlow(layout: layout)
             }
 
-            HintBar(hints: model.hints)
+            HintBar(hints: hints)
                 .frame(width: contentWidth(layout: layout))
                 .opacity(openRadialID == nil ? 1 : 0)
                 .animation(.easeOut(duration: 0.15), value: openRadialID)
@@ -248,6 +248,16 @@ struct SwitcherView: View {
         .padding(layout.padding)
         .padding(layout.ringMargin)
         .fixedSize()
+    }
+
+    /// In Cover Flow the quick actions open with a right click, so the hint says so.
+    private var hints: [SwitcherHint] {
+        guard model.style == .coverFlow else { return model.hints }
+        let rightClick = SwitcherHint(
+            keys: String(localized: "Right-click", comment: "Mouse action in a hint"),
+            title: String(localized: "Quick actions")
+        )
+        return [rightClick] + model.hints
     }
 
     // MARK: Grid with app decks
@@ -335,7 +345,7 @@ struct SwitcherView: View {
             item: item,
             isSelected: index == model.selectedIndex,
             layout: layout,
-            allowsRadial: isCentered,
+            radialTrigger: isCoverFlow ? (isCentered ? .secondaryClick : .none) : .hoverOrSecondaryClick,
             // In Cover Flow a side card is brought to the middle first; the middle one switches.
             onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
             onQuickAction: { model.onQuickAction(index, $0) },
@@ -359,6 +369,38 @@ struct SwitcherView: View {
         )
         .frame(width: layout.itemWidth)
         .zIndex(activeID == item.id ? 1 : 0)
+    }
+}
+
+/// Catches right clicks over a SwiftUI view and lets every other event through. SwiftUI's
+/// tap gestures only see the primary button.
+private struct SecondaryClickArea: NSViewRepresentable {
+    let action: () -> Void
+
+    func makeNSView(context: Context) -> CatcherView {
+        let view = CatcherView()
+        view.action = action
+        return view
+    }
+
+    func updateNSView(_ view: CatcherView, context: Context) {
+        view.action = action
+    }
+
+    final class CatcherView: NSView {
+        var action: () -> Void = {}
+
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            // Claiming only right clicks keeps hover, left clicks and scrolling with SwiftUI.
+            guard let type = NSApp.currentEvent?.type, type == .rightMouseDown || type == .rightMouseUp else { return nil }
+            return super.hitTest(point)
+        }
+
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+        override func rightMouseDown(with event: NSEvent) {
+            action()
+        }
     }
 }
 
@@ -436,6 +478,17 @@ private struct CoverFlowPlacement: ViewModifier {
     }
 }
 
+/// How an item's radial menu opens.
+enum RadialTrigger: Equatable {
+    /// Resting the pointer on the item, or a right click.
+    case hoverOrSecondaryClick
+    /// Only a right click. In Cover Flow the pointer rests on the middle card while the user
+    /// scrolls, so resting cannot mean "show actions" there.
+    case secondaryClick
+    /// Never, e.g. for Cover Flow's tilted side cards.
+    case none
+}
+
 private struct SwitcherItemView: View {
     /// Long enough not to open while the pointer passes over items, short enough that the
     /// menu feels like a reaction to pointing at the item.
@@ -447,8 +500,7 @@ private struct SwitcherItemView: View {
     let item: SwitcherItem
     let isSelected: Bool
     let layout: SwitcherLayout
-    /// Off for Cover Flow's tilted side cards.
-    let allowsRadial: Bool
+    let radialTrigger: RadialTrigger
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
     let onActiveChange: (Bool) -> Void
@@ -468,6 +520,11 @@ private struct SwitcherItemView: View {
             .onHover { isCardHovered = $0; updateRadial() }
             .onTapGesture(perform: onChoose)
             .overlay {
+                if radialTrigger != .none {
+                    SecondaryClickArea(action: openRadial)
+                }
+            }
+            .overlay {
                 RadialMenu(
                     isOpen: isRadialOpen,
                     outerRadius: layout.radialRadius,
@@ -486,6 +543,12 @@ private struct SwitcherItemView: View {
                 }
             }
             .onChange(of: isRadialOpen) { _, isOpen in onRadialOpenChange(isOpen) }
+            // A Cover Flow card that scrolls away from the middle loses its menu.
+            .onChange(of: radialTrigger) { _, trigger in
+                if trigger == .none, isRadialOpen {
+                    withAnimation(.easeOut(duration: 0.16)) { isRadialOpen = false }
+                }
+            }
             .onDisappear {
                 openTask?.cancel()
                 closeTask?.cancel()
@@ -531,6 +594,13 @@ private struct SwitcherItemView: View {
         }
     }
 
+    private func openRadial() {
+        guard radialTrigger != .none, !isRadialOpen else { return }
+        openTask?.cancel()
+        openTask = nil
+        withAnimation(.spring(response: 0.36, dampingFraction: 0.7)) { isRadialOpen = true }
+    }
+
     /// Opens the menu after a short rest on the item; closes it once the pointer has stayed
     /// off both the item and the ring for a moment.
     private func updateRadial() {
@@ -539,7 +609,7 @@ private struct SwitcherItemView: View {
             closeTask?.cancel()
             closeTask = nil
             onActiveChange(true)
-            guard allowsRadial, !isRadialOpen, openTask == nil else { return }
+            guard radialTrigger == .hoverOrSecondaryClick, !isRadialOpen, openTask == nil else { return }
             openTask = Task { @MainActor in
                 try? await Task.sleep(for: Self.radialDelay)
                 guard !Task.isCancelled else { return }

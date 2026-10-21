@@ -903,6 +903,17 @@
         }
       }
     },
+    "Right-click": {
+      "comment": "Mouse action in a hint",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ tık"
+          }
+        }
+      }
+    },
     "Screen Recording needed": {
       "localizations": {
         "tr": {
