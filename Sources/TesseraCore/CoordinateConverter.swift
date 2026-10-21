@@ -15,4 +15,8 @@ public enum CoordinateConverter {
             height: rect.height
         )
     }
+
+    public static func flip(_ point: CGPoint, primaryScreenHeight: CGFloat) -> CGPoint {
+        CGPoint(x: point.x, y: primaryScreenHeight - point.y)
+    }
 }

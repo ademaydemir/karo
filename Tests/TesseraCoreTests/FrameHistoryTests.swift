@@ -50,6 +50,20 @@ struct FrameHistoryTests {
         #expect(history.takeRestoreFrame(for: 2) == maximized)
     }
 
+    @Test func dragRestoreMatchesOnSizeOnly() {
+        var history = FrameHistory<Int>()
+        history.recordPlacement(of: 1, from: floating, to: leftHalf)
+        // The drag has already moved the window by the time it is recognised.
+        #expect(history.takeRestoreFrame(for: 1, ifSizeMatches: leftHalf.size) == floating)
+        #expect(history.takeRestoreFrame(for: 1) == nil)
+    }
+
+    @Test func dragRestoreSkipsWindowResizedByUser() {
+        var history = FrameHistory<Int>()
+        history.recordPlacement(of: 1, from: floating, to: leftHalf)
+        #expect(history.takeRestoreFrame(for: 1, ifSizeMatches: CGSize(width: 500, height: 875)) == nil)
+    }
+
     @Test func evictsLeastRecentlyPlacedWindowBeyondCapacity() {
         var history = FrameHistory<Int>(capacity: 2)
         history.recordPlacement(of: 1, from: floating, to: leftHalf)

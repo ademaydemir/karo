@@ -11,9 +11,12 @@ public struct AXWindow {
     /// Undocumented attribute set by assistive tools (VoiceOver, some window managers); while it
     /// is on, apps animate frame changes, which makes successive size/position writes unreliable.
     private static let enhancedUserInterfaceAttribute = "AXEnhancedUserInterface"
+    /// Not exported as a constant by the SDK.
+    private static let fullScreenAttribute = "AXFullScreen"
 
     private let element: AXUIElement
     private let application: AXUIElement
+    public let processIdentifier: pid_t
 
     public var identity: WindowIdentity {
         WindowIdentity(element: element)
@@ -30,10 +33,42 @@ public struct AXWindow {
         AXUIElementSetMessagingTimeout(application, messagingTimeout)
         do {
             let window = try application.element(of: kAXFocusedWindowAttribute)
-            return AXWindow(element: window, application: application)
+            return AXWindow(element: window, application: application, processIdentifier: app.processIdentifier)
         } catch {
             throw AccessibilityError.noFocusedWindow
         }
+    }
+
+    /// The standard window under a screen point, e.g. the window the user clicked.
+    ///
+    /// Panels, sheets, the desktop and full-screen windows are rejected: they should not snap.
+    public static func window(at point: CGPoint) throws -> AXWindow {
+        guard AccessibilityPermission.isGranted else { throw AccessibilityError.permissionDenied }
+        var hit: AXUIElement?
+        let result = AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(), Float(point.x), Float(point.y), &hit)
+        guard result == .success, let hit else { throw AccessibilityError.noWindowAtPosition }
+
+        var processIdentifier: pid_t = 0
+        guard AXUIElementGetPid(hit, &processIdentifier) == .success,
+              processIdentifier != ProcessInfo.processInfo.processIdentifier else {
+            throw AccessibilityError.noWindowAtPosition
+        }
+        let application = AXUIElementCreateApplication(processIdentifier)
+        AXUIElementSetMessagingTimeout(application, messagingTimeout)
+
+        let window: AXUIElement
+        if (try? hit.value(of: kAXRoleAttribute)) as? String == kAXWindowRole {
+            window = hit
+        } else if let parent = try? hit.element(of: kAXWindowAttribute) {
+            window = parent
+        } else {
+            throw AccessibilityError.noWindowAtPosition
+        }
+        guard (try? window.value(of: kAXSubroleAttribute)) as? String == kAXStandardWindowSubrole,
+              (try? window.value(of: fullScreenAttribute)) as? Bool != true else {
+            throw AccessibilityError.noWindowAtPosition
+        }
+        return AXWindow(element: window, application: application, processIdentifier: processIdentifier)
     }
 
     public func frame() throws -> CGRect {

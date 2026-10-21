@@ -46,6 +46,17 @@ public struct FrameHistory<WindowID: Hashable> {
         return entry.original
     }
 
+    /// Returns the frame to restore when the user starts dragging a window Tessera placed.
+    ///
+    /// By the time a drag is recognised the window has already moved, so only the size is
+    /// compared. A different size means the user resized it since, and nothing is restored.
+    public mutating func takeRestoreFrame(for window: WindowID, ifSizeMatches currentSize: CGSize) -> CGRect? {
+        guard let entry = entries[window],
+              abs(entry.applied.width - currentSize.width) <= Self.tolerance,
+              abs(entry.applied.height - currentSize.height) <= Self.tolerance else { return nil }
+        return takeRestoreFrame(for: window)
+    }
+
     private static func isApproximatelyEqual(_ a: CGRect, _ b: CGRect) -> Bool {
         abs(a.minX - b.minX) <= tolerance && abs(a.minY - b.minY) <= tolerance
             && abs(a.width - b.width) <= tolerance && abs(a.height - b.height) <= tolerance

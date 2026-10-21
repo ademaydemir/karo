@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "placement")
     private let windowPlacer = WindowPlacer()
     private let hotkeyManager = HotkeyManager()
+    private lazy var dragSnapController = DragSnapController(placer: windowPlacer)
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
 
@@ -28,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let shortcuts = DefaultShortcuts.all
         registerHotkeys(shortcuts)
+        dragSnapController.start()
 
         let menuBarController = MenuBarController(shortcuts: shortcuts)
         let permissionMonitor = AccessibilityPermissionMonitor { [weak menuBarController] isGranted in
