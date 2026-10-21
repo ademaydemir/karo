@@ -11,6 +11,7 @@ public struct TesseraSettings: Codable, Equatable, Sendable {
     public var cornerSize: CGFloat = 40
     /// Live window thumbnails in the switcher; needs Screen Recording permission, so off by default.
     public var showsWindowPreviews = false
+    public var switcherSize = SwitcherSize.medium
     public var customShortcuts: [WindowAction: KeyboardShortcut] = [:]
     public var disabledShortcuts: Set<WindowAction> = []
 
@@ -63,7 +64,8 @@ public struct TesseraSettings: Codable, Equatable, Sendable {
 
     // Decoding field by field keeps settings saved by older versions readable when fields are added.
     private enum CodingKeys: String, CodingKey {
-        case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, customShortcuts, disabledShortcuts
+        case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize
+        case customShortcuts, disabledShortcuts
     }
 
     public init(from decoder: Decoder) throws {
@@ -76,6 +78,8 @@ public struct TesseraSettings: Codable, Equatable, Sendable {
         cornerSize = try container.decodeIfPresent(CGFloat.self, forKey: .cornerSize) ?? defaults.cornerSize
         showsWindowPreviews = try container.decodeIfPresent(Bool.self, forKey: .showsWindowPreviews)
             ?? defaults.showsWindowPreviews
+        // An unknown size from a newer version falls back to the default instead of failing.
+        switcherSize = (try? container.decodeIfPresent(SwitcherSize.self, forKey: .switcherSize)) ?? defaults.switcherSize
         customShortcuts = try container.decodeIfPresent([WindowAction: KeyboardShortcut].self, forKey: .customShortcuts)
             ?? defaults.customShortcuts
         disabledShortcuts = try container.decodeIfPresent(Set<WindowAction>.self, forKey: .disabledShortcuts)

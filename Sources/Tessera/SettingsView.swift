@@ -172,6 +172,24 @@ struct SwitcherSettingsView: View {
             }
 
             Section {
+                Picker(selection: store.binding(\.switcherSize)) {
+                    ForEach(SwitcherSize.allCases, id: \.self) { size in
+                        Text(verbatim: size.title).tag(size)
+                    }
+                } label: {
+                    Text("Size")
+                    Text("Press \(DefaultShortcuts.switcherLarger.displayString) or \(DefaultShortcuts.switcherSmaller.displayString) while the switcher is open to change it.")
+                }
+                .pickerStyle(.segmented)
+                LabeledContent {
+                    EmptyView()
+                } label: {
+                    Text("Quick actions")
+                    Text("Point at a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.")
+                }
+            }
+
+            Section {
                 Toggle(isOn: Binding(get: { store.settings.showsWindowPreviews }, set: setShowsPreviews)) {
                     Text("Show window previews")
                     Text("Show a thumbnail of each window instead of only its app icon.")

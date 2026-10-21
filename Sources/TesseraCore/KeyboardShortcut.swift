@@ -31,6 +31,12 @@ public enum KeyCode {
     public static let delete: UInt32 = 0x33
     public static let tab: UInt32 = 0x30
     public static let escape: UInt32 = 0x35
+    public static let equal: UInt32 = 0x18
+    public static let minus: UInt32 = 0x1B
+    public static let h: UInt32 = 0x04
+    public static let m: UInt32 = 0x2E
+    public static let q: UInt32 = 0x0C
+    public static let w: UInt32 = 0x0D
     public static let c: UInt32 = 0x08
     public static let d: UInt32 = 0x02
     public static let e: UInt32 = 0x0E

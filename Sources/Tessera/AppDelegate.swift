@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self?.perform(action)
     }
     private lazy var dragSnapController = DragSnapController(placer: windowPlacer)
-    private lazy var windowSwitcher = WindowSwitcher(hotkeys: hotkeyManager)
+    private lazy var windowSwitcher = WindowSwitcher(hotkeys: hotkeyManager, placer: windowPlacer)
     private lazy var settingsWindowController = SettingsWindowController(
         store: settingsStore,
         recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController)
@@ -65,6 +65,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsStore.onChange = { [weak self] settings in
             self?.apply(settings)
         }
+        windowSwitcher.onSizeChange = { [weak self] size in
+            self?.settingsStore.update { $0.switcherSize = size }
+        }
         apply(settingsStore.settings)
 
         // Development aid: `open Tessera.app --args -ShowSettingsTab shortcuts` opens Settings on launch.
@@ -89,6 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         dragSnapController.isEnabled = settings.isDragSnappingEnabled
         dragSnapController.detector = ZoneDetector(edgeThreshold: settings.edgeThreshold, cornerSize: settings.cornerSize)
         windowSwitcher.showsPreviews = settings.showsWindowPreviews
+        windowSwitcher.size = settings.switcherSize
         let shortcuts = settings.effectiveShortcuts
         shortcutController.apply(shortcuts)
         menuBarController?.updateShortcuts(shortcuts)

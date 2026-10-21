@@ -296,6 +296,26 @@
         }
       }
     },
+    "Halves": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yarılar"
+          }
+        }
+      }
+    },
+    "Hide App": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulamayı Gizle"
+          }
+        }
+      }
+    },
     "Hide Others": {
       "localizations": {
         "tr": {
@@ -342,6 +362,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dil"
+          }
+        }
+      }
+    },
+    "Large": {
+      "comment": "Switcher size",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Büyük"
           }
         }
       }
@@ -420,6 +451,27 @@
         }
       }
     },
+    "Medium": {
+      "comment": "Switcher size",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orta"
+          }
+        }
+      }
+    },
+    "Minimize": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Küçült"
+          }
+        }
+      }
+    },
     "Minimized or hidden": {
       "localizations": {
         "tr": {
@@ -437,6 +489,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pencereyi Taşı"
+          }
+        }
+      }
+    },
+    "Move to Next Display": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sonraki Ekrana Taşı"
           }
         }
       }
@@ -493,6 +555,32 @@
         }
       }
     },
+    "Point at a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere değiştiricide bir pencerenin üzerine gelerek onu kapatın, küçültün, gizleyin veya yerleştirin. ⌥ basılıyken aynı işlemler klavyeyle de yapılabilir."
+          }
+        }
+      }
+    },
+    "Press %@ or %@ while the switcher is open to change it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Press %1$@ or %2$@ while the switcher is open to change it."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere değiştirici açıkken değiştirmek için %1$@ veya %2$@ tuşlarına basın."
+          }
+        }
+      }
+    },
     "Previous Display": {
       "comment": "Window action",
       "localizations": {
@@ -500,6 +588,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Önceki Ekran"
+          }
+        }
+      }
+    },
+    "Quick actions": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hızlı işlemler"
+          }
+        }
+      }
+    },
+    "Quit App": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulamadan Çık"
           }
         }
       }
@@ -685,6 +793,27 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pencere önizlemelerini göster"
+          }
+        }
+      }
+    },
+    "Size": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boyut"
+          }
+        }
+      }
+    },
+    "Small": {
+      "comment": "Switcher size",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Küçük"
           }
         }
       }

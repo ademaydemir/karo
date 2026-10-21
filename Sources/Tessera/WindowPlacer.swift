@@ -10,8 +10,11 @@ final class WindowPlacer {
 
     /// Applies an action to the focused window on the display it mostly overlaps.
     func apply(_ action: WindowAction) throws {
-        let window = try AXWindow.focused()
+        try apply(action, to: AXWindow.focused())
+    }
 
+    /// Applies an action to a given window, e.g. one chosen in the window switcher.
+    func apply(_ action: WindowAction, to window: AXWindow) throws {
         if action == .restore {
             guard let frame = history.takeRestoreFrame(for: window.identity) else { return }
             try window.setFrame(frame)

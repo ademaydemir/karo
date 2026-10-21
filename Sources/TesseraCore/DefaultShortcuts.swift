@@ -4,6 +4,14 @@ public enum DefaultShortcuts {
     public static let switchWindowsForward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option])
     public static let switchWindowsBackward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option, .shift])
 
+    /// Keys that only act while the switcher is open (⌥ is held then).
+    public static let switcherNext = KeyboardShortcut(keyCode: KeyCode.rightArrow, modifiers: [.option])
+    public static let switcherPrevious = KeyboardShortcut(keyCode: KeyCode.leftArrow, modifiers: [.option])
+    public static let switcherChoose = KeyboardShortcut(keyCode: KeyCode.returnKey, modifiers: [.option])
+    public static let switcherCancel = KeyboardShortcut(keyCode: KeyCode.escape, modifiers: [.option])
+    public static let switcherLarger = KeyboardShortcut(keyCode: KeyCode.equal, modifiers: [.option])
+    public static let switcherSmaller = KeyboardShortcut(keyCode: KeyCode.minus, modifiers: [.option])
+
     /// Rectangle-compatible defaults, so users switching from Rectangle keep their muscle memory.
     public static let all: [WindowAction: KeyboardShortcut] = {
         let controlOption: KeyboardShortcut.Modifiers = [.control, .option]

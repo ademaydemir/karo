@@ -25,6 +25,8 @@ struct DefaultShortcutsTests {
             (KeyCode.downArrow, kVK_DownArrow), (KeyCode.upArrow, kVK_UpArrow),
             (KeyCode.returnKey, kVK_Return), (KeyCode.delete, kVK_Delete),
             (KeyCode.tab, kVK_Tab), (KeyCode.escape, kVK_Escape),
+            (KeyCode.equal, kVK_ANSI_Equal), (KeyCode.minus, kVK_ANSI_Minus),
+            (KeyCode.h, kVK_ANSI_H), (KeyCode.m, kVK_ANSI_M), (KeyCode.q, kVK_ANSI_Q), (KeyCode.w, kVK_ANSI_W),
             (KeyCode.c, kVK_ANSI_C), (KeyCode.d, kVK_ANSI_D), (KeyCode.e, kVK_ANSI_E),
             (KeyCode.f, kVK_ANSI_F), (KeyCode.g, kVK_ANSI_G), (KeyCode.i, kVK_ANSI_I),
             (KeyCode.j, kVK_ANSI_J), (KeyCode.k, kVK_ANSI_K), (KeyCode.t, kVK_ANSI_T),

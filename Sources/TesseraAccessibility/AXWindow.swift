@@ -113,6 +113,19 @@ public struct AXWindow {
         try application.setValue(kCFBooleanTrue, of: kAXFrontmostAttribute)
     }
 
+    /// Closes the window like its close button, so the app can still ask to save changes.
+    public func close() throws {
+        let button = try element.element(of: kAXCloseButtonAttribute)
+        let result = AXUIElementPerformAction(button, kAXPressAction as CFString)
+        guard result == .success else {
+            throw AccessibilityError.failure(attribute: kAXCloseButtonAttribute, code: result)
+        }
+    }
+
+    public func minimize() throws {
+        try element.setValue(kCFBooleanTrue, of: kAXMinimizedAttribute)
+    }
+
     /// Puts the window above the app's other windows without activating the app.
     public func raise() {
         AXUIElementPerformAction(element, kAXRaiseAction as CFString)

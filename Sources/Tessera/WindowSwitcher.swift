@@ -7,10 +7,12 @@ import TesseraCore
 ///
 /// While ⌥ is held, Tab / ⇧Tab move the selection and releasing ⌥ activates the selected
 /// window. A quick tap switches to the previous window without the panel ever appearing.
+/// Windows can also be closed, minimized or placed right from the panel.
 @MainActor
 final class WindowSwitcher {
     private struct Session {
-        let windows: [AXWindow]
+        /// Parallel to `panel.model.items`.
+        var windows: [AXWindow]
         var selection: SwitcherSelection
         var temporaryHotkeys: [HotkeyManager.Token] = []
         var eventMonitors: [Any] = []
@@ -29,8 +31,14 @@ final class WindowSwitcher {
 
     /// Live window thumbnails; only effective with Screen Recording permission.
     var showsPreviews = false
+    var size = SwitcherSize.medium {
+        didSet { panel.model.size = size }
+    }
+    /// Called when the user resizes the switcher with ⌥+ / ⌥−, so the choice is saved.
+    var onSizeChange: (SwitcherSize) -> Void = { _ in }
 
     private let hotkeys: HotkeyManager
+    private let placer: WindowPlacer
     private let panel = SwitcherPanel()
     private let previewProvider = WindowPreviewProvider()
     private let logger = Logger(subsystem: "dev.ademaydemir.Tessera", category: "switcher")
@@ -38,8 +46,9 @@ final class WindowSwitcher {
     private var focusObserver: FocusedWindowObserver?
     private var session: Session?
 
-    init(hotkeys: HotkeyManager) {
+    init(hotkeys: HotkeyManager, placer: WindowPlacer) {
         self.hotkeys = hotkeys
+        self.placer = placer
         panel.model.onHover = { [weak self] index in
             guard let self, let cursorAtShow = session?.cursorAtShow, NSEvent.mouseLocation != cursorAtShow else { return }
             select(index)
@@ -48,6 +57,10 @@ final class WindowSwitcher {
             self?.select(index)
             self?.commit()
         }
+        panel.model.onQuickAction = { [weak self] index, action in
+            self?.perform(action, at: index)
+        }
+        panel.model.hints = Self.hints
     }
 
     func registerShortcuts() throws {
@@ -92,15 +105,18 @@ final class WindowSwitcher {
 
         let capturesPreviews = showsPreviews && ScreenRecordingPermission.isGranted
         panel.model.showsPreviews = capturesPreviews
+        panel.model.size = size
         panel.model.items = entries.map(\.item)
+        panel.model.selectedIndex = 0
         var session = Session(windows: entries.map(\.window), selection: SwitcherSelection(count: entries.count))
         if capturesPreviews {
-            let targets = entries.enumerated().compactMap { index, entry in
-                entry.windowID.map { (item: index, windowID: $0) }
+            let targets = entries.compactMap { entry in
+                entry.windowID.map { (item: entry.item.id, windowID: $0) }
             }
             session.previewTask = Task { [weak self] in
-                await self?.previewProvider.capturePreviews(for: targets) { index, preview in
-                    guard let self, self.panel.model.items.indices.contains(index) else { return }
+                await self?.previewProvider.capturePreviews(for: targets) { itemID, preview in
+                    // Items may have been removed meanwhile, so match by ID rather than position.
+                    guard let self, let index = self.panel.model.items.firstIndex(where: { $0.id == itemID }) else { return }
                     self.panel.model.items[index].preview = preview
                 }
             }
@@ -133,9 +149,16 @@ final class WindowSwitcher {
     }
 
     private func commit() {
-        guard let session else { return }
+        guard let session, session.windows.indices.contains(session.selection.index) else {
+            close()
+            return
+        }
         let window = session.windows[session.selection.index]
         close()
+        activate(window)
+    }
+
+    private func activate(_ window: AXWindow) {
         do {
             try window.bringToFront()
             recent.touch(window.identity)
@@ -159,17 +182,110 @@ final class WindowSwitcher {
         self.session = nil
     }
 
+    // MARK: - Quick actions
+
+    private func perform(_ action: SwitcherQuickAction, at index: Int) {
+        guard let session, session.windows.indices.contains(index) else { return }
+        let window = session.windows[index]
+        let application = NSRunningApplication(processIdentifier: window.processIdentifier)
+        do {
+            switch action {
+            case .close:
+                try window.close()
+                removeItems { $0 == index }
+            case .minimize:
+                try window.minimize()
+                panel.model.items[index].isBackgrounded = true
+            case .hideApplication:
+                application?.hide()
+                markItems(ofProcess: window.processIdentifier, backgrounded: true)
+            case .quitApplication:
+                application?.terminate()
+                let windows = session.windows
+                removeItems { windows[$0].processIdentifier == window.processIdentifier }
+            case .leftHalf, .rightHalf, .maximize, .nextDisplay:
+                guard let placement = action.windowAction else { return }
+                close()
+                activate(window)
+                try placer.apply(placement, to: window)
+            }
+        } catch {
+            logger.error("Quick action failed: \(String(describing: error), privacy: .public)")
+            NSSound.beep()
+        }
+    }
+
+    /// Drops items whose window is gone, keeping the panel open on the remaining ones.
+    private func removeItems(where shouldRemove: (Int) -> Bool) {
+        guard var session else { return }
+        for index in session.windows.indices.reversed() where shouldRemove(index) {
+            session.windows.remove(at: index)
+            session.selection.remove(at: index)
+            panel.model.items.remove(at: index)
+        }
+        self.session = session
+        guard !session.windows.isEmpty else {
+            close()
+            return
+        }
+        panel.model.selectedIndex = session.selection.index
+        panel.relayout()
+    }
+
+    private func markItems(ofProcess processIdentifier: pid_t, backgrounded: Bool) {
+        guard let session else { return }
+        for index in session.windows.indices where session.windows[index].processIdentifier == processIdentifier {
+            panel.model.items[index].isBackgrounded = backgrounded
+        }
+    }
+
+    private func resize(larger: Bool) {
+        let newSize = larger ? size.larger : size.smaller
+        guard newSize != size else { return }
+        size = newSize
+        onSizeChange(newSize)
+        panel.relayout()
+    }
+
+    // MARK: - Keys
+
+    /// Quick action keys shown at the bottom of the panel.
+    private static var hints: [SwitcherHint] {
+        let actions: [SwitcherQuickAction] = [.close, .minimize, .hideApplication, .quitApplication, .maximize]
+        var hints = actions.map { SwitcherHint(keys: $0.shortcut.displayString, title: $0.title) }
+        hints.insert(
+            SwitcherHint(
+                keys: "\(SwitcherQuickAction.leftHalf.shortcut.displayString) \(SwitcherQuickAction.rightHalf.shortcut.displayString)",
+                title: String(localized: "Halves")
+            ),
+            at: 4
+        )
+        hints.append(SwitcherHint(
+            keys: "\(DefaultShortcuts.switcherLarger.displayString) \(DefaultShortcuts.switcherSmaller.displayString)",
+            title: String(localized: "Size")
+        ))
+        return hints
+    }
+
     /// Keys that only act while the switcher is open, so they keep working in other apps
-    /// otherwise. ⌥ is held at this point, so each arrives with the Option modifier.
+    /// otherwise. ⌥ is held at this point, so each includes the Option modifier.
     private func registerSessionHotkeys() -> [HotkeyManager.Token] {
-        let bindings: [(UInt32, @MainActor () -> Void)] = [
-            (KeyCode.escape, { [weak self] in self?.close() }),
-            (KeyCode.returnKey, { [weak self] in self?.commit() }),
-            (KeyCode.rightArrow, { [weak self] in self?.press(backward: false) }),
-            (KeyCode.leftArrow, { [weak self] in self?.press(backward: true) }),
+        var bindings: [(KeyboardShortcut, @MainActor () -> Void)] = [
+            (DefaultShortcuts.switcherCancel, { [weak self] in self?.close() }),
+            (DefaultShortcuts.switcherChoose, { [weak self] in self?.commit() }),
+            (DefaultShortcuts.switcherNext, { [weak self] in self?.press(backward: false) }),
+            (DefaultShortcuts.switcherPrevious, { [weak self] in self?.press(backward: true) }),
+            (DefaultShortcuts.switcherLarger, { [weak self] in self?.resize(larger: true) }),
+            (DefaultShortcuts.switcherSmaller, { [weak self] in self?.resize(larger: false) }),
         ]
-        return bindings.compactMap { keyCode, handler in
-            try? hotkeys.register(KeyboardShortcut(keyCode: keyCode, modifiers: [.option]), handler: handler)
+        for action in SwitcherQuickAction.allCases {
+            bindings.append((action.shortcut, { [weak self] in
+                guard let self, let index = session?.selection.index else { return }
+                perform(action, at: index)
+            }))
+        }
+        return bindings.compactMap { shortcut, handler in
+            try? hotkeys.register(shortcut, handler: handler)
         }
     }
 
