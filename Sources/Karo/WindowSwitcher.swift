@@ -128,6 +128,7 @@ final class WindowSwitcher {
         panel.model.style = style
         panel.model.items = entries.map(\.item)
         panel.model.selectedIndex = 0
+        panel.prepare()
         var session = Session(windows: entries.map(\.window), selection: SwitcherSelection(count: entries.count))
         session.previousWindowIndex = previousWindowID.flatMap { id in entries.firstIndex { $0.item.id == id } }
         if capturesPreviews {

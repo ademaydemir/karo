@@ -91,6 +91,12 @@ final class SwitcherPanel {
         panel.contentView = container
     }
 
+    /// Fits the rows to the display under the cursor. Called when the switcher opens, ahead of
+    /// `show()`, so SwiftUI has applied the width by the time the panel is measured.
+    func prepare() {
+        model.maximumRowWidth = maximumRowWidth(on: screenUnderCursor())
+    }
+
     /// Shows the panel centered on the display under the cursor.
     func show() {
         layoutPanel()
@@ -108,12 +114,32 @@ final class SwitcherPanel {
     }
 
     private func layoutPanel() {
-        let mouse = NSEvent.mouseLocation
-        let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
+        let screen = screenUnderCursor()
+        let rowWidth = maximumRowWidth(on: screen)
+        if model.maximumRowWidth != rowWidth { model.maximumRowWidth = rowWidth }
         let visible = screen?.visibleFrame ?? .zero
-        let layout = model.layout
-        model.maximumRowWidth = visible.width * 0.9 - layout.padding * 2
+        applyFrame(centeredIn: visible)
 
+        // SwiftUI applies model changes on its next update, so a size measured right after one
+        // (another display, a removed item, a new size) can be stale and the content would
+        // overflow the panel. Measure again once the update has happened.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.panel.isVisible, self.hostingView.fittingSize != self.panel.frame.size else { return }
+            self.applyFrame(centeredIn: visible)
+        }
+    }
+
+    private func screenUnderCursor() -> NSScreen? {
+        let mouse = NSEvent.mouseLocation
+        return NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
+    }
+
+    private func maximumRowWidth(on screen: NSScreen?) -> CGFloat {
+        (screen?.visibleFrame.width ?? 1_000) * 0.9 - model.layout.padding * 2
+    }
+
+    private func applyFrame(centeredIn visible: CGRect) {
+        let layout = model.layout
         let size = hostingView.fittingSize
         let origin = CGPoint(x: (visible.midX - size.width / 2).rounded(), y: (visible.midY - size.height / 2).rounded())
         panel.setFrame(CGRect(origin: origin, size: size), display: false)
