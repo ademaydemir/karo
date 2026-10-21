@@ -25,6 +25,20 @@ public enum SwitcherOrdering {
             .map(\.element.id)
     }
 
+    /// Brings items of the same group (an app's windows) together, keeping the order of
+    /// first appearance between groups and the original order within each, so the result
+    /// reads deck by deck exactly as the grid shows it.
+    public static func grouped<Element, Group: Hashable>(_ elements: [Element], by group: (Element) -> Group) -> [Element] {
+        var order: [Group] = []
+        var members: [Group: [Element]] = [:]
+        for element in elements {
+            let key = group(element)
+            if members[key] == nil { order.append(key) }
+            members[key, default: []].append(element)
+        }
+        return order.flatMap { members[$0] ?? [] }
+    }
+
     private struct SortKey: Comparable {
         let isBackgrounded: Int
         let recency: Int

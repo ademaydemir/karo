@@ -21,6 +21,10 @@ final class WindowSwitcher {
         /// Cursor location when the panel appeared; hover only selects after the mouse moves,
         /// so a panel opening under a resting cursor does not steal the selection.
         var cursorAtShow: CGPoint?
+        /// Where the first forward press goes: the previously used window. In the grid the
+        /// items are in display order, so this is not simply the next item.
+        var previousWindowIndex: Int?
+        var hasMoved = false
     }
 
     /// A tap released within this delay switches without showing the panel.
@@ -92,9 +96,14 @@ final class WindowSwitcher {
         }
         if backward {
             session?.selection.moveBackward()
+        } else if session?.hasMoved == false, let previous = session?.previousWindowIndex {
+            // A quick ⌥Tab still goes back to the previous window; after that, Tab walks
+            // the items in the order they are shown.
+            session?.selection.select(previous)
         } else {
             session?.selection.moveForward()
         }
+        session?.hasMoved = true
         panel.model.selectedIndex = session?.selection.index ?? 0
     }
 
@@ -103,8 +112,15 @@ final class WindowSwitcher {
             NSSound.beep()
             return false
         }
-        let entries = catalog.windows(includingWindowIDs: showsPreviews)
+        var entries = catalog.windows(includingWindowIDs: showsPreviews)
         guard !entries.isEmpty else { return false }
+        // Most recently used first; the second is the window a quick ⌥Tab returns to.
+        let previousWindowID = entries.count > 1 ? entries[1].item.id : nil
+        if style == .grid {
+            // The grid shows each app's windows as one deck; listing them deck by deck lets
+            // Tab walk through a deck before moving on to the next.
+            entries = SwitcherOrdering.grouped(entries) { $0.item.applicationID }
+        }
 
         let capturesPreviews = showsPreviews && ScreenRecordingPermission.isGranted
         panel.model.showsPreviews = capturesPreviews
@@ -113,6 +129,7 @@ final class WindowSwitcher {
         panel.model.items = entries.map(\.item)
         panel.model.selectedIndex = 0
         var session = Session(windows: entries.map(\.window), selection: SwitcherSelection(count: entries.count))
+        session.previousWindowIndex = previousWindowID.flatMap { id in entries.firstIndex { $0.item.id == id } }
         if capturesPreviews {
             let targets = entries.compactMap { entry in
                 entry.windowID.map { (item: entry.item.id, windowID: $0) }
@@ -149,6 +166,9 @@ final class WindowSwitcher {
 
     private func select(_ index: Int) {
         session?.selection.select(index)
+        // After pointing at a window, Tab continues from there rather than jumping to the
+        // previous window.
+        session?.hasMoved = true
         panel.model.selectedIndex = session?.selection.index ?? 0
     }
 

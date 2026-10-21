@@ -57,6 +57,13 @@ struct SwitcherOrderingTests {
         #expect(SwitcherOrdering.order(candidates, recent: recent) == ["other", "minimized"])
     }
 
+    @Test func groupsAppWindowsTogetherInOrderOfFirstAppearance() {
+        // Most recent first: Safari, Mail, Safari, Terminal, Safari.
+        let windows = [("safari", 1), ("mail", 2), ("safari", 3), ("terminal", 4), ("safari", 5)]
+        let grouped = SwitcherOrdering.grouped(windows) { $0.0 }
+        #expect(grouped.map(\.1) == [1, 3, 5, 2, 4])
+    }
+
     @Test func keepsInputOrderAsLastTieBreaker() {
         let candidates = [
             Candidate(id: "first", stackIndex: nil, isBackgrounded: true),

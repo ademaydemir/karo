@@ -49,16 +49,6 @@
         }
       }
     },
-    "%lld windows": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld pencere"
-          }
-        }
-      }
-    },
     "About Tessera": {
       "localizations": {
         "tr": {
@@ -109,6 +99,16 @@
         }
       }
     },
+    "All windows at once; an app’s windows share one deck.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm pencereler bir arada; bir uygulamanın pencereleri tek destede."
+          }
+        }
+      }
+    },
     "Allow Tessera in System Settings to finish turning this on.": {
       "localizations": {
         "tr": {
@@ -135,6 +135,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "İzin verildi"
+          }
+        }
+      }
+    },
+    "Also %@ / %@ while the switcher is open.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Also %1$@ / %2$@ while the switcher is open."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değiştirici açıkken %1$@ / %2$@ ile de değişir."
           }
         }
       }
@@ -354,16 +370,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Izgara"
-          }
-        }
-      }
-    },
-    "Grid shows every window at once, stacking an app’s windows into a deck. Cover Flow shows one large window; swipe sideways on a Magic Mouse or trackpad to browse.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izgara tüm pencereleri aynı anda gösterir ve bir uygulamanın pencerelerini tek bir destede toplar. Cover Flow tek bir pencereyi büyük gösterir; gezinmek için Magic Mouse veya trackpad'de yana kaydırın."
           }
         }
       }
@@ -660,6 +666,16 @@
         }
       }
     },
+    "One large window at a time; swipe sideways on a Magic Mouse or trackpad.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir seferde tek büyük pencere; Magic Mouse veya trackpad'de yana kaydırın."
+          }
+        }
+      }
+    },
     "Open Desktop & Dock…": {
       "localizations": {
         "tr": {
@@ -690,38 +706,22 @@
         }
       }
     },
-    "Point at a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştiricide bir pencerenin üzerine gelerek onu kapatın, küçültün, gizleyin veya yerleştirin. ⌥ basılıyken aynı işlemler klavyeyle de yapılabilir."
-          }
-        }
-      }
-    },
-    "Press %@ or %@ while the switcher is open to change it.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Press %1$@ or %2$@ while the switcher is open to change it."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştirici açıkken değiştirmek için %1$@ veya %2$@ tuşlarına basın."
-          }
-        }
-      }
-    },
     "Press Esc or click elsewhere to skip.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Geçmek için Esc'e basın veya başka bir yere tıklayın."
+          }
+        }
+      }
+    },
+    "Preview of the selected style": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seçili görünümün önizlemesi"
           }
         }
       }
@@ -910,6 +910,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sağ tık"
+          }
+        }
+      }
+    },
+    "Right-click a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere değiştiricide bir pencereye sağ tıklayarak onu kapatın, küçültün, gizleyin veya yerleştirin. ⌥ basılıyken aynı işlemler klavyeyle de yapılabilir."
           }
         }
       }

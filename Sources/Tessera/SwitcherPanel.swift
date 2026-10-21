@@ -31,7 +31,8 @@ final class SwitcherModel {
     var showsPreviews = false
     var size = SwitcherSize.medium
     var style = SwitcherStyle.grid
-    var maximumColumns = 6
+    /// Widest a row of items may be, so the panel fits on the display.
+    var maximumRowWidth: CGFloat = 1_000
     var hints: [SwitcherHint] = []
     @ObservationIgnored var onHover: (Int) -> Void = { _ in }
     @ObservationIgnored var onChoose: (Int) -> Void = { _ in }
@@ -111,7 +112,7 @@ final class SwitcherPanel {
         let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
         let visible = screen?.visibleFrame ?? .zero
         let layout = model.layout
-        model.maximumColumns = layout.columns(fitting: visible.width * 0.9)
+        model.maximumRowWidth = visible.width * 0.9 - layout.padding * 2
 
         let size = hostingView.fittingSize
         let origin = CGPoint(x: (visible.midX - size.width / 2).rounded(), y: (visible.midY - size.height / 2).rounded())
@@ -215,12 +216,16 @@ struct SwitcherLayout {
     var coverFlowWidth: CGFloat { itemWidth * 4.6 }
     var coverFlowHeight: CGFloat { (showsPreviews ? previewSize.height : iconSize) * 1.15 + 90 }
 
-    func columns(fitting width: CGFloat) -> Int {
-        max(1, Int((width - (padding + ringMargin) * 2 + spacing) / (itemWidth + spacing)))
+    /// Horizontal distance between the cards of an app's deck. Each card shows a good part of
+    /// itself; with many windows they close up, so a deck stays about two items wide.
+    func deckStep(count: Int) -> CGFloat {
+        guard count > 1 else { return 0 }
+        return min(itemWidth * 0.42, itemWidth * 1.2 / CGFloat(count - 1))
     }
 
-    func contentWidth(columns: Int) -> CGFloat {
-        CGFloat(columns) * itemWidth + CGFloat(columns - 1) * spacing
+    /// A deck reserves its whole width, so pointing at it never spreads it over its neighbours.
+    func deckWidth(count: Int) -> CGFloat {
+        itemWidth + deckStep(count: count) * CGFloat(max(count - 1, 0))
     }
 }
 
@@ -250,9 +255,8 @@ struct SwitcherView: View {
         .fixedSize()
     }
 
-    /// In Cover Flow the quick actions open with a right click, so the hint says so.
+    /// The quick actions open with a right click, so the hint says so.
     private var hints: [SwitcherHint] {
-        guard model.style == .coverFlow else { return model.hints }
         let rightClick = SwitcherHint(
             keys: String(localized: "Right-click", comment: "Mouse action in a hint"),
             title: String(localized: "Quick actions")
@@ -273,48 +277,62 @@ struct SwitcherView: View {
         return order.compactMap { groups[$0] }
     }
 
-    private func gridColumns(_ decks: [[Int]]) -> Int {
-        max(1, min(decks.count, model.maximumColumns))
+    /// Decks split into rows that fit the display, by width since decks differ in width.
+    private func gridRows(layout: SwitcherLayout) -> [[[Int]]] {
+        var rows: [[[Int]]] = []
+        var row: [[Int]] = []
+        var width: CGFloat = 0
+        for deck in decks {
+            let deckWidth = layout.deckWidth(count: deck.count)
+            let needed = row.isEmpty ? deckWidth : width + layout.spacing + deckWidth
+            if needed > model.maximumRowWidth, !row.isEmpty {
+                rows.append(row)
+                row = [deck]
+                width = deckWidth
+            } else {
+                row.append(deck)
+                width = needed
+            }
+        }
+        if !row.isEmpty { rows.append(row) }
+        return rows
+    }
+
+    private func rowWidth(_ row: [[Int]], layout: SwitcherLayout) -> CGFloat {
+        row.map { layout.deckWidth(count: $0.count) }.reduce(0, +) + layout.spacing * CGFloat(max(row.count - 1, 0))
     }
 
     private func contentWidth(layout: SwitcherLayout) -> CGFloat {
         switch model.style {
-        case .grid: layout.contentWidth(columns: gridColumns(decks))
+        case .grid: gridRows(layout: layout).map { rowWidth($0, layout: layout) }.max() ?? layout.itemWidth
         case .coverFlow: layout.coverFlowWidth
         }
     }
 
     private func grid(layout: SwitcherLayout) -> some View {
-        let decks = self.decks
-        let columnCount = gridColumns(decks)
-        let rows = stride(from: 0, to: decks.count, by: columnCount).map { Array(decks[$0..<min($0 + columnCount, decks.count)]) }
-        // Plain rows rather than a grid: zIndex only orders siblings, so the active deck and
-        // its row are raised for a fanned deck or an open radial menu to cover the others.
-        return VStack(alignment: .leading, spacing: layout.spacing) {
-            ForEach(rows, id: \.first) { row in
-                HStack(spacing: layout.spacing) {
+        // Plain rows rather than a grid: zIndex only orders siblings, so the row with the
+        // active item is raised for its radial menu to cover the rows below.
+        VStack(alignment: .leading, spacing: layout.spacing) {
+            ForEach(gridRows(layout: layout), id: \.first) { row in
+                HStack(alignment: .top, spacing: layout.spacing) {
                     ForEach(row, id: \.first) { deck in
                         DeckView(
                             indices: deck,
-                            isExpanded: isExpanded(deck),
+                            raisedIndex: raisedIndex(in: deck),
                             layout: layout,
                             itemView: { index in itemView(at: index, layout: layout) }
                         )
-                        .zIndex(isRaised(deck) ? 1 : 0)
+                        .zIndex(raisedIndex(in: deck) != nil ? 1 : 0)
                     }
                 }
-                .zIndex(row.contains(where: isRaised) ? 1 : 0)
+                .zIndex(row.contains { raisedIndex(in: $0) != nil } ? 1 : 0)
             }
         }
     }
 
-    /// A deck fans out while the pointer is on one of its windows or the selection is in it.
-    private func isExpanded(_ deck: [Int]) -> Bool {
-        deck.count > 1 && isRaised(deck)
-    }
-
-    private func isRaised(_ deck: [Int]) -> Bool {
-        deck.contains { $0 == model.selectedIndex || model.items[$0].id == activeID }
+    /// The card of a deck that is lifted out: the one under the pointer, else the selected one.
+    private func raisedIndex(in deck: [Int]) -> Int? {
+        deck.first { model.items[$0].id == activeID } ?? deck.first { $0 == model.selectedIndex }
     }
 
     // MARK: Cover Flow
@@ -345,7 +363,9 @@ struct SwitcherView: View {
             item: item,
             isSelected: index == model.selectedIndex,
             layout: layout,
-            radialTrigger: isCoverFlow ? (isCentered ? .secondaryClick : .none) : .hoverOrSecondaryClick,
+            // A right click, never resting: the pointer rests on items all the time while
+            // browsing, and in Cover Flow while scrolling.
+            allowsRadial: isCentered,
             // In Cover Flow a side card is brought to the middle first; the middle one switches.
             onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
             onQuickAction: { model.onQuickAction(index, $0) },
@@ -404,61 +424,32 @@ private struct SecondaryClickArea: NSViewRepresentable {
     }
 }
 
-/// An app's windows as a stack of cards that fans out when expanded. The most recent window
-/// is on top and is the only one that takes the pointer while the deck is closed.
+/// An app's windows as a small hand of cards inside the deck's own cell: each card partly
+/// visible, the most recent on top. The card under the pointer, or the selected one,
+/// straightens and lifts out. Nothing spreads beyond the cell, so neighbours stay untouched
+/// and decks at the panel's edge are not cut off.
 private struct DeckView<Item: View>: View {
     let indices: [Int]
-    let isExpanded: Bool
+    let raisedIndex: Int?
     let layout: SwitcherLayout
     let itemView: (Int) -> Item
 
     var body: some View {
+        let count = indices.count
+        let step = layout.deckStep(count: count)
         ZStack {
             ForEach(Array(indices.enumerated()), id: \.element) { position, index in
+                let centered = CGFloat(position) - CGFloat(count - 1) / 2
+                let isRaised = raisedIndex == index && count > 1
                 itemView(index)
-                    .modifier(DeckPlacement(position: position, count: indices.count, isExpanded: isExpanded, layout: layout))
-                    .zIndex(Double(indices.count - position))
-                    .allowsHitTesting(isExpanded || position == 0)
+                    .rotationEffect(.degrees(isRaised ? 0 : Double(centered) * 3), anchor: .bottom)
+                    .offset(x: centered * step, y: isRaised ? -8 : abs(centered) * 3)
+                    // Earlier windows on top, so each later card shows its right-hand part.
+                    .zIndex(isRaised ? 100 : Double(count - position))
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if indices.count > 1, !isExpanded {
-                Text(verbatim: "\(indices.count)")
-                    .font(.caption.weight(.semibold))
-                    .monospacedDigit()
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 2)
-                    .background(Color.accentColor, in: Capsule())
-                    .foregroundStyle(.white)
-                    .offset(x: 6, y: -6)
-                    .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel(Text("\(indices.count) windows"))
-            }
-        }
-        .frame(width: layout.itemWidth)
-        .animation(.spring(response: 0.38, dampingFraction: 0.74), value: isExpanded)
-    }
-}
-
-/// Where a card sits in a deck: slightly offset and turned when stacked, spread out in a gentle
-/// arc when the deck is fanned.
-private struct DeckPlacement: ViewModifier {
-    let position: Int
-    let count: Int
-    let isExpanded: Bool
-    let layout: SwitcherLayout
-
-    func body(content: Content) -> some View {
-        let centered = CGFloat(position) - CGFloat(count - 1) / 2
-        // Fanned cards overlap more as the deck grows, so a large deck stays compact.
-        let step = min(layout.itemWidth + 10, layout.itemWidth * 2.4 / CGFloat(max(count - 1, 1)))
-        return content
-            .offset(
-                x: isExpanded ? centered * step : CGFloat(position) * 6,
-                y: isExpanded ? abs(centered) * 6 : -CGFloat(position) * 6
-            )
-            .rotationEffect(.degrees(isExpanded ? Double(centered) * 3 : Double(position) * 3))
-            .scaleEffect(isExpanded ? 1 : 1 - CGFloat(position) * 0.03)
+        .frame(width: layout.deckWidth(count: count))
+        .animation(.spring(response: 0.32, dampingFraction: 0.75), value: raisedIndex)
     }
 }
 
@@ -478,21 +469,7 @@ private struct CoverFlowPlacement: ViewModifier {
     }
 }
 
-/// How an item's radial menu opens.
-enum RadialTrigger: Equatable {
-    /// Resting the pointer on the item, or a right click.
-    case hoverOrSecondaryClick
-    /// Only a right click. In Cover Flow the pointer rests on the middle card while the user
-    /// scrolls, so resting cannot mean "show actions" there.
-    case secondaryClick
-    /// Never, e.g. for Cover Flow's tilted side cards.
-    case none
-}
-
 private struct SwitcherItemView: View {
-    /// Long enough not to open while the pointer passes over items, short enough that the
-    /// menu feels like a reaction to pointing at the item.
-    private static let radialDelay: Duration = .milliseconds(150)
     /// Hover ends for a moment when the pointer crosses from the item onto a slice or the
     /// gap between slices; closing only after this grace period keeps the menu from flickering.
     private static let closeDelay: Duration = .milliseconds(120)
@@ -500,7 +477,10 @@ private struct SwitcherItemView: View {
     let item: SwitcherItem
     let isSelected: Bool
     let layout: SwitcherLayout
-    let radialTrigger: RadialTrigger
+    /// A right click opens the radial menu; resting the pointer never does, since it rests
+    /// on items all the time while browsing (and in Cover Flow while scrolling). Off for
+    /// Cover Flow's tilted side cards.
+    let allowsRadial: Bool
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
     let onActiveChange: (Bool) -> Void
@@ -509,7 +489,6 @@ private struct SwitcherItemView: View {
     @State private var isCardHovered = false
     @State private var isRingHovered = false
     @State private var isRadialOpen = false
-    @State private var openTask: Task<Void, Never>?
     @State private var closeTask: Task<Void, Never>?
 
     var body: some View {
@@ -520,7 +499,7 @@ private struct SwitcherItemView: View {
             .onHover { isCardHovered = $0; updateRadial() }
             .onTapGesture(perform: onChoose)
             .overlay {
-                if radialTrigger != .none {
+                if allowsRadial {
                     SecondaryClickArea(action: openRadial)
                 }
             }
@@ -544,13 +523,12 @@ private struct SwitcherItemView: View {
             }
             .onChange(of: isRadialOpen) { _, isOpen in onRadialOpenChange(isOpen) }
             // A Cover Flow card that scrolls away from the middle loses its menu.
-            .onChange(of: radialTrigger) { _, trigger in
-                if trigger == .none, isRadialOpen {
+            .onChange(of: allowsRadial) { _, allowsRadial in
+                if !allowsRadial, isRadialOpen {
                     withAnimation(.easeOut(duration: 0.16)) { isRadialOpen = false }
                 }
             }
             .onDisappear {
-                openTask?.cancel()
                 closeTask?.cancel()
                 if isRadialOpen { onRadialOpenChange(false) }
             }
@@ -565,7 +543,7 @@ private struct SwitcherItemView: View {
                     .fill(isSelected ? Color.accentColor.opacity(0.32) : .clear)
             }
             .opacity(item.isBackgrounded ? 0.55 : 1)
-            // Immediate feedback while the radial menu is about to open; recedes once it is open.
+            // Grows a little under the pointer; recedes while its radial menu is open.
             .scaleEffect(isRadialOpen ? 0.9 : (isCardHovered ? 1.04 : 1))
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isCardHovered)
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isRadialOpen)
@@ -595,30 +573,18 @@ private struct SwitcherItemView: View {
     }
 
     private func openRadial() {
-        guard radialTrigger != .none, !isRadialOpen else { return }
-        openTask?.cancel()
-        openTask = nil
+        guard allowsRadial, !isRadialOpen else { return }
         withAnimation(.spring(response: 0.36, dampingFraction: 0.7)) { isRadialOpen = true }
     }
 
-    /// Opens the menu after a short rest on the item; closes it once the pointer has stayed
-    /// off both the item and the ring for a moment.
+    /// Reports the pointer over the item or its ring, and closes the menu once the pointer has
+    /// stayed off both for a moment.
     private func updateRadial() {
-        let isActive = isCardHovered || isRingHovered
-        if isActive {
+        if isCardHovered || isRingHovered {
             closeTask?.cancel()
             closeTask = nil
             onActiveChange(true)
-            guard radialTrigger == .hoverOrSecondaryClick, !isRadialOpen, openTask == nil else { return }
-            openTask = Task { @MainActor in
-                try? await Task.sleep(for: Self.radialDelay)
-                guard !Task.isCancelled else { return }
-                withAnimation(.spring(response: 0.36, dampingFraction: 0.7)) { isRadialOpen = true }
-                openTask = nil
-            }
         } else {
-            openTask?.cancel()
-            openTask = nil
             guard closeTask == nil else { return }
             closeTask = Task { @MainActor in
                 try? await Task.sleep(for: Self.closeDelay)

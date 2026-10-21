@@ -204,23 +204,23 @@ struct SwitcherSettingsView: View {
                     }
                 } label: {
                     Text("Style")
-                    Text("Grid shows every window at once, stacking an app’s windows into a deck. Cover Flow shows one large window; swipe sideways on a Magic Mouse or trackpad to browse.")
                 }
                 .pickerStyle(.segmented)
+                SwitcherStylePreview(style: store.settings.switcherStyle)
                 Picker(selection: store.binding(\.switcherSize)) {
                     ForEach(SwitcherSize.allCases, id: \.self) { size in
                         Text(verbatim: size.title).tag(size)
                     }
                 } label: {
                     Text("Size")
-                    Text("Press \(DefaultShortcuts.switcherLarger.displayString) or \(DefaultShortcuts.switcherSmaller.displayString) while the switcher is open to change it.")
+                    Text("Also \(DefaultShortcuts.switcherLarger.displayString) / \(DefaultShortcuts.switcherSmaller.displayString) while the switcher is open.")
                 }
                 .pickerStyle(.segmented)
                 LabeledContent {
                     EmptyView()
                 } label: {
                     Text("Quick actions")
-                    Text("Point at a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.")
+                    Text("Right-click a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.")
                 }
             }
 
