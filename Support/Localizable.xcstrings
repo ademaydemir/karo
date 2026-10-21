@@ -235,6 +235,17 @@
         }
       }
     },
+    "Display": {
+      "comment": "Radial menu: move to next display",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ekran"
+          }
+        }
+      }
+    },
     "Drag to Snap": {
       "localizations": {
         "tr": {
@@ -302,6 +313,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yarılar"
+          }
+        }
+      }
+    },
+    "Hide": {
+      "comment": "Radial menu: hide the app",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gizle"
           }
         }
       }
@@ -393,6 +415,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yerleşim"
+          }
+        }
+      }
+    },
+    "Left": {
+      "comment": "Radial menu: left half",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol"
           }
         }
       }
@@ -602,6 +635,17 @@
         }
       }
     },
+    "Quit": {
+      "comment": "Radial menu: quit the app",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çık"
+          }
+        }
+      }
+    },
     "Quit App": {
       "localizations": {
         "tr": {
@@ -689,6 +733,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Varsayılanlara Döndür"
+          }
+        }
+      }
+    },
+    "Right": {
+      "comment": "Radial menu: right half",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağ"
           }
         }
       }

@@ -24,6 +24,20 @@ extension SwitcherQuickAction {
         }
     }
 
+    /// Fits inside a radial menu slice.
+    var shortTitle: String {
+        switch self {
+        case .close: String(localized: "Close", comment: "Close the window")
+        case .minimize: String(localized: "Minimize")
+        case .hideApplication: String(localized: "Hide", comment: "Radial menu: hide the app")
+        case .quitApplication: String(localized: "Quit", comment: "Radial menu: quit the app")
+        case .leftHalf: String(localized: "Left", comment: "Radial menu: left half")
+        case .maximize: String(localized: "Maximize", comment: "Window action")
+        case .rightHalf: String(localized: "Right", comment: "Radial menu: right half")
+        case .nextDisplay: String(localized: "Display", comment: "Radial menu: move to next display")
+        }
+    }
+
     var symbolName: String {
         switch self {
         case .close: "xmark"
@@ -37,9 +51,10 @@ extension SwitcherQuickAction {
         }
     }
 
-    /// Window controls float at the top-left corner, like a window's own buttons; app
-    /// controls at the top-right; placements along the bottom edge.
-    static let windowControls: [SwitcherQuickAction] = [.close, .minimize]
-    static let applicationControls: [SwitcherQuickAction] = [.hideApplication, .quitApplication]
-    static let placements: [SwitcherQuickAction] = [.leftHalf, .maximize, .rightHalf, .nextDisplay]
+    /// Clockwise from the top. Directional actions sit where they point (right half on the
+    /// right, maximize at the top, minimize at the bottom); the rest fill the diagonals.
+    static let radialOrder: [SwitcherQuickAction] = [
+        .maximize, .nextDisplay, .rightHalf, .quitApplication,
+        .minimize, .hideApplication, .leftHalf, .close,
+    ]
 }
