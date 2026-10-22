@@ -4,6 +4,16 @@ import CoreGraphics
 public enum ResizeGeometry {
     public enum Corner: Sendable {
         case topLeft, topRight, bottomLeft, bottomRight
+
+        /// The window edges that move when dragging this corner.
+        public var edges: [SharedEdges.Edge] {
+            switch self {
+            case .topLeft: [.minX, .minY]
+            case .topRight: [.maxX, .minY]
+            case .bottomLeft: [.minX, .maxY]
+            case .bottomRight: [.maxX, .maxY]
+            }
+        }
     }
 
     /// The corner nearest to the point, i.e. the one the drag will move; the opposite

@@ -13,7 +13,7 @@ import KaroCore
 final class ModifierDragController {
     private enum Gesture {
         case move(window: AXWindow, startFrame: CGRect, startCursor: CGPoint, hasRestoredSize: Bool)
-        case resize(window: AXWindow, startFrame: CGRect, startCursor: CGPoint, corner: ResizeGeometry.Corner)
+        case resize(window: AXWindow, startFrame: CGRect, startCursor: CGPoint, corner: ResizeGeometry.Corner, session: LinkedEdgeResize?, lastFrame: CGRect)
     }
 
     /// `nil` turns the feature off and removes the event tap.
@@ -82,8 +82,15 @@ final class ModifierDragController {
         if let tap { CFMachPortInvalidate(tap) }
         tap = nil
         runLoopSource = nil
-        gesture = nil
+        cancelGesture()
         tracker.cancel()
+    }
+
+    private func cancelGesture() {
+        if case .resize(_, _, _, _, let session, _) = gesture {
+            session?.cancel()
+        }
+        gesture = nil
     }
 
     /// - Returns: Whether the event was handled and must not reach the app.
@@ -105,8 +112,10 @@ final class ModifierDragController {
             tracker.finish(window: window)
             return true
         case .rightMouseUp:
-            guard case .resize = gesture else { return false }
+            guard case .resize(let window, _, _, _, let session, let lastFrame) = gesture else { return false }
             gesture = nil
+            let finalFrame = (try? window.frame()) ?? lastFrame
+            session?.finish(finalFrame: finalFrame)
             return true
         default:
             return false
@@ -114,15 +123,27 @@ final class ModifierDragController {
     }
 
     private func begin(isResize: Bool, at location: CGPoint, flags: CGEventFlags) -> Bool {
-        gesture = nil
+        cancelGesture()
         guard let modifiers, Self.modifiers(in: flags) == modifiers,
               let window = try? AXWindow.window(at: location),
               let frame = try? window.frame() else { return false }
         // Like clicking the window: bring it above its siblings without stealing focus.
         window.raise()
         if isResize {
-            gesture = .resize(window: window, startFrame: frame, startCursor: location,
-                              corner: ResizeGeometry.corner(nearest: location, in: frame))
+            let corner = ResizeGeometry.corner(nearest: location, in: frame)
+            let session: LinkedEdgeResize?
+            if let windowID = WindowServer.match(processIdentifier: window.processIdentifier, frame: frame, in: WindowServer.windows())?.window.id {
+                session = LinkedEdgeResize(
+                    window: window,
+                    windowID: windowID,
+                    initialFrame: frame,
+                    draggedEdges: corner.edges,
+                    placer: placer
+                )
+            } else {
+                session = nil
+            }
+            gesture = .resize(window: window, startFrame: frame, startCursor: location, corner: corner, session: session, lastFrame: frame)
         } else {
             // A placed window can swap places with another, as with a title-bar drag.
             if let windowID = WindowServer.match(processIdentifier: window.processIdentifier, frame: frame, in: WindowServer.windows())?.window.id {
@@ -156,10 +177,15 @@ final class ModifierDragController {
     }
 
     private func continueResize(to location: CGPoint) -> Bool {
-        guard case .resize(let window, let startFrame, let startCursor, let corner) = gesture else { return false }
+        guard case .resize(let window, let startFrame, let startCursor, let corner, let session, _) = gesture else { return false }
         let delta = CGVector(dx: location.x - startCursor.x, dy: location.y - startCursor.y)
+        var frame = ResizeGeometry.resized(startFrame, dragging: corner, by: delta)
+        if let session {
+            frame = session.update(draggedFrame: frame)
+        }
+        gesture = .resize(window: window, startFrame: startFrame, startCursor: startCursor, corner: corner, session: session, lastFrame: frame)
         do {
-            try window.setFrame(ResizeGeometry.resized(startFrame, dragging: corner, by: delta))
+            try window.setFrame(frame)
         } catch {
             logger.error("Resize failed: \(String(describing: error), privacy: .public)")
         }

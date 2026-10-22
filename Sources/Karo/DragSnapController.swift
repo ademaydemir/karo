@@ -19,28 +19,14 @@ final class DragSnapController {
         let cursor: CGPoint
         /// Snapped into a layout slot, so it can swap places with another snapped window.
         let isSnapped: Bool
-    }
-
-    private struct Neighbor {
-        let window: AXWindow
-        let initialFrame: CGRect
-        let side: SharedEdges.Side
-        var lastFrame: CGRect
-    }
-
-    private struct Resize {
-        let window: AXWindow
-        let windowID: CGWindowID
-        let initialFrame: CGRect
-        var neighbors: [Neighbor]
-        var lastUpdate: ContinuousClock.Instant
+        let edgeCandidates: [WindowServer.WindowInfo]
     }
 
     private enum State {
         case idle
         case pressed(Press)
         case dragging(AXWindow)
-        case resizing(Resize)
+        case resizing(LinkedEdgeResize)
         /// The rest of this gesture is not a window drag.
         case ignored
     }
@@ -48,16 +34,34 @@ final class DragSnapController {
     /// Cursor travel before the window is checked, so plain clicks cost no extra AX calls.
     private static let dragStartDistance: CGFloat = 4
     /// Cursor travel after which a window that has not moved means this is not a window drag.
+    /// Only applies when the cursor is not near an edge; edge presses wait for the resize.
     private static let dragGiveUpDistance: CGFloat = 40
-    /// Neighbours follow a resize at most this often; each update is a round trip to their apps.
-    private static let neighborUpdateInterval: Duration = .milliseconds(33)
+    /// macOS accepts resize presses a few points outside a window's edge; 8 pt also covers the band just inside it.
+    private static let edgeReach: CGFloat = 8
+    /// macOS treats presses up to ~20 pt from a corner as corner resizes.
+    private static let cornerReach: CGFloat = 20
+    /// Movement threshold to detect an edge that started moving late; larger than the point
+    /// or two some apps nudge their size by, smaller than any deliberate drag.
+    private static let lateEdgeThreshold: CGFloat = 6
+    /// The window server is polled at this interval while resizing so the translucent preview keeps up even after the mouse stops.
+    private static let previewUpdateInterval: Duration = .milliseconds(8)
 
     var isEnabled = true
 
     private let placer: WindowPlacer
     private let tracker: SnapZoneTracker
     private let logger = Logger(subsystem: "dev.ademaydemir.Karo", category: "drag")
-    private var state = State.idle
+    private var resizeFollowTask: Task<Void, Never>?
+    private var state = State.idle {
+        didSet {
+            guard case .resizing = oldValue else { return }
+            if case .resizing = state { return }
+            stopResizeFollowTask()
+            if case .resizing(let session) = oldValue {
+                session.cancel()
+            }
+        }
+    }
     private var monitor: Any?
 
     init(placer: WindowPlacer, tracker: SnapZoneTracker) {
@@ -86,27 +90,57 @@ final class DragSnapController {
 
     private func mouseDown() {
         tracker.cancel()
+        stopResizeFollowTask()
         guard isEnabled else {
             state = .ignored
             return
         }
         let cursor = ScreenGeometry.cursorLocation()
+        let windows = WindowServer.windows()
+        let edgeCandidates = Array(windows.filter {
+            !SharedEdges.edges(near: cursor, of: $0.bounds, reach: Self.edgeReach).isEmpty
+        }.prefix(2))
+
+        func recordEdgePress() -> Bool {
+            guard let candidate = edgeCandidates.first else { return false }
+            guard let window = AXWindow.window(ofApplication: candidate.processIdentifier, matching: candidate.bounds) else {
+                state = .ignored
+                return true
+            }
+            logger.debug("Edge press on \(edgeCandidates.map(\.id), privacy: .public)")
+            state = .pressed(Press(
+                window: window,
+                windowID: candidate.id,
+                initialFrame: candidate.bounds,
+                cursor: cursor,
+                isSnapped: placer.isPlaced(window, at: candidate.bounds) || placer.looksSnapped(candidate.bounds),
+                edgeCandidates: edgeCandidates
+            ))
+            return true
+        }
+
         do {
             let window = try AXWindow.window(at: cursor)
             let frame = try window.frame()
             guard let windowID = WindowServer.match(
-                processIdentifier: window.processIdentifier, frame: frame, in: WindowServer.windows()
+                processIdentifier: window.processIdentifier, frame: frame, in: windows
             )?.window.id else {
+                if recordEdgePress() { return }
                 logger.debug("Press on window at \(String(describing: frame), privacy: .public) ignored: no window server match")
                 state = .ignored
                 return
             }
             logger.debug("Press on window \(windowID, privacy: .public) at \(String(describing: frame), privacy: .public)")
             state = .pressed(Press(
-                window: window, windowID: windowID, initialFrame: frame, cursor: cursor,
-                isSnapped: placer.isPlaced(window, at: frame) || placer.looksSnapped(frame)
+                window: window,
+                windowID: windowID,
+                initialFrame: frame,
+                cursor: cursor,
+                isSnapped: placer.isPlaced(window, at: frame) || placer.looksSnapped(frame),
+                edgeCandidates: edgeCandidates
             ))
         } catch {
+            if recordEdgePress() { return }
             logger.debug("Press at \(String(describing: cursor), privacy: .public) ignored: \(String(describing: error), privacy: .public)")
             state = .ignored
         }
@@ -120,13 +154,8 @@ final class DragSnapController {
         case .dragging(let window):
             // Holding Shift moves the window freely without snapping or swapping.
             tracker.update(cursor: cursor, window: window, isSuppressed: modifiers.contains(.shift))
-        case .resizing(var resize):
-            guard ContinuousClock.now - resize.lastUpdate >= Self.neighborUpdateInterval else { return }
-            resize.lastUpdate = .now
-            if let frame = WindowServer.bounds(of: resize.windowID) {
-                followResize(&resize, to: frame, isFinal: false)
-            }
-            state = .resizing(resize)
+        case .resizing:
+            break
         case .idle, .ignored:
             break
         }
@@ -137,10 +166,12 @@ final class DragSnapController {
         switch state {
         case .dragging(let window):
             tracker.finish(window: window)
-        case .resizing(var resize):
-            guard let frame = (try? resize.window.frame()) ?? WindowServer.bounds(of: resize.windowID) else { return }
-            followResize(&resize, to: frame, isFinal: true)
-            placer.recordAdjustment(of: resize.window, from: resize.initialFrame, to: frame)
+        case .resizing(let session):
+            stopResizeFollowTask()
+            guard let frame = (try? session.window.frame()) ?? WindowServer.bounds(of: session.windowID) else { return }
+            let lateEdges = SharedEdges.movedEdges(from: session.initialFrame, to: frame, threshold: Self.lateEdgeThreshold)
+            session.addDraggedEdges(lateEdges)
+            session.finish(finalFrame: frame)
         default:
             tracker.cancel()
         }
@@ -156,7 +187,6 @@ final class DragSnapController {
             return
         }
         let isMoving = frame.origin != press.initialFrame.origin && frame.size == press.initialFrame.size
-        let isResizing = frame.size != press.initialFrame.size
         logger.debug("Drag check: travel \(travel, privacy: .public), frame \(String(describing: frame), privacy: .public), moving \(isMoving, privacy: .public)")
 
         if isMoving {
@@ -168,48 +198,71 @@ final class DragSnapController {
                 logger.error("Restore on drag failed: \(String(describing: error), privacy: .public)")
             }
             state = .dragging(press.window)
-        } else if isResizing {
-            let neighbors = sharedEdgeNeighbors(of: press)
-            state = neighbors.isEmpty
-                ? .ignored
-                : .resizing(Resize(window: press.window, windowID: press.windowID, initialFrame: press.initialFrame,
-                                   neighbors: neighbors, lastUpdate: .now))
-        } else if travel >= Self.dragGiveUpDistance {
+            return
+        }
+
+        var resizeTarget: (window: AXWindow, windowID: CGWindowID, initialFrame: CGRect, liveFrame: CGRect)?
+        if frame.size != press.initialFrame.size {
+            resizeTarget = (press.window, press.windowID, press.initialFrame, frame)
+        } else {
+            for candidate in press.edgeCandidates where candidate.id != press.windowID {
+                guard let candidateFrame = WindowServer.bounds(of: candidate.id) else { continue }
+                if candidateFrame.size != candidate.bounds.size {
+                    guard let window = AXWindow.window(ofApplication: candidate.processIdentifier, matching: candidate.bounds) else {
+                        state = .ignored
+                        return
+                    }
+                    resizeTarget = (window, candidate.id, candidate.bounds, candidateFrame)
+                    break
+                }
+            }
+        }
+
+        if let target = resizeTarget {
+            var edges = SharedEdges.edges(near: press.cursor, of: target.initialFrame, reach: Self.edgeReach, cornerReach: Self.cornerReach)
+            if edges.isEmpty {
+                edges = SharedEdges.movedEdges(from: target.initialFrame, to: target.liveFrame, threshold: 0.5)
+            }
+            guard !edges.isEmpty,
+                  let session = LinkedEdgeResize(
+                      window: target.window,
+                      windowID: target.windowID,
+                      initialFrame: target.initialFrame,
+                      draggedEdges: edges,
+                      placer: placer,
+                      allowEmpty: true
+                  ) else {
+                state = .ignored
+                return
+            }
+            session.update(draggedFrame: target.liveFrame)
+            state = .resizing(session)
+            startResizeFollowTask(session: session, liveFrame: target.liveFrame)
+        } else if press.edgeCandidates.isEmpty && travel >= Self.dragGiveUpDistance {
             state = .ignored
         }
     }
 
-    /// Windows that share an edge with the pressed window. Found through the window server
-    /// rather than Karo's placement history, so it works for any windows that sit edge to
-    /// edge, including ones snapped before Karo last started.
-    private func sharedEdgeNeighbors(of press: Press) -> [Neighbor] {
-        let others = WindowServer.windows().filter { $0.id != press.windowID }
-        let candidates = others.enumerated().map { (id: $0.offset, frame: $0.element.bounds) }
-        return SharedEdges.neighbors(of: press.initialFrame, among: candidates, gap: placer.gap).compactMap { neighbor in
-            let info = others[neighbor.id]
-            guard let window = AXWindow.window(ofApplication: info.processIdentifier, matching: info.bounds) else { return nil }
-            return Neighbor(window: window, initialFrame: neighbor.frame, side: neighbor.side, lastFrame: neighbor.frame)
-        }
+    private func stopResizeFollowTask() {
+        resizeFollowTask?.cancel()
+        resizeFollowTask = nil
     }
 
-    /// Moves each neighbour's near edge along with the resized window. While dragging the
-    /// frames are set directly for speed; on release they are fitted properly (apps that size
-    /// in steps) and recorded as still placed.
-    private func followResize(_ resize: inout Resize, to frame: CGRect, isFinal: Bool) {
-        for index in resize.neighbors.indices {
-            let neighbor = resize.neighbors[index]
-            let target = SharedEdges.adjusted(neighbor.initialFrame, on: neighbor.side, of: frame, gap: placer.gap)
-            do {
-                if isFinal {
-                    let display = ScreenGeometry.displays().first { $0.visibleFrame.intersects(target) }
-                    let actual = try placer.fit(neighbor.window, to: target, within: display?.visibleFrame ?? target)
-                    placer.recordAdjustment(of: neighbor.window, from: neighbor.initialFrame, to: actual)
-                } else if target != neighbor.lastFrame {
-                    try neighbor.window.setFrame(target)
-                    resize.neighbors[index].lastFrame = target
+    private func startResizeFollowTask(session: LinkedEdgeResize, liveFrame: CGRect) {
+        stopResizeFollowTask()
+        resizeFollowTask = Task { @MainActor [weak self, weak session] in
+            var lastFrame = liveFrame
+            while !Task.isCancelled {
+                try? await Task.sleep(for: Self.previewUpdateInterval)
+                guard !Task.isCancelled else { break }
+                guard self != nil, let session else { break }
+                guard let currentFrame = WindowServer.bounds(of: session.windowID) else { continue }
+                if currentFrame != lastFrame {
+                    lastFrame = currentFrame
+                    let lateEdges = SharedEdges.movedEdges(from: session.initialFrame, to: currentFrame, threshold: Self.lateEdgeThreshold)
+                    session.addDraggedEdges(lateEdges)
+                    session.update(draggedFrame: currentFrame)
                 }
-            } catch {
-                logger.error("Resizing a neighbour failed: \(String(describing: error), privacy: .public)")
             }
         }
     }
