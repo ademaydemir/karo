@@ -4,8 +4,11 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>CFBundleDisplayName</key>
-	<string>Karo</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>tr</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>Karo</string>
 	<key>CFBundleIconFile</key>
@@ -16,12 +19,9 @@
 	<string>dev.ademaydemir.Karo</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>tr</string>
-	</array>
 	<key>CFBundleName</key>
+	<string>Karo</string>
+	<key>CFBundleDisplayName</key>
 	<string>Karo</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
@@ -29,6 +29,12 @@
 	<string>0.1.4</string>
 	<key>CFBundleVersion</key>
 	<string>5</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/ademaydemir/karo/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>5lPGG7dvOYjQEbsQMbs0pxmGj3bvcw5iyEpvmYE5RMY=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -37,11 +43,5 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Adem Aydemir. MIT License.</string>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://github.com/ademaydemir/karo/releases/latest/download/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>5lPGG7dvOYjQEbsQMbs0pxmGj3bvcw5iyEpvmYE5RMY=</string>
 </dict>
 </plist>
