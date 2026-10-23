@@ -201,9 +201,6 @@ struct SwitcherSettingsView: View {
                 } label: {
                     Text("Switch windows")
                     Text("Hold \(modifier.symbol) and press Tab to step through windows; release \(modifier.symbol) to switch.")
-                    if modifier == .command {
-                        Text("Replaces the macOS app switcher while Karo is running.")
-                    }
                 }
                 .pickerStyle(.segmented)
             }

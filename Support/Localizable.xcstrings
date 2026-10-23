@@ -1015,16 +1015,6 @@
         }
       }
     },
-    "Replaces the macOS app switcher while Karo is running.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo çalışırken macOS uygulama değiştiricisinin yerini alır."
-          }
-        }
-      }
-    },
     "Required": {
       "localizations": {
         "tr": {
