@@ -29,6 +29,12 @@
 	<string>0.0.1</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/ademaydemir/karo/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>5lPGG7dvOYjQEbsQMbs0pxmGj3bvcw5iyEpvmYE5RMY=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

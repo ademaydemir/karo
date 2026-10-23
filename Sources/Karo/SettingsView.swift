@@ -10,11 +10,14 @@ private let settingsWidth: CGFloat = 500
 struct GeneralSettingsView: View {
     let store: SettingsStore
     let launchAtLogin: LaunchAtLogin
+    let updater: Updater
     @State private var isAccessibilityGranted = AccessibilityPermission.isGranted
     @State private var loginItemError: String?
     @State private var language = AppLanguage.current
     /// The language this instance was launched with; a different selection needs a restart.
     @State private var launchLanguage = AppLanguage.current
+
+    private static let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "–"
 
     var body: some View {
         Form {
@@ -56,6 +59,19 @@ struct GeneralSettingsView: View {
                 Toggle(isOn: store.binding(\.showsMenuBarIcon)) {
                     Text("Show in menu bar")
                     Text("When hidden, open Karo again from Finder or Spotlight to see Settings.")
+                }
+            }
+
+            Section {
+                Toggle(isOn: Binding(get: { updater.automaticallyChecksForUpdates },
+                                     set: { updater.automaticallyChecksForUpdates = $0 })) {
+                    Text("Check for updates automatically")
+                    Text("Karo looks for a new version once a day and asks before installing it.")
+                }
+                LabeledContent {
+                    Button("Check Now") { updater.checkForUpdates() }
+                } label: {
+                    Text("Version \(Self.appVersion)")
                 }
             }
 

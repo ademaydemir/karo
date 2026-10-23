@@ -270,6 +270,36 @@
         }
       }
     },
+    "Check Now": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şimdi Denetle"
+          }
+        }
+      }
+    },
+    "Check for Updates…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Güncellemeleri Denetle…"
+          }
+        }
+      }
+    },
+    "Check for updates automatically": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Güncellemeleri otomatik olarak denetle"
+          }
+        }
+      }
+    },
     "Choose a Switcher Style": {
       "localizations": {
         "tr": {
@@ -598,6 +628,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Karo menü çubuğunda çalışır. Pencere işlemleri ve Ayarlar için simgesine tıklayın."
+          }
+        }
+      }
+    },
+    "Karo looks for a new version once a day and asks before installing it.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo günde bir kez yeni sürüm arar ve yüklemeden önce size sorar."
           }
         }
       }
@@ -1493,6 +1533,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kısayola basın…"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sürüm %@"
           }
         }
       }

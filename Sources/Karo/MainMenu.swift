@@ -5,13 +5,24 @@ import AppKit
 /// Without it, standard shortcuts such as ⌘W, ⌘Q and ⌘H have no menu item to trigger.
 @MainActor
 enum MainMenu {
-    static func make(settingsTarget: AnyObject, settingsAction: Selector) -> NSMenu {
+    static func make(
+        settingsTarget: AnyObject,
+        settingsAction: Selector,
+        updatesTarget: AnyObject,
+        updatesAction: Selector
+    ) -> NSMenu {
         let mainMenu = NSMenu()
 
         // The application menu's title is replaced by the app name.
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: String(localized: "About Karo"),
                         action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        let updatesItem = appMenu.addItem(
+            withTitle: String(localized: "Check for Updates…"),
+            action: updatesAction,
+            keyEquivalent: ""
+        )
+        updatesItem.target = updatesTarget
         appMenu.addItem(.separator())
         let settingsItem = appMenu.addItem(withTitle: String(localized: "Settings…"), action: settingsAction, keyEquivalent: ",")
         settingsItem.target = settingsTarget

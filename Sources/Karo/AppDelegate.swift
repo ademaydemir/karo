@@ -21,9 +21,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var snapAssist = SnapAssistController(catalog: windowCatalog, placer: windowPlacer, hotkeys: hotkeyManager)
     private lazy var layoutMemory = LayoutMemoryController(catalog: windowCatalog)
     private lazy var dockPreview = DockPreviewController(catalog: windowCatalog)
+    private let updater = Updater()
     private lazy var settingsWindowController = SettingsWindowController(
         store: settingsStore,
-        recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController)
+        recorder: ShortcutRecorder(store: settingsStore, shortcutController: shortcutController),
+        updater: updater
     )
     private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin(), store: settingsStore)
     private var menuBarController: MenuBarController?
@@ -42,7 +44,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Info.plist sets LSUIElement for the bundled app; this also covers `swift run`.
         NSApp.setActivationPolicy(.accessory)
-        NSApp.mainMenu = MainMenu.make(settingsTarget: self, settingsAction: #selector(openSettings))
+        NSApp.mainMenu = MainMenu.make(
+            settingsTarget: self,
+            settingsAction: #selector(openSettings),
+            updatesTarget: self,
+            updatesAction: #selector(checkForUpdates)
+        )
 
         dragSnapController.start()
         do {
@@ -64,6 +71,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menuBarController.onOpenSettings = { [weak self] in
             self?.openSettings()
+        }
+        menuBarController.onCheckForUpdates = { [weak self] in
+            self?.updater.checkForUpdates()
         }
         menuBarController.onShowWelcome = { [weak self] in
             self?.welcomeWindowController.show()
@@ -136,6 +146,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openSettings() {
         settingsWindowController.show()
+    }
+
+    @objc private func checkForUpdates() {
+        updater.checkForUpdates()
     }
 
     private func apply(_ settings: KaroSettings) {

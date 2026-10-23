@@ -7,6 +7,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     var onMenuWillOpen: (() -> Void)?
     var onAction: ((WindowAction) -> Void)?
     var onOpenSettings: (() -> Void)?
+    var onCheckForUpdates: (() -> Void)?
     var onShowWelcome: (() -> Void)?
 
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -122,6 +123,13 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let aboutItem = NSMenuItem(title: String(localized: "About Karo"), action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
+        let updatesItem = NSMenuItem(
+            title: String(localized: "Check for Updates…"),
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        )
+        updatesItem.target = self
+        menu.addItem(updatesItem)
         menu.addItem(NSMenuItem(
             title: String(localized: "Quit Karo"),
             action: #selector(NSApplication.terminate(_:)),
@@ -146,6 +154,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func showWelcome() {
         onShowWelcome?()
+    }
+
+    @objc private func checkForUpdates() {
+        onCheckForUpdates?()
     }
 
     @objc private func showAbout() {

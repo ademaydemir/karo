@@ -15,13 +15,15 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     private let store: SettingsStore
     private let recorder: ShortcutRecorder
+    private let updater: Updater
     private let launchAtLogin = LaunchAtLogin()
     private var window: NSWindow?
     private var tabController: SettingsTabViewController?
 
-    init(store: SettingsStore, recorder: ShortcutRecorder) {
+    init(store: SettingsStore, recorder: ShortcutRecorder, updater: Updater) {
         self.store = store
         self.recorder = recorder
+        self.updater = updater
     }
 
     func show(tab: Tab? = nil) {
@@ -70,7 +72,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         let symbol: String
         switch tab {
         case .general:
-            content = AnyView(GeneralSettingsView(store: store, launchAtLogin: launchAtLogin))
+            content = AnyView(GeneralSettingsView(store: store, launchAtLogin: launchAtLogin, updater: updater))
             (label, symbol) = (String(localized: "General", comment: "Settings tab"), "gearshape")
         case .snapping:
             content = AnyView(SnappingSettingsView(store: store))
