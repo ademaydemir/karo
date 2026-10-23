@@ -18,10 +18,24 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     /// current language is.
     var displayName: String {
         switch self {
-        case .system: String(localized: "System Default", comment: "Language option that follows macOS")
+        case .system:
+            String(
+                localized: "System Default (\(AppLanguage.systemResolved.displayName))",
+                comment: "Language option that follows macOS; the language it currently resolves to in parentheses"
+            )
         case .english: "English"
         case .turkish: "Türkçe"
         }
+    }
+
+    /// The language macOS picks for Karo when there is no override: the first of the user's
+    /// preferred languages that Karo is localized in, else English.
+    static var systemResolved: AppLanguage {
+        let preferences = UserDefaults.standard.persistentDomain(forName: UserDefaults.globalDomain)?[preferenceKey] as? [String]
+            ?? Locale.preferredLanguages
+        let candidates = allCases.filter { $0 != .system }.map(\.rawValue)
+        let resolved = Bundle.preferredLocalizations(from: candidates, forPreferences: preferences).first
+        return resolved == AppLanguage.turkish.rawValue ? .turkish : .english
     }
 
     static var current: AppLanguage {

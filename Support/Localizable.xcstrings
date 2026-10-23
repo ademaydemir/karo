@@ -1543,13 +1543,13 @@
         }
       }
     },
-    "System Default": {
-      "comment": "Language option that follows macOS",
+    "System Default (%@)": {
+      "comment": "Language option that follows macOS; the language it currently resolves to in parentheses",
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sistem Varsayılanı"
+            "value": "Sistem Varsayılanı (%@)"
           }
         }
       }
