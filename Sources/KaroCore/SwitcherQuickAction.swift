@@ -1,4 +1,4 @@
-/// Actions on a window right from the open switcher, by mouse or with ⌥ held.
+/// Actions on a window right from the open switcher, by mouse or with the held modifier.
 public enum SwitcherQuickAction: CaseIterable, Sendable {
     case close
     case minimize
@@ -20,17 +20,33 @@ public enum SwitcherQuickAction: CaseIterable, Sendable {
         }
     }
 
-    /// ⌥ is already held while the switcher is open, so every shortcut includes it.
-    public var shortcut: KeyboardShortcut {
+    /// The modifier is already held while the switcher is open, so every shortcut includes it.
+    public func shortcut(holding modifier: SwitcherModifier) -> KeyboardShortcut {
+        let mods = modifier.modifiers
+        return switch self {
+        case .close: KeyboardShortcut(keyCode: KeyCode.w, modifiers: mods)
+        case .minimize: KeyboardShortcut(keyCode: KeyCode.m, modifiers: mods)
+        case .hideApplication: KeyboardShortcut(keyCode: KeyCode.h, modifiers: mods)
+        case .quitApplication: KeyboardShortcut(keyCode: KeyCode.q, modifiers: mods)
+        case .leftHalf: KeyboardShortcut(keyCode: KeyCode.leftArrow, modifiers: mods.union(.shift))
+        case .maximize: KeyboardShortcut(keyCode: KeyCode.f, modifiers: mods)
+        case .rightHalf: KeyboardShortcut(keyCode: KeyCode.rightArrow, modifiers: mods.union(.shift))
+        case .nextDisplay: KeyboardShortcut(keyCode: KeyCode.d, modifiers: mods)
+        }
+    }
+}
+
+/// The modifier held while switching windows; Tab is pressed with it.
+public enum SwitcherModifier: String, Codable, CaseIterable, Sendable {
+    /// ⌥Tab sits next to the system's ⌘Tab without taking it over.
+    case option
+    /// ⌘Tab replaces the macOS app switcher while Karo runs.
+    case command
+
+    public var modifiers: KeyboardShortcut.Modifiers {
         switch self {
-        case .close: KeyboardShortcut(keyCode: KeyCode.w, modifiers: [.option])
-        case .minimize: KeyboardShortcut(keyCode: KeyCode.m, modifiers: [.option])
-        case .hideApplication: KeyboardShortcut(keyCode: KeyCode.h, modifiers: [.option])
-        case .quitApplication: KeyboardShortcut(keyCode: KeyCode.q, modifiers: [.option])
-        case .leftHalf: KeyboardShortcut(keyCode: KeyCode.leftArrow, modifiers: [.option, .shift])
-        case .maximize: KeyboardShortcut(keyCode: KeyCode.f, modifiers: [.option])
-        case .rightHalf: KeyboardShortcut(keyCode: KeyCode.rightArrow, modifiers: [.option, .shift])
-        case .nextDisplay: KeyboardShortcut(keyCode: KeyCode.d, modifiers: [.option])
+        case .option: .option
+        case .command: .command
         }
     }
 }

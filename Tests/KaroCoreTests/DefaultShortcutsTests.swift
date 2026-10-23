@@ -8,9 +8,27 @@ struct DefaultShortcutsTests {
     }
 
     @Test func shortcutsAreUnique() {
-        let shortcuts = Array(DefaultShortcuts.all.values)
-            + [DefaultShortcuts.switchWindowsForward, DefaultShortcuts.switchWindowsBackward]
+        let switcher = DefaultShortcuts.switcher(.option)
+        let shortcuts = Array(DefaultShortcuts.all.values) + [switcher.forward, switcher.backward]
         #expect(Set(shortcuts).count == shortcuts.count)
+    }
+
+    @Test func optionSwitcherMatchesPreviousValues() {
+        let switcher = DefaultShortcuts.switcher(.option)
+        #expect(switcher.forward == KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option]))
+        #expect(switcher.backward == KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option, .shift]))
+        #expect(switcher.next == KeyboardShortcut(keyCode: KeyCode.rightArrow, modifiers: [.option]))
+        #expect(switcher.previous == KeyboardShortcut(keyCode: KeyCode.leftArrow, modifiers: [.option]))
+        #expect(switcher.choose == KeyboardShortcut(keyCode: KeyCode.returnKey, modifiers: [.option]))
+        #expect(switcher.cancel == KeyboardShortcut(keyCode: KeyCode.escape, modifiers: [.option]))
+        #expect(switcher.larger == KeyboardShortcut(keyCode: KeyCode.equal, modifiers: [.option]))
+        #expect(switcher.smaller == KeyboardShortcut(keyCode: KeyCode.minus, modifiers: [.option]))
+    }
+
+    @Test func commandSwitcherUsesCommandModifiers() {
+        let switcher = DefaultShortcuts.switcher(.command)
+        #expect(switcher.forward == KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.command]))
+        #expect(switcher.backward == KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.command, .shift]))
     }
 
     @Test func matchesRectangleDefaults() {

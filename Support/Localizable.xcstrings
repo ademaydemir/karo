@@ -525,6 +525,22 @@
         }
       }
     },
+    "Hold %@ and press Tab to step through windows; release %@ to switch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hold %1$@ and press Tab to step through windows; release %2$@ to switch."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencereler arasında ilerlemek için %1$@ tuşunu basılı tutup Tab'a basın; geçiş yapmak için %1$@ tuşunu bırakın."
+          }
+        }
+      }
+    },
     "Hold these keys and drag anywhere in a window to move it, or right-drag to resize it from the nearest corner.": {
       "localizations": {
         "tr": {
@@ -536,6 +552,7 @@
       }
     },
     "Hold ⌥ and press Tab to step through windows; release ⌥ to switch.": {
+      "extractionState": "stale",
       "localizations": {
         "tr": {
           "stringUnit": {
@@ -998,6 +1015,16 @@
         }
       }
     },
+    "Replaces the macOS app switcher while Karo is running.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo çalışırken macOS uygulama değiştiricisinin yerini alır."
+          }
+        }
+      }
+    },
     "Required": {
       "localizations": {
         "tr": {
@@ -1124,7 +1151,18 @@
         }
       }
     },
+    "Right-click a window in the switcher to close, minimize, hide or place it. Holding %@, the same works from the keyboard.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere değiştiricide bir pencereye sağ tıklayarak onu kapatın, küçültün, gizleyin veya yerleştirin. %@ basılıyken aynı işlemler klavyeyle de yapılabilir."
+          }
+        }
+      }
+    },
     "Right-click a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.": {
+      "extractionState": "stale",
       "localizations": {
         "tr": {
           "stringUnit": {

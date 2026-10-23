@@ -3,9 +3,9 @@ import OSLog
 import KaroAccessibility
 import KaroCore
 
-/// ⌥Tab switching between individual windows rather than apps.
+/// Window switching between individual windows rather than apps.
 ///
-/// While ⌥ is held, Tab / ⇧Tab move the selection and releasing ⌥ activates the selected
+/// While the modifier is held, Tab / ⇧Tab move the selection and releasing it activates the selected
 /// window. A quick tap switches to the previous window without the panel ever appearing.
 /// Windows can also be closed, minimized or placed right from the panel.
 @MainActor
@@ -41,7 +41,18 @@ final class WindowSwitcher {
     var style = SwitcherStyle.grid {
         didSet { panel.model.style = style }
     }
-    /// Called when the user resizes the switcher with ⌥+ / ⌥−, so the choice is saved.
+    var modifier = SwitcherModifier.option {
+        didSet {
+            guard modifier != oldValue else { return }
+            close()
+            do {
+                try registerShortcuts()
+            } catch {
+                logger.error("Window switcher shortcuts not registered: \(String(describing: error), privacy: .public)")
+            }
+        }
+    }
+    /// Called when the user resizes the switcher with the held modifier and + / −, so the choice is saved.
     var onSizeChange: (SwitcherSize) -> Void = { _ in }
 
     private let hotkeys: HotkeyManager
@@ -50,6 +61,14 @@ final class WindowSwitcher {
     private let panel = SwitcherPanel()
     private let logger = Logger(subsystem: "dev.ademaydemir.Karo", category: "switcher")
     private var session: Session?
+    private var switchTokens: [HotkeyManager.Token] = []
+
+    private var modifierFlags: NSEvent.ModifierFlags {
+        switch modifier {
+        case .option: .option
+        case .command: .command
+        }
+    }
 
     init(hotkeys: HotkeyManager, placer: WindowPlacer, catalog: WindowCatalog) {
         self.hotkeys = hotkeys
@@ -80,12 +99,15 @@ final class WindowSwitcher {
             panel.model.selectedIndex = session?.selection.index ?? 0
             Haptics.tick()
         }
-        panel.model.hints = Self.hints
     }
 
     func registerShortcuts() throws {
-        try hotkeys.register(DefaultShortcuts.switchWindowsForward) { [weak self] in self?.press(backward: false) }
-        try hotkeys.register(DefaultShortcuts.switchWindowsBackward) { [weak self] in self?.press(backward: true) }
+        switchTokens.forEach(hotkeys.unregister)
+        switchTokens = []
+        let keys = DefaultShortcuts.switcher(modifier)
+        let forward = try hotkeys.register(keys.forward) { [weak self] in self?.press(backward: false) }
+        let backward = try hotkeys.register(keys.backward) { [weak self] in self?.press(backward: true) }
+        switchTokens = [forward, backward]
     }
 
     // MARK: - Session
@@ -97,7 +119,7 @@ final class WindowSwitcher {
         if backward {
             session?.selection.moveBackward()
         } else if session?.hasMoved == false, let previous = session?.previousWindowIndex {
-            // A quick ⌥Tab still goes back to the previous window; after that, Tab walks
+            // A quick tap still goes back to the previous window; after that, Tab walks
             // the items in the order they are shown.
             session?.selection.select(previous)
         } else {
@@ -114,7 +136,7 @@ final class WindowSwitcher {
         }
         var entries = catalog.windows(includingWindowIDs: showsPreviews)
         guard !entries.isEmpty else { return false }
-        // Most recently used first; the second is the window a quick ⌥Tab returns to.
+        // Most recently used first; the second is the window a quick tap returns to.
         let previousWindowID = entries.count > 1 ? entries[1].item.id : nil
         if style == .grid {
             // The grid shows each app's windows as one deck; listing them deck by deck lets
@@ -126,6 +148,8 @@ final class WindowSwitcher {
         panel.model.showsPreviews = capturesPreviews
         panel.model.size = size
         panel.model.style = style
+        panel.model.modifier = modifier
+        panel.model.hints = hints
         panel.model.items = entries.map(\.item)
         panel.model.selectedIndex = 0
         panel.prepare()
@@ -156,8 +180,8 @@ final class WindowSwitcher {
 
     private func showPanelIfStillHeld() {
         guard session != nil else { return }
-        // Safety net in case the ⌥ release was missed.
-        guard NSEvent.modifierFlags.contains(.option) else {
+        // Safety net in case the modifier release was missed.
+        guard NSEvent.modifierFlags.contains(modifierFlags) else {
             commit()
             return
         }
@@ -275,36 +299,38 @@ final class WindowSwitcher {
     // MARK: - Keys
 
     /// Quick action keys shown at the bottom of the panel.
-    private static var hints: [SwitcherHint] {
+    private var hints: [SwitcherHint] {
+        let keys = DefaultShortcuts.switcher(modifier)
         let actions: [SwitcherQuickAction] = [.close, .minimize, .hideApplication, .quitApplication, .maximize]
-        var hints = actions.map { SwitcherHint(keys: $0.shortcut.displayString, title: $0.title) }
+        var hints = actions.map { SwitcherHint(keys: $0.shortcut(holding: modifier).displayString, title: $0.title) }
         hints.insert(
             SwitcherHint(
-                keys: "\(SwitcherQuickAction.leftHalf.shortcut.displayString) \(SwitcherQuickAction.rightHalf.shortcut.displayString)",
+                keys: "\(SwitcherQuickAction.leftHalf.shortcut(holding: modifier).displayString) \(SwitcherQuickAction.rightHalf.shortcut(holding: modifier).displayString)",
                 title: String(localized: "Halves")
             ),
             at: 4
         )
         hints.append(SwitcherHint(
-            keys: "\(DefaultShortcuts.switcherLarger.displayString) \(DefaultShortcuts.switcherSmaller.displayString)",
+            keys: "\(keys.larger.displayString) \(keys.smaller.displayString)",
             title: String(localized: "Size")
         ))
         return hints
     }
 
     /// Keys that only act while the switcher is open, so they keep working in other apps
-    /// otherwise. ⌥ is held at this point, so each includes the Option modifier.
+    /// otherwise. The modifier is held at this point, so each includes it.
     private func registerSessionHotkeys() -> [HotkeyManager.Token] {
+        let keys = DefaultShortcuts.switcher(modifier)
         var bindings: [(KeyboardShortcut, @MainActor () -> Void)] = [
-            (DefaultShortcuts.switcherCancel, { [weak self] in self?.close() }),
-            (DefaultShortcuts.switcherChoose, { [weak self] in self?.commit() }),
-            (DefaultShortcuts.switcherNext, { [weak self] in self?.press(backward: false) }),
-            (DefaultShortcuts.switcherPrevious, { [weak self] in self?.press(backward: true) }),
-            (DefaultShortcuts.switcherLarger, { [weak self] in self?.resize(larger: true) }),
-            (DefaultShortcuts.switcherSmaller, { [weak self] in self?.resize(larger: false) }),
+            (keys.cancel, { [weak self] in self?.close() }),
+            (keys.choose, { [weak self] in self?.commit() }),
+            (keys.next, { [weak self] in self?.press(backward: false) }),
+            (keys.previous, { [weak self] in self?.press(backward: true) }),
+            (keys.larger, { [weak self] in self?.resize(larger: true) }),
+            (keys.smaller, { [weak self] in self?.resize(larger: false) }),
         ]
         for action in SwitcherQuickAction.allCases {
-            bindings.append((action.shortcut, { [weak self] in
+            bindings.append((action.shortcut(holding: modifier), { [weak self] in
                 guard let self, let index = session?.selection.index else { return }
                 perform(action, at: index)
             }))
@@ -315,8 +341,9 @@ final class WindowSwitcher {
     }
 
     private func installModifierMonitors() -> [Any] {
+        let modifierFlags = self.modifierFlags
         let handler: (NSEvent) -> Void = { [weak self] event in
-            guard !event.modifierFlags.contains(.option) else { return }
+            guard !event.modifierFlags.contains(modifierFlags) else { return }
             // Event monitors are called on the main thread.
             MainActor.assumeIsolated { self?.commit() }
         }

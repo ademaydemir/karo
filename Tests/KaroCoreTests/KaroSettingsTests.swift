@@ -47,8 +47,34 @@ struct KaroSettingsTests {
     }
 
     @Test func detectsConflictWithWindowSwitcher() {
-        let settings = KaroSettings()
-        #expect(settings.conflict(for: DefaultShortcuts.switchWindowsForward, assigningTo: .maximize) == .windowSwitcher)
+        var settings = KaroSettings()
+        let optionTab = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option])
+        let commandTab = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.command])
+
+        #expect(settings.conflict(for: optionTab, assigningTo: .maximize) == .windowSwitcher)
+        #expect(settings.conflict(for: commandTab, assigningTo: .maximize) == nil)
+
+        settings.switcherModifier = .command
+        #expect(settings.conflict(for: commandTab, assigningTo: .maximize) == .windowSwitcher)
+        #expect(settings.conflict(for: optionTab, assigningTo: .maximize) == nil)
+    }
+
+    @Test func decodesSettingsWithoutSwitcherModifier() throws {
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: Data(#"{"gap": 12}"#.utf8))
+        #expect(decoded.switcherModifier == .option)
+    }
+
+    @Test func fallsBackToDefaultModifierForUnknownValue() throws {
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: Data(#"{"switcherModifier": "control"}"#.utf8))
+        #expect(decoded.switcherModifier == .option)
+    }
+
+    @Test func roundTripsCommandSwitcherModifier() throws {
+        var settings = KaroSettings()
+        settings.switcherModifier = .command
+        let data = try JSONEncoder().encode(settings)
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: data)
+        #expect(decoded.switcherModifier == .command)
     }
 
     @Test func disabledShortcutNoLongerConflicts() {

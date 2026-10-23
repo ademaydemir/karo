@@ -5,11 +5,12 @@ import Testing
 struct SwitcherQuickActionTests {
     /// Everything that is registered while the switcher is open, plus the permanent ⌥Tab keys.
     private var sessionShortcuts: [KeyboardShortcut] {
-        SwitcherQuickAction.allCases.map(\.shortcut) + [
-            DefaultShortcuts.switchWindowsForward, DefaultShortcuts.switchWindowsBackward,
-            DefaultShortcuts.switcherNext, DefaultShortcuts.switcherPrevious,
-            DefaultShortcuts.switcherChoose, DefaultShortcuts.switcherCancel,
-            DefaultShortcuts.switcherLarger, DefaultShortcuts.switcherSmaller,
+        let switcher = DefaultShortcuts.switcher(.option)
+        return SwitcherQuickAction.allCases.map { $0.shortcut(holding: .option) } + [
+            switcher.forward, switcher.backward,
+            switcher.next, switcher.previous,
+            switcher.choose, switcher.cancel,
+            switcher.larger, switcher.smaller,
         ]
     }
 
@@ -19,6 +20,14 @@ struct SwitcherQuickActionTests {
 
     @Test func sessionShortcutsAllHoldOption() {
         #expect(sessionShortcuts.allSatisfy { $0.modifiers.contains(.option) })
+    }
+
+    @Test func commandQuickActionsContainCommandAndNotOption() {
+        for action in SwitcherQuickAction.allCases {
+            let shortcut = action.shortcut(holding: .command)
+            #expect(shortcut.modifiers.contains(.command))
+            #expect(!shortcut.modifiers.contains(.option))
+        }
     }
 
     @Test func placementActionsMapToWindowActions() {

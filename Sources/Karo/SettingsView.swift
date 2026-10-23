@@ -189,18 +189,23 @@ struct SwitcherSettingsView: View {
     let store: SettingsStore
     @State private var isScreenRecordingGranted = ScreenRecordingPermission.isGranted
 
+    private var modifier: SwitcherModifier { store.settings.switcherModifier }
+
     var body: some View {
         Form {
             Section {
-                LabeledContent {
-                    HStack(spacing: 12) {
-                        KeycapRow(shortcut: DefaultShortcuts.switchWindowsForward)
-                        KeycapRow(shortcut: DefaultShortcuts.switchWindowsBackward)
+                Picker(selection: store.binding(\.switcherModifier)) {
+                    ForEach(SwitcherModifier.allCases, id: \.self) { option in
+                        Text(verbatim: option.title).tag(option)
                     }
                 } label: {
                     Text("Switch windows")
-                    Text("Hold ⌥ and press Tab to step through windows; release ⌥ to switch.")
+                    Text("Hold \(modifier.symbol) and press Tab to step through windows; release \(modifier.symbol) to switch.")
+                    if modifier == .command {
+                        Text("Replaces the macOS app switcher while Karo is running.")
+                    }
                 }
+                .pickerStyle(.segmented)
             }
 
             Section {
@@ -218,15 +223,16 @@ struct SwitcherSettingsView: View {
                         Text(verbatim: size.title).tag(size)
                     }
                 } label: {
+                    let keys = DefaultShortcuts.switcher(modifier)
                     Text("Size")
-                    Text("Also \(DefaultShortcuts.switcherLarger.displayString) / \(DefaultShortcuts.switcherSmaller.displayString) while the switcher is open.")
+                    Text("Also \(keys.larger.displayString) / \(keys.smaller.displayString) while the switcher is open.")
                 }
                 .pickerStyle(.segmented)
                 LabeledContent {
                     EmptyView()
                 } label: {
                     Text("Quick actions")
-                    Text("Right-click a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.")
+                    Text("Right-click a window in the switcher to close, minimize, hide or place it. Holding \(modifier.symbol), the same works from the keyboard.")
                 }
             }
 

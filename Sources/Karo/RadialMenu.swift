@@ -11,6 +11,7 @@ struct RadialMenu: View {
     /// own and each gets its own staggered transition.
     let isOpen: Bool
     let outerRadius: CGFloat
+    var modifier: SwitcherModifier = .option
     let onAction: (SwitcherQuickAction) -> Void
     /// Whether the pointer is over any slice.
     let onHoverChange: (Bool) -> Void
@@ -127,7 +128,7 @@ struct RadialMenu: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: action.title))
         .accessibilityAddTraits(.isButton)
-        .help(Text(verbatim: "\(action.title) (\(action.shortcut.displayString))"))
+        .help(Text(verbatim: "\(action.title) (\(action.shortcut(holding: modifier).displayString))"))
     }
 
     /// Names the slice under the pointer.

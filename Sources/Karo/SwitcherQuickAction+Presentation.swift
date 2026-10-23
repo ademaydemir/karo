@@ -19,6 +19,12 @@ extension SwitcherStyle {
     }
 }
 
+extension SwitcherModifier {
+    /// Shown in Settings next to Tab.
+    var symbol: String { switch self { case .option: "⌥"; case .command: "⌘" } }
+    var title: String { "\(symbol) Tab" }
+}
+
 extension ModifierDrag {
     var title: String {
         switch self {

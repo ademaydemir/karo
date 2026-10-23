@@ -13,6 +13,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     public var showsWindowPreviews = false
     public var switcherSize = SwitcherSize.medium
     public var switcherStyle = SwitcherStyle.grid
+    public var switcherModifier = SwitcherModifier.option
     public var restoresLayoutOnDisplayChange = true
     public var isSnapAssistEnabled = true
     public var modifierDrag = ModifierDrag.controlOption
@@ -63,7 +64,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
 
     /// What else already uses `shortcut`, ignoring `action` itself.
     public func conflict(for shortcut: KeyboardShortcut, assigningTo action: WindowAction) -> ShortcutConflict? {
-        if shortcut == DefaultShortcuts.switchWindowsForward || shortcut == DefaultShortcuts.switchWindowsBackward {
+        let switcher = DefaultShortcuts.switcher(switcherModifier)
+        if shortcut == switcher.forward || shortcut == switcher.backward {
             return .windowSwitcher
         }
         let other = WindowAction.allCases.first { $0 != action && self.shortcut(for: $0) == shortcut }
@@ -73,6 +75,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     // Decoding field by field keeps settings saved by older versions readable when fields are added.
     private enum CodingKeys: String, CodingKey {
         case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize, switcherStyle
+        case switcherModifier
         case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag, showsMenuBarIcon
         case isDockPreviewEnabled
         case customShortcuts, disabledShortcuts
@@ -91,6 +94,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
         // An unknown size from a newer version falls back to the default instead of failing.
         switcherSize = (try? container.decodeIfPresent(SwitcherSize.self, forKey: .switcherSize)) ?? defaults.switcherSize
         switcherStyle = (try? container.decodeIfPresent(SwitcherStyle.self, forKey: .switcherStyle)) ?? defaults.switcherStyle
+        switcherModifier = (try? container.decodeIfPresent(SwitcherModifier.self, forKey: .switcherModifier)) ?? defaults.switcherModifier
         restoresLayoutOnDisplayChange = try container.decodeIfPresent(Bool.self, forKey: .restoresLayoutOnDisplayChange)
             ?? defaults.restoresLayoutOnDisplayChange
         isSnapAssistEnabled = try container.decodeIfPresent(Bool.self, forKey: .isSnapAssistEnabled)

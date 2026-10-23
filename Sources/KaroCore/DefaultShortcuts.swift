@@ -1,15 +1,23 @@
 public enum DefaultShortcuts {
-    /// ⌥Tab sits next to the system's ⌘Tab without taking it over.
-    public static let switchWindowsForward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option])
-    public static let switchWindowsBackward = KeyboardShortcut(keyCode: KeyCode.tab, modifiers: [.option, .shift])
+    /// Keys of the window switcher for a held modifier. All but `forward` / `backward` only act
+    /// while the switcher is open, when the modifier is held, so each includes it.
+    public struct SwitcherKeys: Equatable, Sendable {
+        public let forward, backward, next, previous, choose, cancel, larger, smaller: KeyboardShortcut
+    }
 
-    /// Keys that only act while the switcher is open (⌥ is held then).
-    public static let switcherNext = KeyboardShortcut(keyCode: KeyCode.rightArrow, modifiers: [.option])
-    public static let switcherPrevious = KeyboardShortcut(keyCode: KeyCode.leftArrow, modifiers: [.option])
-    public static let switcherChoose = KeyboardShortcut(keyCode: KeyCode.returnKey, modifiers: [.option])
-    public static let switcherCancel = KeyboardShortcut(keyCode: KeyCode.escape, modifiers: [.option])
-    public static let switcherLarger = KeyboardShortcut(keyCode: KeyCode.equal, modifiers: [.option])
-    public static let switcherSmaller = KeyboardShortcut(keyCode: KeyCode.minus, modifiers: [.option])
+    public static func switcher(_ modifier: SwitcherModifier) -> SwitcherKeys {
+        let mods = modifier.modifiers
+        return SwitcherKeys(
+            forward: KeyboardShortcut(keyCode: KeyCode.tab, modifiers: mods),
+            backward: KeyboardShortcut(keyCode: KeyCode.tab, modifiers: mods.union(.shift)),
+            next: KeyboardShortcut(keyCode: KeyCode.rightArrow, modifiers: mods),
+            previous: KeyboardShortcut(keyCode: KeyCode.leftArrow, modifiers: mods),
+            choose: KeyboardShortcut(keyCode: KeyCode.returnKey, modifiers: mods),
+            cancel: KeyboardShortcut(keyCode: KeyCode.escape, modifiers: mods),
+            larger: KeyboardShortcut(keyCode: KeyCode.equal, modifiers: mods),
+            smaller: KeyboardShortcut(keyCode: KeyCode.minus, modifiers: mods)
+        )
+    }
 
     /// Rectangle-compatible defaults, so users switching from Rectangle keep their muscle memory.
     public static let all: [WindowAction: KeyboardShortcut] = {

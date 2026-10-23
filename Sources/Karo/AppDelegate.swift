@@ -129,6 +129,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return false
     }
 
+    /// Turns the macOS app switcher back on if Karo had disabled it for ⌘Tab switching.
+    func applicationWillTerminate(_ notification: Notification) {
+        SystemAppSwitcher.setEnabled(true)
+    }
+
     @objc private func openSettings() {
         settingsWindowController.show()
     }
@@ -145,6 +150,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowSwitcher.showsPreviews = settings.showsWindowPreviews
         windowSwitcher.size = settings.switcherSize
         windowSwitcher.style = settings.switcherStyle
+        SystemAppSwitcher.setEnabled(settings.switcherModifier != .command)
+        windowSwitcher.modifier = settings.switcherModifier
         let shortcuts = settings.effectiveShortcuts
         shortcutController.apply(shortcuts)
         menuBarController?.updateShortcuts(shortcuts)

@@ -31,6 +31,7 @@ final class SwitcherModel {
     var showsPreviews = false
     var size = SwitcherSize.medium
     var style = SwitcherStyle.grid
+    var modifier = SwitcherModifier.option
     /// Widest a row of items may be, so the panel fits on the display.
     var maximumRowWidth: CGFloat = 1_000
     var hints: [SwitcherHint] = []
@@ -47,7 +48,7 @@ final class SwitcherModel {
     }
 }
 
-/// The floating panel listing windows while ⌥ is held.
+/// The floating panel listing windows while the modifier is held.
 ///
 /// It never becomes key or active, so the frontmost app keeps focus and keyboard input
 /// until a window is chosen. The window is larger than its glass background by a clear
@@ -392,6 +393,7 @@ struct SwitcherView: View {
             // A right click, never resting: the pointer rests on items all the time while
             // browsing, and in Cover Flow while scrolling.
             allowsRadial: isCentered,
+            modifier: model.modifier,
             // In Cover Flow a side card is brought to the middle first; the middle one switches.
             onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
             onQuickAction: { model.onQuickAction(index, $0) },
@@ -507,6 +509,7 @@ private struct SwitcherItemView: View {
     /// on items all the time while browsing (and in Cover Flow while scrolling). Off for
     /// Cover Flow's tilted side cards.
     let allowsRadial: Bool
+    let modifier: SwitcherModifier
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
     let onActiveChange: (Bool) -> Void
@@ -533,6 +536,7 @@ private struct SwitcherItemView: View {
                 RadialMenu(
                     isOpen: isRadialOpen,
                     outerRadius: layout.radialRadius,
+                    modifier: modifier,
                     onAction: onQuickAction,
                     onHoverChange: { isRingHovered = $0; updateRadial() }
                 )
