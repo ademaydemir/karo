@@ -25,6 +25,16 @@ public enum SwitcherOrdering {
             .map(\.element.id)
     }
 
+    /// Apps by most recent activation; apps never activated keep their given order after them.
+    public static func orderApplications<ID>(_ ids: [ID], recent: RecentList<ID>) -> [ID] {
+        ids.enumerated()
+            .sorted { lhs, rhs in
+                (recent.rank(of: lhs.element) ?? .max, lhs.offset)
+                    < (recent.rank(of: rhs.element) ?? .max, rhs.offset)
+            }
+            .map(\.element)
+    }
+
     /// Brings items of the same group (an app's windows) together, keeping the order of
     /// first appearance between groups and the original order within each, so the result
     /// reads deck by deck exactly as the grid shows it.

@@ -12,6 +12,7 @@ struct RadialMenu: View {
     let isOpen: Bool
     let outerRadius: CGFloat
     var modifier: SwitcherModifier = .option
+    var actions: [SwitcherQuickAction] = SwitcherQuickAction.radialOrder
     let onAction: (SwitcherQuickAction) -> Void
     /// Whether the pointer is over any slice.
     let onHoverChange: (Bool) -> Void
@@ -19,7 +20,6 @@ struct RadialMenu: View {
     @State private var hoveredAction: SwitcherQuickAction?
 
     private var innerRadius: CGFloat { outerRadius * 0.46 }
-    private var actions: [SwitcherQuickAction] { SwitcherQuickAction.radialOrder }
 
     var body: some View {
         ZStack {

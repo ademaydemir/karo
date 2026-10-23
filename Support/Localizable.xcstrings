@@ -931,6 +931,16 @@
         }
       }
     },
+    "No windows": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere yok"
+          }
+        }
+      }
+    },
     "None": {
       "comment": "No shortcut assigned",
       "localizations": {

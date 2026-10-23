@@ -10,9 +10,31 @@ import KaroCore
 /// Windows can also be closed, minimized or placed right from the panel.
 @MainActor
 final class WindowSwitcher {
+    /// What an item switches to: a window, or an app running without windows that is reopened.
+    @MainActor
+    private enum Target {
+        case window(AXWindow)
+        case application(NSRunningApplication)
+
+        var processIdentifier: pid_t {
+            switch self {
+            case .window(let window):
+                window.processIdentifier
+            case .application(let application):
+                application.processIdentifier
+            }
+        }
+    }
+
+    private struct Entry {
+        let target: Target
+        let windowID: CGWindowID?
+        let item: SwitcherItem
+    }
+
     private struct Session {
         /// Parallel to `panel.model.items`.
-        var windows: [AXWindow]
+        var targets: [Target]
         var selection: SwitcherSelection
         var temporaryHotkeys: [HotkeyManager.Token] = []
         var eventMonitors: [Any] = []
@@ -134,10 +156,32 @@ final class WindowSwitcher {
             NSSound.beep()
             return false
         }
-        var entries = catalog.windows(includingWindowIDs: showsPreviews)
-        guard !entries.isEmpty else { return false }
-        // Most recently used first; the second is the window a quick tap returns to.
-        let previousWindowID = entries.count > 1 ? entries[1].item.id : nil
+        let windowEntries = catalog.windows(includingWindowIDs: showsPreviews)
+        let windowlessApps = catalog.windowlessApplications(excluding: Set(windowEntries.map(\.item.applicationID)))
+        guard !windowEntries.isEmpty || !windowlessApps.isEmpty else { return false }
+
+        var entries: [Entry] = windowEntries.map {
+            Entry(target: .window($0.window), windowID: $0.windowID, item: $0.item)
+        }
+        var nextID = entries.count
+        for app in windowlessApps {
+            let appName = app.localizedName ?? ""
+            let item = SwitcherItem(
+                id: nextID,
+                title: appName,
+                applicationName: appName,
+                icon: app.icon ?? NSImage(),
+                applicationID: app.processIdentifier,
+                isBackgrounded: true,
+                preview: nil,
+                isWindowless: true
+            )
+            entries.append(Entry(target: .application(app), windowID: nil, item: item))
+            nextID += 1
+        }
+
+        // Most recently used first; the second is the item a quick tap returns to.
+        let previousItemID = entries.count > 1 ? entries[1].item.id : nil
         if style == .grid {
             // The grid shows each app's windows as one deck; listing them deck by deck lets
             // Tab walk through a deck before moving on to the next.
@@ -153,8 +197,8 @@ final class WindowSwitcher {
         panel.model.items = entries.map(\.item)
         panel.model.selectedIndex = 0
         panel.prepare()
-        var session = Session(windows: entries.map(\.window), selection: SwitcherSelection(count: entries.count))
-        session.previousWindowIndex = previousWindowID.flatMap { id in entries.firstIndex { $0.item.id == id } }
+        var session = Session(targets: entries.map(\.target), selection: SwitcherSelection(count: entries.count))
+        session.previousWindowIndex = previousItemID.flatMap { id in entries.firstIndex { $0.item.id == id } }
         if capturesPreviews {
             let targets = entries.compactMap { entry in
                 entry.windowID.map { (item: entry.item.id, windowID: $0) }
@@ -198,13 +242,18 @@ final class WindowSwitcher {
     }
 
     private func commit() {
-        guard let session, session.windows.indices.contains(session.selection.index) else {
+        guard let session, session.targets.indices.contains(session.selection.index) else {
             close()
             return
         }
-        let window = session.windows[session.selection.index]
+        let target = session.targets[session.selection.index]
         close()
-        activate(window)
+        switch target {
+        case .window(let window):
+            activate(window)
+        case .application(let app):
+            reopen(app)
+        }
     }
 
     private func activate(_ window: AXWindow) {
@@ -217,6 +266,24 @@ final class WindowSwitcher {
             }
         } catch {
             logger.error("Switching window failed: \(String(describing: error), privacy: .public)")
+            NSSound.beep()
+        }
+    }
+
+    private func reopen(_ application: NSRunningApplication) {
+        if let bundleURL = application.bundleURL {
+            let config = NSWorkspace.OpenConfiguration()
+            config.activates = true
+            Task { @MainActor [weak self] in
+                do {
+                    _ = try await NSWorkspace.shared.openApplication(at: bundleURL, configuration: config)
+                } catch {
+                    self?.logger.error("Reopening application failed: \(String(describing: error), privacy: .public)")
+                    NSSound.beep()
+                }
+            }
+        } else if !application.activate() {
+            logger.error("Activating application failed")
             NSSound.beep()
         }
     }
@@ -234,46 +301,62 @@ final class WindowSwitcher {
     // MARK: - Quick actions
 
     private func perform(_ action: SwitcherQuickAction, at index: Int) {
-        guard let session, session.windows.indices.contains(index) else { return }
-        let window = session.windows[index]
-        let application = NSRunningApplication(processIdentifier: window.processIdentifier)
-        do {
+        guard let session, session.targets.indices.contains(index) else { return }
+        let target = session.targets[index]
+        let pid = target.processIdentifier
+        let application = NSRunningApplication(processIdentifier: pid)
+        switch target {
+        case .window(let window):
+            do {
+                switch action {
+                case .close:
+                    try window.close()
+                    removeItems { $0 == index }
+                case .minimize:
+                    try window.minimize()
+                    panel.model.items[index].isBackgrounded = true
+                case .hideApplication:
+                    application?.hide()
+                    markItems(ofProcess: pid, backgrounded: true)
+                case .quitApplication:
+                    application?.terminate()
+                    let targets = session.targets
+                    removeItems { targets[$0].processIdentifier == pid }
+                case .leftHalf, .rightHalf, .maximize, .nextDisplay:
+                    guard let placement = action.windowAction else { return }
+                    close()
+                    activate(window)
+                    try placer.apply(placement, to: window)
+                }
+            } catch {
+                logger.error("Quick action failed: \(String(describing: error), privacy: .public)")
+                NSSound.beep()
+            }
+        case .application:
             switch action {
-            case .close:
-                try window.close()
-                removeItems { $0 == index }
-            case .minimize:
-                try window.minimize()
-                panel.model.items[index].isBackgrounded = true
             case .hideApplication:
                 application?.hide()
-                markItems(ofProcess: window.processIdentifier, backgrounded: true)
+                markItems(ofProcess: pid, backgrounded: true)
             case .quitApplication:
                 application?.terminate()
-                let windows = session.windows
-                removeItems { windows[$0].processIdentifier == window.processIdentifier }
-            case .leftHalf, .rightHalf, .maximize, .nextDisplay:
-                guard let placement = action.windowAction else { return }
-                close()
-                activate(window)
-                try placer.apply(placement, to: window)
+                let targets = session.targets
+                removeItems { targets[$0].processIdentifier == pid }
+            case .close, .minimize, .leftHalf, .rightHalf, .maximize, .nextDisplay:
+                NSSound.beep()
             }
-        } catch {
-            logger.error("Quick action failed: \(String(describing: error), privacy: .public)")
-            NSSound.beep()
         }
     }
 
     /// Drops items whose window is gone, keeping the panel open on the remaining ones.
     private func removeItems(where shouldRemove: (Int) -> Bool) {
         guard var session else { return }
-        for index in session.windows.indices.reversed() where shouldRemove(index) {
-            session.windows.remove(at: index)
+        for index in session.targets.indices.reversed() where shouldRemove(index) {
+            session.targets.remove(at: index)
             session.selection.remove(at: index)
             panel.model.items.remove(at: index)
         }
         self.session = session
-        guard !session.windows.isEmpty else {
+        guard !session.targets.isEmpty else {
             close()
             return
         }
@@ -283,7 +366,7 @@ final class WindowSwitcher {
 
     private func markItems(ofProcess processIdentifier: pid_t, backgrounded: Bool) {
         guard let session else { return }
-        for index in session.windows.indices where session.windows[index].processIdentifier == processIdentifier {
+        for index in session.targets.indices where session.targets[index].processIdentifier == processIdentifier {
             panel.model.items[index].isBackgrounded = backgrounded
         }
     }

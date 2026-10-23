@@ -13,6 +13,8 @@ struct SwitcherItem: Identifiable {
     /// Minimized, or its app is hidden.
     var isBackgrounded: Bool
     var preview: NSImage?
+    /// An app running without any window; choosing it reopens the app.
+    var isWindowless = false
 }
 
 struct SwitcherHint: Identifiable {
@@ -393,6 +395,7 @@ struct SwitcherView: View {
             // A right click, never resting: the pointer rests on items all the time while
             // browsing, and in Cover Flow while scrolling.
             allowsRadial: isCentered,
+            dimsWhenBackgrounded: !(isCoverFlow && isCentered),
             modifier: model.modifier,
             // In Cover Flow a side card is brought to the middle first; the middle one switches.
             onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
@@ -509,6 +512,7 @@ private struct SwitcherItemView: View {
     /// on items all the time while browsing (and in Cover Flow while scrolling). Off for
     /// Cover Flow's tilted side cards.
     let allowsRadial: Bool
+    let dimsWhenBackgrounded: Bool
     let modifier: SwitcherModifier
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
@@ -537,17 +541,18 @@ private struct SwitcherItemView: View {
                     isOpen: isRadialOpen,
                     outerRadius: layout.radialRadius,
                     modifier: modifier,
+                    actions: item.isWindowless ? [.hideApplication, .quitApplication] : SwitcherQuickAction.radialOrder,
                     onAction: onQuickAction,
                     onHoverChange: { isRingHovered = $0; updateRadial() }
                 )
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(verbatim: "\(item.title), \(item.applicationName)"))
-            .accessibilityValue(item.isBackgrounded ? Text("Minimized or hidden") : Text(verbatim: ""))
+            .accessibilityValue(item.isWindowless ? Text("No windows") : (item.isBackgrounded ? Text("Minimized or hidden") : Text(verbatim: "")))
             .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
             .accessibilityAction { onChoose() }
             .accessibilityActions {
-                ForEach(SwitcherQuickAction.allCases, id: \.self) { action in
+                ForEach(item.isWindowless ? [.hideApplication, .quitApplication] : SwitcherQuickAction.allCases, id: \.self) { action in
                     Button(action.title) { onQuickAction(action) }
                 }
             }
@@ -572,7 +577,7 @@ private struct SwitcherItemView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(isSelected ? Color.accentColor.opacity(0.32) : .clear)
             }
-            .opacity(item.isBackgrounded ? 0.55 : 1)
+            .opacity(item.isBackgrounded && dimsWhenBackgrounded ? 0.55 : 1)
             // Grows a little under the pointer; recedes while its radial menu is open.
             .scaleEffect(isRadialOpen ? 0.9 : (isCardHovered ? 1.04 : 1))
             .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isCardHovered)
@@ -593,7 +598,12 @@ private struct SwitcherItemView: View {
                 .lineLimit(layout.showsPreviews ? 1 : 2)
                 .truncationMode(.middle)
                 .multilineTextAlignment(.center)
-            if !layout.showsPreviews {
+            if item.isWindowless {
+                Text("No windows")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            } else if !layout.showsPreviews {
                 Text(verbatim: item.applicationName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -643,6 +653,12 @@ private struct SwitcherItemView: View {
                 }
             }
             .frame(width: layout.previewSize.width, height: layout.previewSize.height)
+            .overlay {
+                if item.isWindowless {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(.secondary.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                }
+            }
 
             if item.preview != nil {
                 Image(nsImage: item.icon)

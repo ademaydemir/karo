@@ -71,6 +71,26 @@ struct SwitcherOrderingTests {
         ]
         #expect(SwitcherOrdering.order(candidates, recent: RecentList()) == ["first", "second"])
     }
+
+    @Test func recentApplicationsComeFirstInRecencyOrder() {
+        var recent = RecentList<String>()
+        recent.touch("music")
+        recent.touch("notes")
+        let apps = ["mail", "notes", "music", "safari"]
+        #expect(SwitcherOrdering.orderApplications(apps, recent: recent) == ["notes", "music", "mail", "safari"])
+    }
+
+    @Test func unknownApplicationsKeepInputOrder() {
+        let recent = RecentList<String>()
+        let apps = ["slack", "calendar", "finder"]
+        #expect(SwitcherOrdering.orderApplications(apps, recent: recent) == ["slack", "calendar", "finder"])
+    }
+
+    @Test func emptyApplicationsListReturnsEmpty() {
+        let recent = RecentList<String>()
+        let apps: [String] = []
+        #expect(SwitcherOrdering.orderApplications(apps, recent: recent) == [])
+    }
 }
 
 struct SwitcherSelectionTests {

@@ -18,7 +18,9 @@ final class WindowCatalog {
     var onWindowChange: () -> Void = {}
 
     private var recent = RecentList<WindowIdentity>()
+    private var recentApplications = RecentList<pid_t>()
     private var focusObserver: FocusedWindowObserver?
+    private var activationObserver: Any?
 
     /// Starts recording window focus and changes. Needs Accessibility permission.
     func startTracking() {
@@ -34,6 +36,21 @@ final class WindowCatalog {
         focusObserver = observer
         if let current = try? AXWindow.focused() {
             recent.touch(current.identity)
+        }
+        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            let pid = (notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.processIdentifier
+            MainActor.assumeIsolated {
+                if let pid {
+                    self?.recentApplications.touch(pid)
+                }
+            }
+        }
+        if let frontmost = NSWorkspace.shared.frontmostApplication {
+            recentApplications.touch(frontmost.processIdentifier)
         }
     }
 
@@ -95,6 +112,20 @@ final class WindowCatalog {
             .flatMap { AXWindow.windows(ofApplication: $0.processIdentifier) }
             .filter { !$0.isMinimized }
             .compactMap { window in (try? window.frame()).map { (window, $0) } }
+    }
+
+    /// Regular apps that are running without any window, for the switcher to reopen;
+    /// most recently active first.
+    /// - Parameter processesWithWindows: Apps already known to have windows, e.g. from
+    ///   `windows(includingWindowIDs:)`, so their windows are not looked up again.
+    func windowlessApplications(excluding processesWithWindows: Set<pid_t>) -> [NSRunningApplication] {
+        let candidates = Self.applications().filter {
+            !processesWithWindows.contains($0.processIdentifier)
+                && AXWindow.windows(ofApplication: $0.processIdentifier).isEmpty
+        }
+        let orderedPIDs = SwitcherOrdering.orderApplications(candidates.map(\.processIdentifier), recent: recentApplications)
+        let appsByPID = Dictionary(candidates.map { ($0.processIdentifier, $0) }, uniquingKeysWith: { first, _ in first })
+        return orderedPIDs.compactMap { appsByPID[$0] }
     }
 
     private static func applications() -> [NSRunningApplication] {
