@@ -7,6 +7,7 @@ import KaroCore
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "dev.ademaydemir.Karo", category: "placement")
+    private let lifecycleLogger = Logger(subsystem: "dev.ademaydemir.Karo", category: "lifecycle")
     private let settingsStore = SettingsStore()
     private let windowPlacer = WindowPlacer()
     private let hotkeyManager = HotkeyManager()
@@ -30,6 +31,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin(), store: settingsStore)
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
+    private var runningApplicationsObservation: NSKeyValueObservation?
+    /// Other copies that get a moment to quit by themselves before this one quits them.
+    private var copiesBeingQuit: Set<pid_t> = []
     /// Set when this copy quits right after launch (another copy is running, or it is
     /// moving to Applications), so it leaves shared state such as the ⌘Tab switcher alone.
     private var isHandingOver = false
@@ -58,9 +62,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        if let movedCopy = MoveToApplications.offerIfNeeded() {
+        if let move = MoveToApplications.offerIfNeeded() {
             isHandingOver = true
-            AppRelaunch.relaunch(from: movedCopy)
+            AppRelaunch.relaunch(from: move.destination, ejecting: move.diskImage)
             return
         }
 
@@ -143,6 +147,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !welcomeWindowController.hasBeenShown {
             welcomeWindowController.show()
         }
+
+        watchForOtherCopies()
     }
 
     /// Everything that observes or intercepts other apps needs Accessibility permission, so it
@@ -152,6 +158,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         layoutMemory.start()
         modifierDragController.start()
         dockPreview.start()
+    }
+
+    /// Copies older than 0.1.1 do not check for a running Karo when they start, so the copy
+    /// that is already running quits them; newer copies quit by themselves.
+    private func watchForOtherCopies() {
+        // NSWorkspace posts no launch notification for menu bar apps like Karo, so watch the
+        // list of running applications instead.
+        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications) { [weak self] _, _ in
+            Task { @MainActor [weak self] in self?.quitOtherCopies() }
+        }
+    }
+
+    private func quitOtherCopies() {
+        let others = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+            .filter { $0 != .current && !copiesBeingQuit.contains($0.processIdentifier) }
+        for other in others {
+            let pid = other.processIdentifier
+            copiesBeingQuit.insert(pid)
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(2))
+                defer { self?.copiesBeingQuit.remove(pid) }
+                guard let self,
+                      let runningApp = NSRunningApplication(processIdentifier: pid),
+                      !runningApp.isTerminated
+                else { return }
+
+                let path = runningApp.bundleURL?.path ?? "<unknown>"
+                runningApp.terminate()
+                self.lifecycleLogger.info("Terminated older copy of Karo at \(path, privacy: .public)")
+                self.openSettings()
+                // The quitting copy turns the macOS ⌘Tab switcher back on as it exits.
+                try? await Task.sleep(for: .seconds(1))
+                SystemAppSwitcher.setEnabled(self.settingsStore.settings.switcherModifier != .command)
+            }
+        }
     }
 
     /// Opening Karo again while it runs (Finder, Spotlight, Launchpad) shows Settings. With the

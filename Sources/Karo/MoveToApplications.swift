@@ -6,6 +6,13 @@ import KaroAccessibility
 /// downloaded disk image, where it cannot update itself and its login item would break.
 @MainActor
 enum MoveToApplications {
+    struct Move: Sendable {
+        /// The copy in /Applications to relaunch from.
+        let destination: URL
+        /// The disk image Karo was opened from, ejected once this copy has quit.
+        let diskImage: URL?
+    }
+
     // Development builds run from build/ and must not ask. A constant rather than wrapping the
     // body in #if keeps its strings visible to scripts/update-strings.sh, which builds debug.
     #if DEBUG
@@ -14,10 +21,10 @@ enum MoveToApplications {
     private static let isDevelopmentBuild = false
     #endif
 
-    /// Returns the moved copy when the user agreed; the caller relaunches from it. The caller
-    /// does the relaunch because `NSApp.terminate` does not return, so it has to mark this
-    /// copy as handing over first.
-    static func offerIfNeeded() -> URL? {
+    /// Returns the destination and disk image to eject when the user agreed; the caller relaunches
+    /// from it. The caller does the relaunch because `NSApp.terminate` does not return, so it has
+    /// to mark this copy as handing over first.
+    static func offerIfNeeded() -> Move? {
         guard !isDevelopmentBuild else { return nil }
 
         let bundlePath = Bundle.main.bundleURL.standardized.path
@@ -75,8 +82,16 @@ enum MoveToApplications {
             return nil
         }
 
+        let volumeValues = try? source.resourceValues(forKeys: [.volumeURLKey, .volumeIsReadOnlyKey])
+        let diskImage: URL?
+        if source.path.hasPrefix("/Volumes/"), volumeValues?.volumeIsReadOnly == true {
+            diskImage = volumeValues?.volume
+        } else {
+            diskImage = nil
+        }
+
         if !source.path.contains("/AppTranslocation/"),
-           (try? source.resourceValues(forKeys: [.volumeIsReadOnlyKey]))?.volumeIsReadOnly == false {
+           volumeValues?.volumeIsReadOnly == false {
             do {
                 try fileManager.trashItem(at: source, resultingItemURL: nil)
             } catch {
@@ -84,6 +99,6 @@ enum MoveToApplications {
             }
         }
 
-        return destination
+        return Move(destination: destination, diskImage: diskImage)
     }
 }

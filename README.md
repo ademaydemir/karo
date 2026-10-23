@@ -48,7 +48,7 @@ Quarters, thirds and more are in Settings, where every shortcut can be changed.
 
 ## Install
 
-[Download Karo.dmg](https://github.com/ademaydemir/karo/releases/latest/download/Karo.dmg), open it and drag Karo to Applications. Karo needs macOS 14 or later and runs on Apple silicon and Intel Macs.
+[Download Karo.dmg](https://github.com/ademaydemir/karo/releases/latest/download/Karo.dmg), open it and double-click Karo: it moves itself to Applications and starts. Karo needs macOS 14 or later and runs on Apple silicon and Intel Macs.
 
 On first launch Karo asks for Accessibility permission, which it needs to move other apps' windows. It checks for updates once a day and asks before installing one.
 
