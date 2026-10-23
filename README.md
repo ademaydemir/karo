@@ -5,10 +5,6 @@
 <h1 align="center">Karo</h1>
 
 <p align="center">
-  <b>English</b> · <a href="README.tr.md">Türkçe</a>
-</p>
-
-<p align="center">
   Window management for macOS: snap, place and switch windows without reaching for the mouse.
 </p>
 
@@ -22,6 +18,29 @@
 <p align="center">
   <a href="https://github.com/ademaydemir/karo/releases/latest/download/Karo.dmg"><b>Download Karo.dmg</b></a>
 </p>
+
+<details>
+<summary><b>🇹🇷 Türkçe</b></summary>
+
+<br>
+
+**Karo**, macOS için pencere yönetimi: pencereleri kenarlara yerleştirin, klavyeyle konumlandırın ve aralarında geçiş yapın. Uygulama Türkçe de kullanılabilir.
+
+**Sürükleyerek yerleştirme.** Bir pencereyi ekranın kenarına ya da köşesine sürükleyin; ekranın yarısını ya da çeyreğini kaplasın. Karo ardından boş kalan alan için pencere önerir.
+
+**Klavyeyle yerleştirme.** <kbd>⌃</kbd> <kbd>⌥</kbd> tuşlarını basılı tutup sol ya da sağ yarı için <kbd>←</kbd> veya <kbd>→</kbd>, büyütmek için <kbd>↩</kbd>, eski haline getirmek için <kbd>⌫</kbd> tuşuna basın. Çeyrekler, üçte birler ve daha fazlası Ayarlar'da; her kısayol değiştirilebilir.
+
+**Pencereler arasında geçiş.** <kbd>⌘</kbd> <kbd>Tab</kbd> her uygulama için tek bir ikon gösterir. Karo'nun <kbd>⌥</kbd> <kbd>Tab</kbd> geçişi ise her pencereyi gösterir; sağ tıklayınca hızlı işlemler çıkar.
+
+**Kurulum**
+
+1. [Karo.dmg'yi indirin](https://github.com/ademaydemir/karo/releases/latest/download/Karo.dmg) ve açın.
+2. Karo'ya çift tıklayın. Kendini Uygulamalar klasörüne taşır ve açılır.
+3. Sorulduğunda Erişilebilirlik iznini verin; Karo'nun diğer uygulamaların pencerelerini taşıyabilmesi için bu gerekli.
+
+Karo, macOS 14 veya üstünü gerektirir; Apple silicon ve Intel Mac'lerde çalışır. Günde bir kez güncelleme olup olmadığına bakar ve yüklemeden önce sorar. Animasyonlar aşağıdaki İngilizce bölümde.
+
+</details>
 
 <br>
 
