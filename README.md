@@ -48,7 +48,9 @@ Quarters, thirds and more are in Settings, where every shortcut can be changed.
 
 ## Install
 
-Karo will be available with Homebrew once the first release is out. It needs macOS 14 or later and asks for Accessibility permission on first launch, to move other apps' windows.
+Download the `.dmg` from the [latest release](https://github.com/ademaydemir/karo/releases/latest), open it and drag Karo to Applications. Karo needs macOS 14 or later and runs on Apple silicon and Intel Macs.
+
+On first launch Karo asks for Accessibility permission, which it needs to move other apps' windows. It checks for updates once a day and asks before installing one.
 
 ## License
 
