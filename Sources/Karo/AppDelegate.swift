@@ -30,7 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin(), store: settingsStore)
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
-    private var isDuplicate = false
+    /// Set when this copy quits right after launch (another copy is running, or it is
+    /// moving to Applications), so it leaves shared state such as the ⌘Tab switcher alone.
+    private var isHandingOver = false
 
     static func main() {
         let app = NSApplication.shared
@@ -48,11 +50,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let running = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
             .first(where: { $0 != .current }),
            let url = running.bundleURL {
-            isDuplicate = true
+            isHandingOver = true
             // Opening the running copy again makes it show Settings (see applicationShouldHandleReopen).
             NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) { _, _ in
                 Task { @MainActor in NSApp.terminate(nil) }
             }
+            return
+        }
+
+        if let movedCopy = MoveToApplications.offerIfNeeded() {
+            isHandingOver = true
+            AppRelaunch.relaunch(from: movedCopy)
             return
         }
 
@@ -149,7 +157,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Opening Karo again while it runs (Finder, Spotlight, Launchpad) shows Settings. With the
     /// menu bar icon hidden, this is the way back to them.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        guard !isDuplicate else { return false }
+        guard !isHandingOver else { return false }
         openSettings()
         return false
     }
@@ -157,7 +165,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Turns the macOS app switcher back on if Karo had disabled it for ⌘Tab switching.
     func applicationWillTerminate(_ notification: Notification) {
         // The ⌘Tab switcher belongs to the instance that keeps running.
-        guard !isDuplicate else { return }
+        guard !isHandingOver else { return }
         SystemAppSwitcher.setEnabled(true)
     }
 

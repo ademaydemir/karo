@@ -47,15 +47,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     /// leave the new one unable to register the global shortcuts.
     @MainActor
     static func relaunch() {
-        let path = Bundle.main.bundlePath
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/sh")
-        process.arguments = ["-c", "while kill -0 \(ProcessInfo.processInfo.processIdentifier) 2>/dev/null; do sleep 0.1; done; /usr/bin/open \"$0\"", path]
-        do {
-            try process.run()
-            NSApp.terminate(nil)
-        } catch {
-            NSSound.beep()
-        }
+        AppRelaunch.relaunch()
     }
 }

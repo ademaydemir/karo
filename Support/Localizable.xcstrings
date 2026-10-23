@@ -392,12 +392,42 @@
         }
       }
     },
+    "Do Not Move": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taşıma"
+          }
+        }
+      }
+    },
+    "Do not ask again": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir daha sorma"
+          }
+        }
+      }
+    },
     "Dock": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Dock"
+          }
+        }
+      }
+    },
+    "Drag Karo to the Applications folder in Finder, then open it from there.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo'yu Finder'da Uygulamalar klasörüne sürükleyin ve oradan açın."
           }
         }
       }
@@ -622,6 +652,26 @@
         }
       }
     },
+    "Karo could not be moved": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo taşınamadı"
+          }
+        }
+      }
+    },
+    "Karo is running from outside the Applications folder, for example from the disk image. In Applications it can update itself and start at login.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo, Uygulamalar klasörünün dışından, örneğin disk imajından çalışıyor. Uygulamalar klasöründe kendini güncelleyebilir ve girişte açılabilir."
+          }
+        }
+      }
+    },
     "Karo lives in the menu bar. Click its icon for window actions and Settings.": {
       "localizations": {
         "tr": {
@@ -809,6 +859,16 @@
         }
       }
     },
+    "Move Karo to the Applications folder?": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karo, Uygulamalar klasörüne taşınsın mı?"
+          }
+        }
+      }
+    },
     "Move Window": {
       "comment": "Menu section header",
       "localizations": {
@@ -836,6 +896,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Her yerden taşı ve boyutlandır"
+          }
+        }
+      }
+    },
+    "Move to Applications": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulamalar'a Taşı"
           }
         }
       }
