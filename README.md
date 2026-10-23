@@ -5,6 +5,10 @@
 <h1 align="center">Karo</h1>
 
 <p align="center">
+  <b>English</b> · <a href="README.tr.md">Türkçe</a>
+</p>
+
+<p align="center">
   Window management for macOS: snap, place and switch windows without reaching for the mouse.
 </p>
 
