@@ -30,6 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var welcomeWindowController = WelcomeWindowController(launchAtLogin: LaunchAtLogin(), store: settingsStore)
     private var menuBarController: MenuBarController?
     private var permissionMonitor: AccessibilityPermissionMonitor?
+    private var isDuplicate = false
 
     static func main() {
         let app = NSApplication.shared
@@ -42,6 +43,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Opening a second copy (e.g. the one inside the downloaded disk image) while Karo runs
+        // would put two icons in the menu bar and register every shortcut twice.
+        if let running = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+            .first(where: { $0 != .current }),
+           let url = running.bundleURL {
+            isDuplicate = true
+            // Opening the running copy again makes it show Settings (see applicationShouldHandleReopen).
+            NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) { _, _ in
+                Task { @MainActor in NSApp.terminate(nil) }
+            }
+            return
+        }
+
         // Info.plist sets LSUIElement for the bundled app; this also covers `swift run`.
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = MainMenu.make(
@@ -135,12 +149,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Opening Karo again while it runs (Finder, Spotlight, Launchpad) shows Settings. With the
     /// menu bar icon hidden, this is the way back to them.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        guard !isDuplicate else { return false }
         openSettings()
         return false
     }
 
     /// Turns the macOS app switcher back on if Karo had disabled it for ⌘Tab switching.
     func applicationWillTerminate(_ notification: Notification) {
+        // The ⌘Tab switcher belongs to the instance that keeps running.
+        guard !isDuplicate else { return }
         SystemAppSwitcher.setEnabled(true)
     }
 
