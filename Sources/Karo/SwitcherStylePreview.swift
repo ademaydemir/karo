@@ -16,6 +16,7 @@ struct SwitcherStylePreview: View {
                 switch style {
                 case .grid: GridPreview(step: step)
                 case .coverFlow: CoverFlowPreview(step: step)
+                case .list: ListPreview(step: step)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -53,6 +54,7 @@ struct SwitcherStylePreview: View {
         switch style {
         case .grid: Text("All windows at once; an app’s windows share one deck.")
         case .coverFlow: Text("One large window at a time; swipe sideways on a Magic Mouse or trackpad.")
+        case .list: Text("One window per row with its title; easiest to read with many windows.")
         }
     }
 }
@@ -81,6 +83,61 @@ private struct PreviewCard: View {
                 RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(tint.opacity(0.4), lineWidth: 0.5)
             }
             .frame(width: 58, height: 40)
+    }
+}
+
+/// The list: a highlight fixed in the middle, the rows of an app icon and a title bar moving
+/// up through it as the selection steps on.
+private struct ListPreview: View {
+    let step: Int
+
+    private static let count = 7
+    private static let neighbours = 2
+    private static let rowStep: CGFloat = 18
+    private static let symbols = ["safari", "terminal", "envelope", "doc.text", "message", "music.note", "photo"]
+    private static let tints: [Color] = [.blue, .gray, .indigo, .orange, .green, .pink, .teal]
+    /// Title lengths, so the rows read as different windows.
+    private static let titleWidths: [CGFloat] = [86, 64, 100, 72, 56, 92, 68]
+
+    var body: some View {
+        let selected = step % Self.count
+        ZStack {
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .fill(Color.accentColor.opacity(0.3))
+                .frame(width: 180, height: 16)
+            ForEach(0..<Self.count, id: \.self) { index in
+                let distance = index - selected
+                if abs(distance) <= Self.neighbours {
+                    row(index)
+                        .offset(y: CGFloat(distance) * Self.rowStep)
+                        .opacity(1 - Double(abs(distance)) * 0.3)
+                        .transition(.opacity)
+                }
+            }
+        }
+        .frame(height: Self.rowStep * CGFloat(Self.neighbours * 2 + 1))
+    }
+
+    private func row(_ index: Int) -> some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .fill(Self.tints[index].opacity(0.25))
+                .frame(width: 12, height: 12)
+                .overlay {
+                    Image(systemName: Self.symbols[index])
+                        .font(.system(size: 7, weight: .medium))
+                        .foregroundStyle(Self.tints[index])
+                }
+            RoundedRectangle(cornerRadius: 2)
+                .fill(.secondary.opacity(0.45))
+                .frame(width: Self.titleWidths[index], height: 4)
+            Spacer(minLength: 0)
+            RoundedRectangle(cornerRadius: 2)
+                .fill(.secondary.opacity(0.25))
+                .frame(width: 28, height: 4)
+        }
+        .padding(.horizontal, 6)
+        .frame(width: 180, height: 16)
     }
 }
 

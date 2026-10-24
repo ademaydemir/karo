@@ -827,6 +827,17 @@
         }
       }
     },
+    "List": {
+      "comment": "Switcher style",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liste"
+          }
+        }
+      }
+    },
     "Maximize": {
       "comment": "Window action",
       "localizations": {
@@ -979,6 +990,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bir seferde tek büyük pencere; Magic Mouse veya trackpad'de yana kaydırın."
+          }
+        }
+      }
+    },
+    "One window per row with its title; easiest to read with many windows.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Her satırda başlığıyla bir pencere; çok pencere varken okuması en kolay görünüm."
           }
         }
       }

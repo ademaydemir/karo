@@ -67,6 +67,8 @@ public enum SwitcherStyle: String, Codable, CaseIterable, Sendable {
     case grid
     /// The selected window large in the middle, its neighbours tilted away; scrolls sideways.
     case coverFlow
+    /// One row per window with its title. Easiest to read with many windows.
+    case list
 }
 
 /// How large the switcher draws its items.

@@ -15,6 +15,7 @@ extension SwitcherStyle {
         switch self {
         case .grid: String(localized: "Grid", comment: "Switcher style")
         case .coverFlow: "Cover Flow"
+        case .list: String(localized: "List", comment: "Switcher style")
         }
     }
 }

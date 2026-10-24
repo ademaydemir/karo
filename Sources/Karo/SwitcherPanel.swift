@@ -248,6 +248,31 @@ struct SwitcherLayout {
     var coverFlowWidth: CGFloat { itemWidth * 4.6 }
     var coverFlowHeight: CGFloat { (showsPreviews ? previewSize.height : iconSize) * 1.15 + 90 }
 
+    /// Rows shown above and below the selected one, which stays in the middle of the list.
+    static let listVisibleNeighbours = 4
+    var listIconSize: CGFloat {
+        switch size {
+        case .small: 24
+        case .medium: 32
+        case .large: 40
+        }
+    }
+
+    var listWidth: CGFloat {
+        switch size {
+        case .small: 360
+        case .medium: 460
+        case .large: 580
+        }
+    }
+
+    /// With previews, the selected window is shown beside the list, larger than a row could.
+    var listPreviewSize: CGSize { CGSize(width: listWidth * 0.8, height: listWidth * 0.8 * 10 / 16) }
+    var listContentWidth: CGFloat { showsPreviews ? listWidth + spacing + listPreviewSize.width : listWidth }
+    /// A row's height plus the gap to the next; rows sit at fixed steps from the middle.
+    var listRowStep: CGFloat { listIconSize + 14 }
+    var listHeight: CGFloat { listRowStep * CGFloat(Self.listVisibleNeighbours * 2 + 1) }
+
     /// Horizontal distance between the cards of an app's deck. Each card shows a good part of
     /// itself; with many windows they close up, so a deck stays about two items wide.
     func deckStep(count: Int) -> CGFloat {
@@ -275,6 +300,7 @@ struct SwitcherView: View {
             switch model.style {
             case .grid: grid(layout: layout)
             case .coverFlow: coverFlow(layout: layout)
+            case .list: list(layout: layout)
             }
 
             HintBar(hints: hints)
@@ -347,6 +373,7 @@ struct SwitcherView: View {
         switch model.style {
         case .grid: gridRows(layout: layout).map { rowWidth($0, layout: layout) }.max() ?? layout.itemWidth
         case .coverFlow: layout.coverFlowWidth
+        case .list: layout.listContentWidth
         }
     }
 
@@ -395,11 +422,68 @@ struct SwitcherView: View {
         .animation(.spring(response: 0.4, dampingFraction: 0.82), value: selected)
     }
 
+    // MARK: List
+
+    /// A wheel: the highlight stays in the middle and the rows move through it, so the eye
+    /// stays in one place while Tab steps on. Rows fade towards the ends. Not a scroll view,
+    /// which would clip the radial menu of the middle row.
+    private func list(layout: SwitcherLayout) -> some View {
+        let selected = model.selectedIndex
+        return HStack(alignment: .center, spacing: layout.spacing) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.accentColor.opacity(0.32))
+                    .frame(height: layout.listRowStep - 2)
+                ForEach(Array(model.items.enumerated()), id: \.element.id) { index, _ in
+                    let distance = index - selected
+                    if abs(distance) <= SwitcherLayout.listVisibleNeighbours {
+                        itemView(at: index, layout: layout, isCentered: distance == 0, isListRow: true)
+                            .offset(y: CGFloat(distance) * layout.listRowStep)
+                            .opacity(1 - Double(abs(distance)) * 0.18)
+                            .zIndex(Double(100 - abs(distance)))
+                            .transition(.opacity)
+                    }
+                }
+            }
+            .frame(width: layout.listWidth, height: layout.listHeight)
+            .animation(.spring(response: 0.35, dampingFraction: 0.85), value: selected)
+            if layout.showsPreviews {
+                listPreview(layout: layout)
+            }
+        }
+    }
+
+    /// The selected window's thumbnail, or its app icon until one arrives or when it has no window.
+    private func listPreview(layout: SwitcherLayout) -> some View {
+        let item = model.items.indices.contains(model.selectedIndex) ? model.items[model.selectedIndex] : nil
+        return ZStack {
+            if let preview = item?.preview {
+                Image(nsImage: preview)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .shadow(radius: 2, y: 1)
+            } else if let item {
+                Image(nsImage: item.icon)
+                    .resizable()
+                    .frame(width: layout.iconSize, height: layout.iconSize)
+            }
+        }
+        .frame(width: layout.listPreviewSize.width, height: layout.listPreviewSize.height)
+        .overlay {
+            if item?.isWindowless == true {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(.secondary.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+            }
+        }
+    }
+
     // MARK: Items
 
-    private func itemView(at index: Int, layout: SwitcherLayout, isCentered: Bool = true) -> some View {
+    private func itemView(at index: Int, layout: SwitcherLayout, isCentered: Bool = true, isListRow: Bool = false) -> some View {
         let item = model.items[index]
-        let isCoverFlow = model.style == .coverFlow
+        // Cover Flow and the list move their items to the selection, so the pointer must not select.
+        let movesToSelection = model.style != .grid
         return SwitcherItemView(
             item: item,
             isSelected: index == model.selectedIndex,
@@ -407,17 +491,18 @@ struct SwitcherView: View {
             // A right click, never resting: the pointer rests on items all the time while
             // browsing, and in Cover Flow while scrolling.
             allowsRadial: isCentered,
-            dimsWhenBackgrounded: !(isCoverFlow && isCentered),
+            dimsWhenBackgrounded: !(movesToSelection && isCentered),
+            isListRow: isListRow,
             modifier: model.modifier,
-            // In Cover Flow a side card is brought to the middle first; the middle one switches.
+            // In Cover Flow and the list an item is brought to the middle first; the middle one switches.
             onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
             onQuickAction: { model.onQuickAction(index, $0) },
             onActiveChange: { isActive in
                 if isActive {
                     activeID = item.id
-                    // Pointing selects in the grid; Cover Flow moves by scrolling and clicks,
-                    // so the cards do not rotate away under the pointer.
-                    if !isCoverFlow { model.onHover(index) }
+                    // Pointing selects in the grid; Cover Flow and the list move by scrolling
+                    // and clicks, so items do not slide away under the pointer.
+                    if !movesToSelection { model.onHover(index) }
                 } else if activeID == item.id {
                     activeID = nil
                 }
@@ -430,7 +515,7 @@ struct SwitcherView: View {
                 }
             }
         )
-        .frame(width: layout.itemWidth)
+        .frame(width: isListRow ? layout.listWidth : layout.itemWidth)
         .zIndex(activeID == item.id ? 1 : 0)
     }
 }
@@ -525,6 +610,8 @@ private struct SwitcherItemView: View {
     /// Cover Flow's tilted side cards.
     let allowsRadial: Bool
     let dimsWhenBackgrounded: Bool
+    /// Drawn as a row of the list style rather than a card.
+    let isListRow: Bool
     let modifier: SwitcherModifier
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
@@ -582,18 +669,51 @@ private struct SwitcherItemView: View {
     }
 
     private var card: some View {
-        cardContent
-            .frame(maxWidth: .infinity)
-            .padding(8)
-            .background {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isSelected ? Color.accentColor.opacity(0.32) : .clear)
+        Group {
+            if isListRow {
+                rowContent
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+            } else {
+                cardContent
+                    .padding(8)
             }
-            .opacity(item.isBackgrounded && dimsWhenBackgrounded ? 0.55 : 1)
-            // Grows a little under the pointer; recedes while its radial menu is open.
-            .scaleEffect(isRadialOpen ? 0.9 : (isCardHovered ? 1.04 : 1))
-            .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isCardHovered)
-            .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isRadialOpen)
+        }
+        .frame(maxWidth: .infinity)
+        .background {
+            // The list draws one highlight that stays in place while the rows move through it.
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(isSelected && !isListRow ? Color.accentColor.opacity(0.32) : .clear)
+        }
+        .opacity(item.isBackgrounded && dimsWhenBackgrounded ? 0.55 : 1)
+        // Grows a little under the pointer; recedes while its radial menu is open. A wide row
+        // would grow past its neighbours, so rows only recede.
+        .scaleEffect(isRadialOpen ? (isListRow ? 0.97 : 0.9) : (isCardHovered && !isListRow ? 1.04 : 1))
+        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isCardHovered)
+        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isRadialOpen)
+    }
+
+    /// The app icon and window title, with the app, or why there is no window, at the end.
+    private var rowContent: some View {
+        HStack(spacing: 10) {
+            Image(nsImage: item.icon)
+                .resizable()
+                .frame(width: layout.listIconSize, height: layout.listIconSize)
+            Text(verbatim: item.title)
+                .lineLimit(1)
+                .truncationMode(.middle)
+            Spacer(minLength: 12)
+            Group {
+                if item.isWindowless {
+                    Text("No windows")
+                } else {
+                    Text(verbatim: item.applicationName)
+                }
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+        }
     }
 
     private var cardContent: some View {

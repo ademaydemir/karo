@@ -69,6 +69,13 @@ struct KaroSettingsTests {
         #expect(decoded.switcherModifier == .option)
     }
 
+    @Test func roundTripsListSwitcherStyle() throws {
+        var settings = KaroSettings()
+        settings.switcherStyle = .list
+        let data = try JSONEncoder().encode(settings)
+        #expect(try JSONDecoder().decode(KaroSettings.self, from: data).switcherStyle == .list)
+    }
+
     @Test func roundTripsCommandSwitcherModifier() throws {
         var settings = KaroSettings()
         settings.switcherModifier = .command
