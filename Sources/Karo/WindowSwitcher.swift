@@ -10,11 +10,15 @@ import KaroCore
 /// Windows can also be closed, minimized or placed right from the panel.
 @MainActor
 final class WindowSwitcher {
-    /// What an item switches to: a window, or an app running without windows that is reopened.
+    /// What an item switches to: a window, an app running without windows that is reopened,
+    /// or one of Karo's own windows such as Settings.
     @MainActor
     private enum Target {
         case window(AXWindow)
         case application(NSRunningApplication)
+        /// Handled with AppKit: Accessibility calls into Karo's own process from its main
+        /// thread would block, which is why the catalog leaves Karo out.
+        case ownWindow(NSWindow)
 
         var processIdentifier: pid_t {
             switch self {
@@ -22,6 +26,8 @@ final class WindowSwitcher {
                 window.processIdentifier
             case .application(let application):
                 application.processIdentifier
+            case .ownWindow:
+                ProcessInfo.processInfo.processIdentifier
             }
         }
     }
@@ -162,7 +168,8 @@ final class WindowSwitcher {
         let windowlessApps = showsWindowlessApps
             ? catalog.windowlessApplications(excluding: Set(windowEntries.map(\.item.applicationID)))
             : []
-        guard !windowEntries.isEmpty || !windowlessApps.isEmpty else { return false }
+        let ownWindows = Self.ownWindows()
+        guard !windowEntries.isEmpty || !windowlessApps.isEmpty || !ownWindows.isEmpty else { return false }
 
         var entries: [Entry] = windowEntries.map {
             var item = $0.item
@@ -171,6 +178,21 @@ final class WindowSwitcher {
             return Entry(target: .window($0.window), windowID: $0.windowID, item: item)
         }
         var nextID = entries.count
+        let ownEntries = ownWindows.map { window in
+            let applicationName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Karo"
+            let item = SwitcherItem(
+                id: nextID,
+                title: window.title.isEmpty ? applicationName : window.title,
+                applicationName: applicationName,
+                icon: NSApp.applicationIconImage,
+                applicationID: ProcessInfo.processInfo.processIdentifier,
+                isBackgrounded: false,
+                actions: [.close]
+            )
+            nextID += 1
+            return Entry(target: .ownWindow(window), windowID: showsPreviews ? CGWindowID(window.windowNumber) : nil, item: item)
+        }
+        entries.insert(contentsOf: ownEntries, at: ownWindowsIndex(in: entries))
         for app in windowlessApps {
             let appName = app.localizedName ?? ""
             let item = SwitcherItem(
@@ -261,7 +283,32 @@ final class WindowSwitcher {
             activate(window)
         case .application(let app):
             reopen(app)
+        case .ownWindow(let window):
+            window.makeKeyAndOrderFront(nil)
+            window.orderFrontRegardless()
+            ApplicationActivation.activateCurrentApplication()
         }
+    }
+
+    /// Karo's own titled windows that are on screen, e.g. Settings. The switcher itself is a
+    /// panel and never lists itself.
+    private static func ownWindows() -> [NSWindow] {
+        NSApp.windows.filter { $0.isVisible && $0.styleMask.contains(.titled) && !($0 is NSPanel) }
+    }
+
+    /// Where Karo's own windows go among the others. The catalog orders windows by focus,
+    /// which it cannot record for Karo's own; app activation order stands in for it, so
+    /// Settings lands where it was last used and a quick tap still goes back to it.
+    private func ownWindowsIndex(in entries: [Entry]) -> Int {
+        // Settings in front is the current window.
+        if NSApp.isActive { return 0 }
+        let ownRank = catalog.activationRank(of: ProcessInfo.processInfo.processIdentifier)
+        return entries.firstIndex { entry in
+            if entry.item.isBackgrounded { return true }
+            guard let ownRank else { return false }
+            guard let rank = catalog.activationRank(of: entry.item.applicationID) else { return true }
+            return rank > ownRank
+        } ?? entries.count
     }
 
     private func activate(_ window: AXWindow) {
@@ -362,6 +409,10 @@ final class WindowSwitcher {
             case .close, .minimize, .leftHalf, .rightHalf, .maximize, .nextDisplay:
                 break
             }
+        case .ownWindow(let window):
+            // Close is the only action offered; the guard above turns the others away.
+            window.performClose(nil)
+            removeItems { $0 == index }
         }
     }
 

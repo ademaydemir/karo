@@ -58,6 +58,11 @@ final class WindowCatalog {
         recent.touch(identity)
     }
 
+    /// How recently an app was the active one: 0 is the most recent, `nil` if never since launch.
+    func activationRank(of processIdentifier: pid_t) -> Int? {
+        recentApplications.rank(of: processIdentifier)
+    }
+
     /// Standard windows of regular apps in switcher order: visible windows first, most
     /// recently focused first; then minimized windows and those of hidden apps.
     /// - Parameter processIdentifier: Only this app's windows, e.g. for a Dock icon.
