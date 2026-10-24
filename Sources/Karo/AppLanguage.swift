@@ -58,9 +58,10 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     /// Quits and reopens Karo so the new language is loaded.
     ///
     /// The new instance starts only after this one has exited; running both at once would
-    /// leave the new one unable to register the global shortcuts.
+    /// leave the new one unable to register the global shortcuts. Settings opens again on the
+    /// General tab, where the language was chosen, so the user does not lose their place.
     @MainActor
     static func relaunch() {
-        AppRelaunch.relaunch()
+        AppRelaunch.relaunch(arguments: ["-ShowSettingsTab", SettingsWindowController.Tab.general.rawValue])
     }
 }

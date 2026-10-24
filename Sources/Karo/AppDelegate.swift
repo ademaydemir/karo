@@ -127,7 +127,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         apply(settingsStore.settings)
 
-        // Development aid: `open Karo.app --args -ShowSettingsTab shortcuts` opens Settings on launch.
+        // `open Karo.app --args -ShowSettingsTab shortcuts` opens Settings on launch. Restarting for a
+        // new language uses it to bring Settings back; it is also handy in development.
         if let tab = UserDefaults.standard.string(forKey: "ShowSettingsTab").flatMap(SettingsWindowController.Tab.init) {
             settingsWindowController.show(tab: tab)
         }
