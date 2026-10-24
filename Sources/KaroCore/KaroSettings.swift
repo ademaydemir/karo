@@ -14,6 +14,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     public var switcherSize = SwitcherSize.medium
     public var switcherStyle = SwitcherStyle.grid
     public var switcherModifier = SwitcherModifier.option
+    /// Apps running without any window come last in the switcher, to reopen them.
+    public var showsWindowlessApps = true
     public var restoresLayoutOnDisplayChange = true
     public var isSnapAssistEnabled = true
     public var modifierDrag = ModifierDrag.controlOption
@@ -75,7 +77,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     // Decoding field by field keeps settings saved by older versions readable when fields are added.
     private enum CodingKeys: String, CodingKey {
         case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize, switcherStyle
-        case switcherModifier
+        case switcherModifier, showsWindowlessApps
         case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag, showsMenuBarIcon
         case isDockPreviewEnabled
         case customShortcuts, disabledShortcuts
@@ -95,6 +97,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
         switcherSize = (try? container.decodeIfPresent(SwitcherSize.self, forKey: .switcherSize)) ?? defaults.switcherSize
         switcherStyle = (try? container.decodeIfPresent(SwitcherStyle.self, forKey: .switcherStyle)) ?? defaults.switcherStyle
         switcherModifier = (try? container.decodeIfPresent(SwitcherModifier.self, forKey: .switcherModifier)) ?? defaults.switcherModifier
+        showsWindowlessApps = try container.decodeIfPresent(Bool.self, forKey: .showsWindowlessApps)
+            ?? defaults.showsWindowlessApps
         restoresLayoutOnDisplayChange = try container.decodeIfPresent(Bool.self, forKey: .restoresLayoutOnDisplayChange)
             ?? defaults.restoresLayoutOnDisplayChange
         isSnapAssistEnabled = try container.decodeIfPresent(Bool.self, forKey: .isSnapAssistEnabled)

@@ -185,6 +185,16 @@
         }
       }
     },
+    "Apps that are still open after their last window was closed come last. Choose one to open a new window.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son penceresi kapatıldığı hâlde açık olan uygulamalar en sonda görünür. Birini seçince yeni bir pencere açılır."
+          }
+        }
+      }
+    },
     "Approval needed": {
       "localizations": {
         "tr": {
@@ -1359,6 +1369,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yalnızca uygulama simgesi yerine her pencerenin küçük bir önizlemesini gösterir."
+          }
+        }
+      }
+    },
+    "Show apps without windows": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penceresi olmayan uygulamaları göster"
           }
         }
       }

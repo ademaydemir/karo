@@ -228,6 +228,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         layoutMemory.isEnabled = settings.restoresLayoutOnDisplayChange
         dockPreview.isEnabled = settings.isDockPreviewEnabled
         windowSwitcher.showsPreviews = settings.showsWindowPreviews
+        windowSwitcher.showsWindowlessApps = settings.showsWindowlessApps
         windowSwitcher.size = settings.switcherSize
         windowSwitcher.style = settings.switcherStyle
         SystemAppSwitcher.setEnabled(settings.switcherModifier != .command)

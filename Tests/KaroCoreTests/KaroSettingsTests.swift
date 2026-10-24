@@ -77,6 +77,19 @@ struct KaroSettingsTests {
         #expect(decoded.switcherModifier == .command)
     }
 
+    @Test func showsWindowlessAppsWhenSavedBeforeTheSetting() throws {
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: Data(#"{"gap": 12}"#.utf8))
+        #expect(decoded.showsWindowlessApps)
+    }
+
+    @Test func roundTripsHiddenWindowlessApps() throws {
+        var settings = KaroSettings()
+        settings.showsWindowlessApps = false
+        let data = try JSONEncoder().encode(settings)
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: data)
+        #expect(!decoded.showsWindowlessApps)
+    }
+
     @Test func disabledShortcutNoLongerConflicts() {
         var settings = KaroSettings()
         settings.setShortcut(nil, for: .rightHalf)

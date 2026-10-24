@@ -57,6 +57,8 @@ final class WindowSwitcher {
 
     /// Live window thumbnails; only effective with Screen Recording permission.
     var showsPreviews = false
+    /// Apps running without any window come last in the switcher, to reopen them.
+    var showsWindowlessApps = true
     var size = SwitcherSize.medium {
         didSet { panel.model.size = size }
     }
@@ -157,7 +159,9 @@ final class WindowSwitcher {
             return false
         }
         let windowEntries = catalog.windows(includingWindowIDs: showsPreviews)
-        let windowlessApps = catalog.windowlessApplications(excluding: Set(windowEntries.map(\.item.applicationID)))
+        let windowlessApps = showsWindowlessApps
+            ? catalog.windowlessApplications(excluding: Set(windowEntries.map(\.item.applicationID)))
+            : []
         guard !windowEntries.isEmpty || !windowlessApps.isEmpty else { return false }
 
         var entries: [Entry] = windowEntries.map {

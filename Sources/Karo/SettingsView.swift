@@ -247,6 +247,10 @@ struct SwitcherSettingsView: View {
                     Text("Quick actions")
                     Text("Right-click a window in the switcher to close, minimize, hide or place it. Holding \(modifier.symbol), the same works from the keyboard.")
                 }
+                Toggle(isOn: store.binding(\.showsWindowlessApps)) {
+                    Text("Show apps without windows")
+                    Text("Apps that are still open after their last window was closed come last. Choose one to open a new window.")
+                }
             }
 
             Section {
