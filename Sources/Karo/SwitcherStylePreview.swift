@@ -23,10 +23,12 @@ struct SwitcherStylePreview: View {
             .frame(height: 96)
             // The description lives with the picture instead of beside the picker, where a
             // long text would be squeezed into a narrow column.
+            // Room for two lines whatever the style, so switching styles never changes the height.
             caption
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .lineLimit(2, reservesSpace: true)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 12)
                 .id(style)

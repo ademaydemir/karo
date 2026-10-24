@@ -1454,6 +1454,16 @@
         }
       }
     },
+    "Shows the switcher in this style.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencere değiştiriciyi bu stilde gösterir."
+          }
+        }
+      }
+    },
     "Size": {
       "localizations": {
         "tr": {

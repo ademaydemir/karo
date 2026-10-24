@@ -105,7 +105,7 @@ private struct IntroductionStep: View {
 
             HStack(spacing: 8) {
                 ForEach(DesktopScene.Feature.allCases, id: \.self) { option in
-                    FeatureTile(feature: option, isSelected: option == feature) {
+                    ChoiceTile(symbol: option.symbol, title: option.title, hint: option.detail, isSelected: option == feature) {
                         feature = option
                         phase = 0
                         restart += 1
@@ -143,18 +143,23 @@ private struct IntroductionStep: View {
     }
 }
 
-private struct FeatureTile: View {
-    let feature: DesktopScene.Feature
+/// A small selectable tile under an animation, as for the features and the switcher styles.
+private struct ChoiceTile: View {
+    let symbol: String
+    let title: Text
+    let hint: Text
     let isSelected: Bool
+    /// Marks the choice that is saved, when it can differ from the tile being shown.
+    var isChecked = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
-                Image(systemName: feature.symbol)
+                Image(systemName: symbol)
                     .font(.title3)
                     .foregroundStyle(isSelected ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
-                feature.title
+                title
                     .font(.callout.weight(isSelected ? .semibold : .regular))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -165,11 +170,20 @@ private struct FeatureTile: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(isSelected ? AnyShapeStyle(Color.accentColor.opacity(0.15)) : AnyShapeStyle(.quinary))
             )
+            .overlay(alignment: .topTrailing) {
+                if isChecked {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.white, .tint)
+                        .padding(5)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
             .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityHint(feature.detail)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isChecked)
+        .accessibilityAddTraits(isSelected || isChecked ? .isSelected : [])
+        .accessibilityHint(hint)
     }
 }
 
@@ -256,8 +270,26 @@ private struct PermissionsStep: View {
     }
 }
 
+/// Laid out like the introduction: one animation, the styles as tiles below it. Three
+/// previews side by side would not fit the window at their own size.
+///
+/// Like the introduction it plays the styles one after another, until the user picks one;
+/// the saved choice carries a checkmark meanwhile.
 private struct SwitcherStyleStep: View {
     let store: SettingsStore
+
+    /// Wide enough for the widest drawing, the grid's fanned-out deck.
+    private static let width: CGFloat = 440
+    /// About four steps of each preview's animation.
+    private static let showDuration: Duration = .seconds(4.4)
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The style playing; `nil` until the step appears, then it starts at the saved choice.
+    @State private var shown: SwitcherStyle?
+    @State private var hasPicked = false
+
+    private var selected: SwitcherStyle { store.settings.switcherStyle }
+    private var displayed: SwitcherStyle { shown ?? selected }
 
     var body: some View {
         VStack(spacing: 28) {
@@ -266,56 +298,47 @@ private struct SwitcherStyleStep: View {
                 title: "Choose a Switcher Style",
                 detail: "How ⌥ + Tab shows your windows. You can change it later in Settings."
             )
-            HStack(spacing: 16) {
-                ForEach(SwitcherStyle.allCases, id: \.self) { style in
-                    StyleCard(style: style, isSelected: store.settings.switcherStyle == style) {
-                        store.update { $0.switcherStyle = style }
+            VStack(spacing: 14) {
+                SwitcherStylePreview(style: displayed)
+                HStack(spacing: 8) {
+                    ForEach(SwitcherStyle.allCases, id: \.self) { style in
+                        ChoiceTile(
+                            symbol: style.symbol,
+                            title: Text(verbatim: style.title),
+                            hint: Text("Shows the switcher in this style."),
+                            isSelected: style == displayed,
+                            isChecked: style == selected
+                        ) {
+                            store.update { $0.switcherStyle = style }
+                            shown = style
+                            hasPicked = true
+                        }
                     }
                 }
             }
+            .frame(width: Self.width)
         }
         .padding(.horizontal, 24)
         .padding(.top, 36)
+        .task(id: hasPicked) {
+            guard !hasPicked, !reduceMotion else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: Self.showDuration)
+                guard !Task.isCancelled, !hasPicked else { return }
+                let all = SwitcherStyle.allCases
+                shown = all[((all.firstIndex(of: displayed) ?? 0) + 1) % all.count]
+            }
+        }
     }
 }
 
-/// A switcher style with its animated preview, selectable like a large radio button.
-private struct StyleCard: View {
-    let style: SwitcherStyle
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 10) {
-                Text(verbatim: style.title)
-                    .font(.headline)
-                SwitcherStylePreview(style: style)
-            }
-            .padding(8)
-            .padding(.top, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isSelected ? AnyShapeStyle(.tint.opacity(0.15)) : AnyShapeStyle(.quinary))
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(isSelected ? AnyShapeStyle(.tint) : AnyShapeStyle(.clear), lineWidth: 2)
-            }
-            .overlay(alignment: .topTrailing) {
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.white, .tint)
-                        .padding(10)
-                        .transition(.scale.combined(with: .opacity))
-                }
-            }
-            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+private extension SwitcherStyle {
+    var symbol: String {
+        switch self {
+        case .grid: "square.grid.2x2"
+        case .coverFlow: "rectangle.on.rectangle.angled"
+        case .list: "list.bullet.rectangle"
         }
-        .buttonStyle(.plain)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isSelected)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

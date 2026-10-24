@@ -30,7 +30,7 @@
 
 **Klavyeyle yerleştirme.** <kbd>⌃</kbd> <kbd>⌥</kbd> tuşlarını basılı tutup sol ya da sağ yarı için <kbd>←</kbd> veya <kbd>→</kbd>, büyütmek için <kbd>↩</kbd>, eski haline getirmek için <kbd>⌫</kbd> tuşuna basın. Çeyrekler, üçte birler ve daha fazlası Ayarlar'da; her kısayol değiştirilebilir.
 
-**Pencereler arasında geçiş.** <kbd>⌘</kbd> <kbd>Tab</kbd> her uygulama için tek bir ikon gösterir. Karo'nun <kbd>⌥</kbd> <kbd>Tab</kbd> geçişi ise her pencereyi gösterir; sağ tıklayınca hızlı işlemler çıkar.
+**Pencereler arasında geçiş.** <kbd>⌘</kbd> <kbd>Tab</kbd> her uygulama için tek bir ikon gösterir. Karo'nun <kbd>⌥</kbd> <kbd>Tab</kbd> geçişi ise her pencereyi gösterir; sağ tıklayınca hızlı işlemler çıkar. Ayarlar'dan üç stil arasından seçim yapabilirsiniz: Izgara tüm pencereleri bir arada gösterir, Cover Flow her seferinde tek bir büyük pencere, Liste ise her satırda başlığıyla bir pencere. Açık ama penceresi olmayan uygulamalar listenin sonunda yer alır; onları da buradan yeniden açabilirsiniz.
 
 **Kurulum**
 
@@ -69,6 +69,8 @@ Hold <kbd>⌃</kbd> <kbd>⌥</kbd> and press <kbd>←</kbd> or <kbd>→</kbd> fo
 ## Switch between windows
 
 <kbd>⌘</kbd> <kbd>Tab</kbd> shows one icon per app. Karo's <kbd>⌥</kbd> <kbd>Tab</kbd> shows every window, and right-click offers quick actions.
+
+Pick a style in Settings: Grid shows all windows at once, an app's windows stacked into one deck; Cover Flow shows one large window at a time; List shows one window per row with its title. Apps that are open without a window come last, so they can be reopened from the switcher too.
 
 <p align="center">
   <picture>
