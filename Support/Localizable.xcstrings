@@ -185,22 +185,22 @@
         }
       }
     },
-    "Apps that are still open after their last window was closed come last. Choose one to open a new window.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Son penceresi kapatıldığı hâlde açık olan uygulamalar en sonda görünür. Birini seçince yeni bir pencere açılır."
-          }
-        }
-      }
-    },
     "Approval needed": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Onay gerekiyor"
+          }
+        }
+      }
+    },
+    "Apps that are still open after their last window was closed come last. Choose one to open a new window.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son penceresi kapatıldığı hâlde açık olan uygulamalar en sonda görünür. Birini seçince yeni bir pencere açılır."
           }
         }
       }
@@ -1063,6 +1063,16 @@
         }
       }
     },
+    "Previews": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Önizlemeler"
+          }
+        }
+      }
+    },
     "Previous Display": {
       "comment": "Window action",
       "localizations": {
@@ -1363,12 +1373,12 @@
         }
       }
     },
-    "Show a thumbnail of each window instead of only its app icon.": {
+    "Show a small picture of each window in the window switcher and Snap Assist, instead of only its app icon.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yalnızca uygulama simgesi yerine her pencerenin küçük bir önizlemesini gösterir."
+            "value": "Pencere değiştiricide ve Snap Assist'te, uygulama simgesi yerine her pencerenin küçük bir görüntüsünü gösterir."
           }
         }
       }

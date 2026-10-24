@@ -254,18 +254,9 @@ struct SwitcherSettingsView: View {
             }
 
             Section {
-                Toggle(isOn: store.binding(\.isDockPreviewEnabled)) {
-                    Text("Show windows from the Dock")
-                    Text("Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward.")
-                }
-            } header: {
-                Text("Dock")
-            }
-
-            Section {
                 Toggle(isOn: Binding(get: { store.settings.showsWindowPreviews }, set: setShowsPreviews)) {
                     Text("Show window previews")
-                    Text("Show a thumbnail of each window instead of only its app icon.")
+                    Text("Show a small picture of each window in the window switcher and Snap Assist, instead of only its app icon.")
                 }
                 if store.settings.showsWindowPreviews && !isScreenRecordingGranted {
                     LabeledContent {
@@ -276,6 +267,17 @@ struct SwitcherSettingsView: View {
                         Text("Allow Karo under Screen & System Audio Recording, then quit and reopen Karo. Until then, app icons are shown.")
                     }
                 }
+            } header: {
+                Text("Previews")
+            }
+
+            Section {
+                Toggle(isOn: store.binding(\.isDockPreviewEnabled)) {
+                    Text("Show windows from the Dock")
+                    Text("Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward.")
+                }
+            } header: {
+                Text("Dock")
             }
         }
         .settingsFormStyle()
