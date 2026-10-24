@@ -385,13 +385,16 @@ struct SwitcherView: View {
         return rows * layout.cardHeight + max(rows - 1, 0) * layout.spacing + 8
     }
 
-    /// Indices of `model.items`, grouped by app in order of each app's most recent window.
+    /// IDs of `model.items`, grouped by app in order of each app's most recent window.
+    ///
+    /// IDs rather than positions: quitting an app removes several items at once, which shifts
+    /// the positions, and SwiftUI may still draw a deck it was given before the removal.
     private var decks: [[Int]] {
         var order: [pid_t] = []
         var groups: [pid_t: [Int]] = [:]
-        for (index, item) in model.items.enumerated() {
+        for item in model.items {
             if groups[item.applicationID] == nil { order.append(item.applicationID) }
-            groups[item.applicationID, default: []].append(index)
+            groups[item.applicationID, default: []].append(item.id)
         }
         return order.compactMap { groups[$0] }
     }
@@ -437,22 +440,31 @@ struct SwitcherView: View {
                 HStack(alignment: .top, spacing: layout.spacing) {
                     ForEach(row, id: \.first) { deck in
                         DeckView(
-                            indices: deck,
-                            raisedIndex: raisedIndex(in: deck),
+                            ids: deck,
+                            raisedID: raisedID(in: deck),
                             layout: layout,
-                            itemView: { index in itemView(at: index, layout: layout) }
+                            itemView: { id in gridItemView(id: id, layout: layout) }
                         )
-                        .zIndex(raisedIndex(in: deck) != nil ? 1 : 0)
+                        .zIndex(raisedID(in: deck) != nil ? 1 : 0)
                     }
                 }
-                .zIndex(row.contains { raisedIndex(in: $0) != nil } ? 1 : 0)
+                .zIndex(row.contains { raisedID(in: $0) != nil } ? 1 : 0)
             }
         }
     }
 
+    /// The item's card, found by ID when drawn; nothing for an item removed meanwhile.
+    @ViewBuilder
+    private func gridItemView(id: Int, layout: SwitcherLayout) -> some View {
+        if let index = model.items.firstIndex(where: { $0.id == id }) {
+            itemView(at: index, layout: layout)
+        }
+    }
+
     /// The card of a deck that is lifted out: the one under the pointer, else the selected one.
-    private func raisedIndex(in deck: [Int]) -> Int? {
-        deck.first { model.items[$0].id == activeID } ?? deck.first { $0 == model.selectedIndex }
+    private func raisedID(in deck: [Int]) -> Int? {
+        let selectedID = model.items.indices.contains(model.selectedIndex) ? model.items[model.selectedIndex].id : nil
+        return deck.first { $0 == activeID } ?? deck.first { $0 == selectedID }
     }
 
     // MARK: Cover Flow
@@ -609,19 +621,20 @@ private struct SecondaryClickArea: NSViewRepresentable {
 /// straightens and lifts out. Nothing spreads beyond the cell, so neighbours stay untouched
 /// and decks at the panel's edge are not cut off.
 private struct DeckView<Item: View>: View {
-    let indices: [Int]
-    let raisedIndex: Int?
+    /// Item IDs, most recent first.
+    let ids: [Int]
+    let raisedID: Int?
     let layout: SwitcherLayout
     let itemView: (Int) -> Item
 
     var body: some View {
-        let count = indices.count
+        let count = ids.count
         let step = layout.deckStep(count: count)
         ZStack {
-            ForEach(Array(indices.enumerated()), id: \.element) { position, index in
+            ForEach(Array(ids.enumerated()), id: \.element) { position, id in
                 let centered = CGFloat(position) - CGFloat(count - 1) / 2
-                let isRaised = raisedIndex == index && count > 1
-                itemView(index)
+                let isRaised = raisedID == id && count > 1
+                itemView(id)
                     .rotationEffect(.degrees(isRaised ? 0 : Double(centered) * 3), anchor: .bottom)
                     .offset(x: centered * step, y: isRaised ? -8 : abs(centered) * 3)
                     // Earlier windows on top, so each later card shows its right-hand part.
@@ -629,7 +642,7 @@ private struct DeckView<Item: View>: View {
             }
         }
         .frame(width: layout.deckWidth(count: count))
-        .animation(.spring(response: 0.32, dampingFraction: 0.75), value: raisedIndex)
+        .animation(.spring(response: 0.32, dampingFraction: 0.75), value: raisedID)
     }
 }
 
