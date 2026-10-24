@@ -82,14 +82,8 @@ enum MoveToApplications {
             return nil
         }
 
-        let volumeValues = try? source.resourceValues(forKeys: [.volumeURLKey, .volumeIsReadOnlyKey])
-        let diskImage: URL?
-        if source.path.hasPrefix("/Volumes/"), volumeValues?.volumeIsReadOnly == true {
-            diskImage = volumeValues?.volume
-        } else {
-            diskImage = nil
-        }
-
+        let diskImage = DiskImage.volume(containing: source)
+        let volumeValues = try? source.resourceValues(forKeys: [.volumeIsReadOnlyKey])
         if !source.path.contains("/AppTranslocation/"),
            volumeValues?.volumeIsReadOnly == false {
             do {

@@ -56,8 +56,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
            let url = running.bundleURL {
             isHandingOver = true
             // Opening the running copy again makes it show Settings (see applicationShouldHandleReopen).
+            // A copy opened from the disk image ejects it on the way out.
+            let diskImage = DiskImage.volume(containing: Bundle.main.bundleURL)
             NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) { _, _ in
-                Task { @MainActor in NSApp.terminate(nil) }
+                Task { @MainActor in AppRelaunch.quit(ejecting: diskImage) }
             }
             return
         }
