@@ -74,6 +74,8 @@ final class WindowCatalog {
 
         var found: [WindowIdentity: (window: AXWindow, application: NSRunningApplication, isBackgrounded: Bool, windowID: CGWindowID?)] = [:]
         var candidates: [SwitcherOrdering.Candidate<WindowIdentity>] = []
+        // Each window server window goes to one Accessibility window only.
+        var matchedIDs = Set<CGWindowID>()
         for application in applications {
             for window in AXWindow.windows(ofApplication: application.processIdentifier) {
                 let isBackgrounded = window.isMinimized || application.isHidden
@@ -85,8 +87,15 @@ final class WindowCatalog {
                     WindowServer.match(processIdentifier: window.processIdentifier, frame: $0, in: stack)?.index
                 } : nil
                 let windowID = includingWindowIDs ? frame.flatMap {
-                    WindowServer.match(processIdentifier: window.processIdentifier, frame: $0, in: allWindows)?.window.id
+                    WindowServer.match(
+                        processIdentifier: window.processIdentifier,
+                        frame: $0,
+                        title: window.title,
+                        excluding: matchedIDs,
+                        in: allWindows
+                    )?.window.id
                 } : nil
+                if let windowID { matchedIDs.insert(windowID) }
 
                 candidates.append(SwitcherOrdering.Candidate(id: window.identity, stackIndex: stackIndex, isBackgrounded: isBackgrounded))
                 found[window.identity] = (window, application, isBackgrounded, windowID)
