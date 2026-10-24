@@ -39,6 +39,8 @@ final class SwitcherModel {
     var modifier = SwitcherModifier.option
     /// Widest a row of items may be, so the panel fits on the display.
     var maximumRowWidth: CGFloat = 1_000
+    /// Tallest the grid may be, so the panel fits on the display.
+    var maximumGridHeight: CGFloat = 800
     var hints: [SwitcherHint] = []
     @ObservationIgnored var onHover: (Int) -> Void = { _ in }
     @ObservationIgnored var onChoose: (Int) -> Void = { _ in }
@@ -100,7 +102,9 @@ final class SwitcherPanel {
     /// Fits the rows to the display under the cursor. Called when the switcher opens, ahead of
     /// `show()`, so SwiftUI has applied the width by the time the panel is measured.
     func prepare() {
-        model.maximumRowWidth = maximumRowWidth(on: screenUnderCursor())
+        let screen = screenUnderCursor()
+        model.maximumRowWidth = maximumRowWidth(on: screen)
+        model.maximumGridHeight = maximumGridHeight(on: screen)
     }
 
     /// Shows the panel centered on the display under the cursor.
@@ -123,6 +127,8 @@ final class SwitcherPanel {
         let screen = screenUnderCursor()
         let rowWidth = maximumRowWidth(on: screen)
         if model.maximumRowWidth != rowWidth { model.maximumRowWidth = rowWidth }
+        let gridHeight = maximumGridHeight(on: screen)
+        if model.maximumGridHeight != gridHeight { model.maximumGridHeight = gridHeight }
         let visible = screen?.visibleFrame ?? .zero
         applyFrame(centeredIn: visible)
 
@@ -138,6 +144,13 @@ final class SwitcherPanel {
     private func screenUnderCursor() -> NSScreen? {
         let mouse = NSEvent.mouseLocation
         return NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
+    }
+
+    /// Room the hint bar and its gap take below the grid, with hints wrapped onto two lines.
+    private static let hintBarAllowance: CGFloat = 56
+
+    private func maximumGridHeight(on screen: NSScreen?) -> CGFloat {
+        (screen?.visibleFrame.height ?? 800) * 0.9 - model.layout.padding * 2 - Self.hintBarAllowance
     }
 
     private func maximumRowWidth(on screen: NSScreen?) -> CGFloat {
@@ -205,8 +218,13 @@ struct ScrollStepAccumulator {
 struct SwitcherLayout {
     let size: SwitcherSize
     let showsPreviews: Bool
+    /// Below 1 when the grid is shrunk to fit the display. Scales the items, not their text.
+    var scale: CGFloat = 1
 
-    var itemWidth: CGFloat {
+    var itemWidth: CGFloat { baseItemWidth * scale }
+    var iconSize: CGFloat { baseIconSize * scale }
+
+    private var baseItemWidth: CGFloat {
         switch (size, showsPreviews) {
         case (.small, false): 88
         case (.medium, false): 112
@@ -217,7 +235,7 @@ struct SwitcherLayout {
         }
     }
 
-    var iconSize: CGFloat {
+    private var baseIconSize: CGFloat {
         switch size {
         case .small: 48
         case .medium: 64
@@ -236,6 +254,19 @@ struct SwitcherLayout {
     /// 16:10 matches typical window proportions; previews are aspect-fit inside it.
     var previewSize: CGSize { CGSize(width: itemWidth - 16, height: (itemWidth - 16) * 10 / 16) }
     var spacing: CGFloat { 18 }
+
+    /// Text under a card's picture gets the same room on every card, whatever it shows, so all
+    /// cards are equally tall and the grid's height is known before it is drawn.
+    private static let titleLineHeight: CGFloat = 18
+    private static let captionLineHeight: CGFloat = 16
+    var cardContentHeight: CGFloat {
+        showsPreviews
+            ? previewSize.height + 6 + Self.titleLineHeight + 6 + Self.captionLineHeight
+            : iconSize + 6 + Self.titleLineHeight * 2 + 6 + Self.captionLineHeight
+    }
+
+    /// A card with its padding.
+    var cardHeight: CGFloat { cardContentHeight + 16 }
     /// Inside the glass, around the items.
     var padding: CGFloat { 18 }
     /// Clear space around the glass, so a radial menu on an edge item is never cut off.
@@ -295,7 +326,7 @@ struct SwitcherView: View {
     @State private var openRadialID: Int?
 
     var body: some View {
-        let layout = model.layout
+        let layout = fittedLayout
         VStack(spacing: 14) {
             switch model.style {
             case .grid: grid(layout: layout)
@@ -332,6 +363,27 @@ struct SwitcherView: View {
     }
 
     // MARK: Grid with app decks
+
+    /// Steps the grid shrinks by while it is taller than the display allows. Smaller cards
+    /// also fit more to a row, so there are fewer rows.
+    private static let gridScales: [CGFloat] = [1, 0.9, 0.8, 0.7, 0.6, 0.5]
+
+    /// The model's layout, with the grid shrunk until all its rows fit on the display.
+    private var fittedLayout: SwitcherLayout {
+        var layout = model.layout
+        guard model.style == .grid else { return layout }
+        for scale in Self.gridScales {
+            layout.scale = scale
+            if gridHeight(layout: layout) <= model.maximumGridHeight { return layout }
+        }
+        return layout
+    }
+
+    private func gridHeight(layout: SwitcherLayout) -> CGFloat {
+        let rows = CGFloat(gridRows(layout: layout).count)
+        // The raised card of a deck lifts by 8 points.
+        return rows * layout.cardHeight + max(rows - 1, 0) * layout.spacing + 8
+    }
 
     /// Indices of `model.items`, grouped by app in order of each app's most recent window.
     private var decks: [[Int]] {
@@ -742,6 +794,7 @@ private struct SwitcherItemView: View {
                     .lineLimit(1)
             }
         }
+        .frame(height: layout.cardContentHeight, alignment: .top)
     }
 
     private func openRadial() {
