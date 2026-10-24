@@ -15,11 +15,14 @@ struct SwitcherItem: Identifiable {
     var preview: NSImage?
     /// An app running without any window; choosing it reopens the app.
     var isWindowless = false
+    /// Quick actions supported by this item (e.g. windowless apps omit window placements, Finder cannot quit).
+    var actions: Set<SwitcherQuickAction> = Set(SwitcherQuickAction.allCases)
 }
 
 struct SwitcherHint: Identifiable {
     let keys: String
     let title: String
+    let action: SwitcherQuickAction?
     var id: String { keys }
 }
 
@@ -284,13 +287,22 @@ struct SwitcherView: View {
         .fixedSize()
     }
 
-    /// The quick actions open with a right click, so the hint says so.
+    /// The quick actions applicable to the currently selected item, plus general hints.
     private var hints: [SwitcherHint] {
-        let rightClick = SwitcherHint(
-            keys: String(localized: "Right-click", comment: "Mouse action in a hint"),
-            title: String(localized: "Quick actions")
-        )
-        return [rightClick] + model.hints
+        guard model.items.indices.contains(model.selectedIndex) else { return [] }
+        let item = model.items[model.selectedIndex]
+        let rightClick: [SwitcherHint] = item.actions.isEmpty ? [] : [
+            SwitcherHint(
+                keys: String(localized: "Right-click", comment: "Mouse action in a hint"),
+                title: String(localized: "Quick actions"),
+                action: nil
+            ),
+        ]
+        let itemHints = model.hints.filter { hint in
+            guard let action = hint.action else { return true }
+            return item.actions.contains(action)
+        }
+        return rightClick + itemHints
     }
 
     // MARK: Grid with app decks
@@ -541,7 +553,7 @@ private struct SwitcherItemView: View {
                     isOpen: isRadialOpen,
                     outerRadius: layout.radialRadius,
                     modifier: modifier,
-                    actions: item.isWindowless ? [.hideApplication, .quitApplication] : SwitcherQuickAction.radialOrder,
+                    actions: SwitcherQuickAction.radialOrder.filter(item.actions.contains),
                     onAction: onQuickAction,
                     onHoverChange: { isRingHovered = $0; updateRadial() }
                 )
@@ -552,7 +564,7 @@ private struct SwitcherItemView: View {
             .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
             .accessibilityAction { onChoose() }
             .accessibilityActions {
-                ForEach(item.isWindowless ? [.hideApplication, .quitApplication] : SwitcherQuickAction.allCases, id: \.self) { action in
+                ForEach(SwitcherQuickAction.allCases.filter(item.actions.contains), id: \.self) { action in
                     Button(action.title) { onQuickAction(action) }
                 }
             }

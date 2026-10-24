@@ -9,6 +9,16 @@ public enum SwitcherQuickAction: CaseIterable, Sendable {
     case rightHalf
     case nextDisplay
 
+    /// The actions that apply to an item: an app without windows can only be hidden or quit,
+    /// and an app that cannot be quit, such as Finder, never offers Quit.
+    public static func available(isWindowless: Bool, canQuit: Bool) -> Set<SwitcherQuickAction> {
+        var actions: Set<SwitcherQuickAction> = isWindowless ? [.hideApplication, .quitApplication] : Set(allCases)
+        if !canQuit {
+            actions.remove(.quitApplication)
+        }
+        return actions
+    }
+
     /// The placement it performs, for actions that also activate and place the window.
     public var windowAction: WindowAction? {
         switch self {

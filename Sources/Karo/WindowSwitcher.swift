@@ -165,7 +165,10 @@ final class WindowSwitcher {
         guard !windowEntries.isEmpty || !windowlessApps.isEmpty else { return false }
 
         var entries: [Entry] = windowEntries.map {
-            Entry(target: .window($0.window), windowID: $0.windowID, item: $0.item)
+            var item = $0.item
+            let app = NSRunningApplication(processIdentifier: item.applicationID)
+            item.actions = SwitcherQuickAction.available(isWindowless: false, canQuit: Self.canQuit(app))
+            return Entry(target: .window($0.window), windowID: $0.windowID, item: item)
         }
         var nextID = entries.count
         for app in windowlessApps {
@@ -178,7 +181,8 @@ final class WindowSwitcher {
                 applicationID: app.processIdentifier,
                 isBackgrounded: true,
                 preview: nil,
-                isWindowless: true
+                isWindowless: true,
+                actions: SwitcherQuickAction.available(isWindowless: true, canQuit: Self.canQuit(app))
             )
             entries.append(Entry(target: .application(app), windowID: nil, item: item))
             nextID += 1
@@ -304,9 +308,19 @@ final class WindowSwitcher {
 
     // MARK: - Quick actions
 
+    /// macOS never quits Finder via the switcher (Finder has no Quit menu item and ⌘Tab + Q does nothing).
+    /// Quitting Finder would cause desktop icons to vanish until macOS restarts it.
+    private static func canQuit(_ application: NSRunningApplication?) -> Bool {
+        application?.bundleIdentifier != "com.apple.finder"
+    }
+
     private func perform(_ action: SwitcherQuickAction, at index: Int) {
         guard let session, session.targets.indices.contains(index) else { return }
         let target = session.targets[index]
+        guard panel.model.items[index].actions.contains(action) else {
+            NSSound.beep()
+            return
+        }
         let pid = target.processIdentifier
         let application = NSRunningApplication(processIdentifier: pid)
         switch target {
@@ -346,7 +360,7 @@ final class WindowSwitcher {
                 let targets = session.targets
                 removeItems { targets[$0].processIdentifier == pid }
             case .close, .minimize, .leftHalf, .rightHalf, .maximize, .nextDisplay:
-                NSSound.beep()
+                break
             }
         }
     }
@@ -389,17 +403,19 @@ final class WindowSwitcher {
     private var hints: [SwitcherHint] {
         let keys = DefaultShortcuts.switcher(modifier)
         let actions: [SwitcherQuickAction] = [.close, .minimize, .hideApplication, .quitApplication, .maximize]
-        var hints = actions.map { SwitcherHint(keys: $0.shortcut(holding: modifier).displayString, title: $0.title) }
+        var hints = actions.map { SwitcherHint(keys: $0.shortcut(holding: modifier).displayString, title: $0.title, action: $0) }
         hints.insert(
             SwitcherHint(
                 keys: "\(SwitcherQuickAction.leftHalf.shortcut(holding: modifier).displayString) \(SwitcherQuickAction.rightHalf.shortcut(holding: modifier).displayString)",
-                title: String(localized: "Halves")
+                title: String(localized: "Halves"),
+                action: .leftHalf
             ),
             at: 4
         )
         hints.append(SwitcherHint(
             keys: "\(keys.larger.displayString) \(keys.smaller.displayString)",
-            title: String(localized: "Size")
+            title: String(localized: "Size"),
+            action: nil
         ))
         return hints
     }

@@ -35,6 +35,13 @@ struct SwitcherQuickActionTests {
         #expect(SwitcherQuickAction.nextDisplay.windowAction == .nextDisplay)
         #expect(SwitcherQuickAction.close.windowAction == nil)
     }
+
+    @Test func availableActionsReflectWindowlessAndQuitSupport() {
+        #expect(SwitcherQuickAction.available(isWindowless: false, canQuit: true) == Set(SwitcherQuickAction.allCases))
+        #expect(SwitcherQuickAction.available(isWindowless: true, canQuit: true) == [.hideApplication, .quitApplication])
+        #expect(SwitcherQuickAction.available(isWindowless: false, canQuit: false) == Set(SwitcherQuickAction.allCases).subtracting([.quitApplication]))
+        #expect(SwitcherQuickAction.available(isWindowless: true, canQuit: false) == [.hideApplication])
+    }
 }
 
 struct SwitcherSizeTests {
