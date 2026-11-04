@@ -10,7 +10,8 @@ import OSLog
 /// places instead only with a snapped window on the same display, with the pointer near its
 /// middle (see `SwapPolicy`). A swap previews both sides: the full preview where the dragged
 /// window goes, and a fainter one where the other window goes. Holding ⌥ forces the swap
-/// with any snapped window under the pointer, skipping `SwapPolicy`.
+/// with any snapped window under the pointer, skipping `SwapPolicy`. Esc cancels the snap or
+/// swap for the rest of the drag, so the release leaves the window where it was dropped.
 @MainActor
 final class SnapZoneTracker {
     private struct SwapTarget {
@@ -21,6 +22,8 @@ final class SnapZoneTracker {
 
     /// Pointer travel between looks for a swap target; the window list is not read on every event.
     private static let swapProbeDistance: CGFloat = 6
+
+    private static let escapeKeyCode: UInt16 = 53
 
     var detector = ZoneDetector()
 
@@ -35,6 +38,10 @@ final class SnapZoneTracker {
     private var swapTarget: SwapTarget?
     private var lastSwapProbe: CGPoint?
     private var lastForcesSwap = false
+    /// Key monitors that watch for Esc while a drag is tracked: global for other apps' windows,
+    /// local for Karo's own.
+    private var keyMonitors: [Any] = []
+    private var isCancelledByUser = false
 
     init(placer: WindowPlacer) {
         self.placer = placer
@@ -45,12 +52,14 @@ final class SnapZoneTracker {
     func begin(windowID: CGWindowID, slot: CGRect?) {
         cancel()
         swapSource = slot.map { (windowID, $0) }
+        installKeyMonitors()
     }
 
     /// - Parameters:
     ///   - isSuppressed: Snapping and swapping are skipped, e.g. while ⇧ is held.
     ///   - forcesSwap: Swaps with any snapped window under the pointer, skipping `SwapPolicy`, e.g. while ⌥ is held.
     func update(cursor: CGPoint, window: AXWindow, isSuppressed: Bool, forcesSwap: Bool) {
+        guard !isCancelledByUser else { return }
         let newZone = isSuppressed ? nil : detector.zone(at: cursor, displays: ScreenGeometry.displays().map(\.frame))
         let zoneChanged = newZone != zone
         if zoneChanged {
@@ -88,6 +97,7 @@ final class SnapZoneTracker {
     /// ends tracking.
     func finish(window: AXWindow) {
         defer { cancel() }
+        guard !isCancelledByUser else { return }
         if let zone {
             let displays = ScreenGeometry.displays()
             guard displays.indices.contains(zone.displayIndex) else { return }
@@ -112,6 +122,40 @@ final class SnapZoneTracker {
         swapTarget = nil
         lastSwapProbe = nil
         lastForcesSwap = false
+        isCancelledByUser = false
+        removeKeyMonitors()
+        overlay.hide()
+        swapOverlay.hide()
+    }
+
+    private func installKeyMonitors() {
+        // Both handlers run on the main thread.
+        let global = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            MainActor.assumeIsolated {
+                if event.keyCode == Self.escapeKeyCode { self?.cancelByUser() }
+            }
+        }
+        let local = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            MainActor.assumeIsolated {
+                if event.keyCode == Self.escapeKeyCode { self?.cancelByUser() }
+            }
+            return event
+        }
+        keyMonitors = [global, local].compactMap { $0 }
+    }
+
+    private func removeKeyMonitors() {
+        keyMonitors.forEach(NSEvent.removeMonitor)
+        keyMonitors.removeAll()
+    }
+
+    /// Drops the preview and makes the release do nothing until the drag ends.
+    private func cancelByUser() {
+        guard !isCancelledByUser else { return }
+        logger.debug("Snap cancelled with Esc")
+        isCancelledByUser = true
+        zone = nil
+        swapTarget = nil
         overlay.hide()
         swapOverlay.hide()
     }
