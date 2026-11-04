@@ -22,6 +22,9 @@ final class SnapAssistPanel {
     let model = SnapAssistModel()
     private let panel: NSPanel
     private let background: NSView
+    /// The glass state most recently requested, so a fade that finishes late cannot turn the
+    /// shadow back on after a newer call has hidden the glass.
+    private var wantsGlass = true
 
     init() {
         panel = NSPanel(
@@ -53,14 +56,26 @@ final class SnapAssistPanel {
     /// Fades the glass in to cover the region, or out to reveal the window behind it.
     /// Returns when the fade has finished, so window moves can happen behind full cover.
     func setGlassVisible(_ isVisible: Bool, duration: TimeInterval) async {
+        wantsGlass = isVisible
         model.isShowingLivePreview = !isVisible
+        // Without the glass, the window server derives the shadow from whatever alpha is left:
+        // the cards and their soft SwiftUI shadows, which gives a jagged grey outline. So the
+        // shadow stays off until the fully opaque glass is back to define it.
+        panel.hasShadow = false
         await withCheckedContinuation { continuation in
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = duration
                 context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
                 background.animator().alphaValue = isVisible ? 1 : 0
             } completionHandler: {
-                continuation.resume()
+                // AppKit calls this on the main thread, but the closure is not main-actor typed.
+                MainActor.assumeIsolated {
+                    if isVisible, self.wantsGlass {
+                        self.panel.hasShadow = true
+                        self.panel.invalidateShadow()
+                    }
+                    continuation.resume()
+                }
             }
         }
     }
@@ -71,7 +86,12 @@ final class SnapAssistPanel {
         panel.setFrame(frame, display: true)
         background.frame = CGRect(origin: .zero, size: frame.size)
         background.alphaValue = 1
+        wantsGlass = true
         model.isShowingLivePreview = false
+        // The panel is reused across regions of different sizes, so the shadow must be
+        // recomputed for the new frame.
+        panel.hasShadow = true
+        panel.invalidateShadow()
         panel.alphaValue = 0
         panel.orderFrontRegardless()
         NSAnimationContext.runAnimationGroup { context in
