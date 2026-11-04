@@ -24,6 +24,11 @@ struct ZoneDetectorTests {
         #expect(held(.leftHalf, at: CGPoint(x: 0, y: 30))?.action == .topLeft)
     }
 
+    @Test func hysteresisKeepsAThirdInsideTheCornerSegment() {
+        #expect(held(.leftThird, at: CGPoint(x: 36, y: 900))?.action == .leftThird)
+        #expect(action(at: CGPoint(x: 36, y: 900)) == .bottomLeft)
+    }
+
     @Test func hysteresisKeepsACornerJustOutsideItsSegment() {
         #expect(held(.topLeft, at: CGPoint(x: 0, y: 45))?.action == .topLeft)
         #expect(held(.topLeft, at: CGPoint(x: 0, y: 49))?.action == .leftHalf)
@@ -83,6 +88,10 @@ struct ZoneDetectorTests {
         (CGPoint(x: 1439, y: 899), .bottomRight),
         (CGPoint(x: 20, y: 900), .bottomLeft),
         (CGPoint(x: 1420, y: 900), .bottomRight),
+        (CGPoint(x: 100, y: 900), .leftThird),
+        (CGPoint(x: 720, y: 899), .centerThird),
+        (CGPoint(x: 720, y: 900), .centerThird),
+        (CGPoint(x: 1300, y: 900), .rightThird),
     ])
     func detectsEdgesAndCorners(point: CGPoint, expected: WindowAction) {
         #expect(action(at: point) == expected)
@@ -91,7 +100,6 @@ struct ZoneDetectorTests {
     @Test(arguments: [
         CGPoint(x: 720, y: 450),   // middle of the screen
         CGPoint(x: 6, y: 450),     // just outside the edge threshold
-        CGPoint(x: 720, y: 900),   // bottom edge outside the corners
     ])
     func ignoresPointsOutsideZones(point: CGPoint) {
         #expect(action(at: point) == nil)
