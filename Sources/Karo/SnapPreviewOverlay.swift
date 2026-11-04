@@ -5,7 +5,8 @@ import AppKit
 final class SnapPreviewOverlay {
     private let panel: NSPanel
 
-    init() {
+    /// - Parameter tintAlpha: Strength of the accent tint; a fainter one marks a secondary preview.
+    init(tintAlpha: CGFloat = 0.18) {
         panel = NSPanel(
             contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel],
@@ -24,7 +25,7 @@ final class SnapPreviewOverlay {
         // A light accent tint keeps the target readable over busy window content.
         panel.contentView = GlassSurface.make(
             cornerRadius: 14,
-            tint: NSColor.controlAccentColor.withAlphaComponent(0.18)
+            tint: NSColor.controlAccentColor.withAlphaComponent(tintAlpha)
         )
     }
 

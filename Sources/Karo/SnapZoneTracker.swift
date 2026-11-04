@@ -8,7 +8,8 @@ import OSLog
 ///
 /// Near a screen edge the window snaps into the zone. A snapped window being dragged swaps
 /// places instead only with a snapped window on the same display, with the pointer near its
-/// middle (see `SwapPolicy`).
+/// middle (see `SwapPolicy`). A swap previews both sides: the full preview where the dragged
+/// window goes, and a fainter one where the other window goes.
 @MainActor
 final class SnapZoneTracker {
     private struct SwapTarget {
@@ -24,6 +25,8 @@ final class SnapZoneTracker {
 
     private let placer: WindowPlacer
     private let overlay = SnapPreviewOverlay()
+    /// Shows `swapSource.slot`, where the swap target will go; fainter than `overlay`.
+    private let swapOverlay = SnapPreviewOverlay(tintAlpha: 0.08)
     private let logger = Logger(subsystem: "dev.ademaydemir.Karo", category: "drag")
     private var zone: ZoneDetector.Zone?
     /// The dragged window and the frame it was placed at, when it was placed; only then can it swap.
@@ -55,6 +58,7 @@ final class SnapZoneTracker {
         // An edge zone wins over a window underneath.
         if let newZone {
             swapTarget = nil
+            swapOverlay.hide()
             if zoneChanged { showPreview(for: newZone, window: window) }
             return
         }
@@ -62,13 +66,16 @@ final class SnapZoneTracker {
         let target = isSuppressed ? nil : findSwapTarget(at: cursor)
         if target?.windowID != swapTarget?.windowID {
             swapTarget = target
-            if let target {
+            if let target, let swapSource {
                 overlay.show(target.slot)
+                swapOverlay.show(swapSource.slot)
                 Haptics.tick()
             } else {
                 overlay.hide()
+                swapOverlay.hide()
             }
         } else if zoneChanged, target == nil {
+            // The swap target was already nil here, so only the edge preview can be showing.
             overlay.hide()
         }
     }
@@ -101,6 +108,7 @@ final class SnapZoneTracker {
         swapTarget = nil
         lastSwapProbe = nil
         overlay.hide()
+        swapOverlay.hide()
     }
 
     private func showPreview(for zone: ZoneDetector.Zone, window: AXWindow) {

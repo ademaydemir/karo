@@ -11,7 +11,7 @@ Workflow: Claude plans and reviews; Sonnet subagents write the code; `swift buil
 
 - [x] 1. fix: swap only on purpose — same display as the source slot, never with a window
       that fills the display, pointer must be in the target's central area (`SwapPolicy` in KaroCore + tests)
-- [ ] 2. feat: preview both sides of a swap (second overlay where the other window goes)
+- [x] 2. feat: preview both sides of a swap (second overlay where the other window goes)
 - [ ] 3. feat: hold ⌥ to force a swap (bypasses step 1 rules; ignored when ⌥ is part of the modifier-drag combo)
 - [ ] 4. feat: Esc cancels the snap/swap for the rest of the drag
 - [ ] 5. feat: zone hysteresis so edge/corner zones do not flicker at their borders
