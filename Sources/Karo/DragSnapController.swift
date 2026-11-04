@@ -153,7 +153,8 @@ final class DragSnapController {
             classify(press, cursor: cursor)
         case .dragging(let window):
             // Holding Shift moves the window freely without snapping or swapping.
-            tracker.update(cursor: cursor, window: window, isSuppressed: modifiers.contains(.shift))
+            tracker.update(cursor: cursor, window: window, isSuppressed: modifiers.contains(.shift),
+                           forcesSwap: modifiers.contains(.option))
         case .resizing:
             break
         case .idle, .ignored:

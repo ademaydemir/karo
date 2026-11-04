@@ -9,7 +9,8 @@ import OSLog
 /// Near a screen edge the window snaps into the zone. A snapped window being dragged swaps
 /// places instead only with a snapped window on the same display, with the pointer near its
 /// middle (see `SwapPolicy`). A swap previews both sides: the full preview where the dragged
-/// window goes, and a fainter one where the other window goes.
+/// window goes, and a fainter one where the other window goes. Holding ⌥ forces the swap
+/// with any snapped window under the pointer, skipping `SwapPolicy`.
 @MainActor
 final class SnapZoneTracker {
     private struct SwapTarget {
@@ -33,6 +34,7 @@ final class SnapZoneTracker {
     private var swapSource: (windowID: CGWindowID, slot: CGRect)?
     private var swapTarget: SwapTarget?
     private var lastSwapProbe: CGPoint?
+    private var lastForcesSwap = false
 
     init(placer: WindowPlacer) {
         self.placer = placer
@@ -45,8 +47,10 @@ final class SnapZoneTracker {
         swapSource = slot.map { (windowID, $0) }
     }
 
-    /// - Parameter isSuppressed: Snapping and swapping are skipped, e.g. while ⇧ is held.
-    func update(cursor: CGPoint, window: AXWindow, isSuppressed: Bool) {
+    /// - Parameters:
+    ///   - isSuppressed: Snapping and swapping are skipped, e.g. while ⇧ is held.
+    ///   - forcesSwap: Swaps with any snapped window under the pointer, skipping `SwapPolicy`, e.g. while ⌥ is held.
+    func update(cursor: CGPoint, window: AXWindow, isSuppressed: Bool, forcesSwap: Bool) {
         let newZone = isSuppressed ? nil : detector.zone(at: cursor, displays: ScreenGeometry.displays().map(\.frame))
         let zoneChanged = newZone != zone
         if zoneChanged {
@@ -63,7 +67,7 @@ final class SnapZoneTracker {
             return
         }
 
-        let target = isSuppressed ? nil : findSwapTarget(at: cursor)
+        let target = isSuppressed ? nil : findSwapTarget(at: cursor, forcesSwap: forcesSwap)
         if target?.windowID != swapTarget?.windowID {
             swapTarget = target
             if let target, let swapSource {
@@ -107,6 +111,7 @@ final class SnapZoneTracker {
         swapSource = nil
         swapTarget = nil
         lastSwapProbe = nil
+        lastForcesSwap = false
         overlay.hide()
         swapOverlay.hide()
     }
@@ -123,9 +128,12 @@ final class SnapZoneTracker {
     }
 
     /// The placed window under the pointer, other than the dragged one.
-    private func findSwapTarget(at cursor: CGPoint) -> SwapTarget? {
+    private func findSwapTarget(at cursor: CGPoint, forcesSwap: Bool) -> SwapTarget? {
         guard let swapSource else { return nil }
-        if let lastSwapProbe, hypot(cursor.x - lastSwapProbe.x, cursor.y - lastSwapProbe.y) < Self.swapProbeDistance {
+        // A change of ⌥ must not wait for the pointer to travel.
+        let forcesChanged = forcesSwap != lastForcesSwap
+        lastForcesSwap = forcesSwap
+        if !forcesChanged, let lastSwapProbe, hypot(cursor.x - lastSwapProbe.x, cursor.y - lastSwapProbe.y) < Self.swapProbeDistance {
             return swapTarget
         }
         lastSwapProbe = cursor
@@ -135,7 +143,7 @@ final class SnapZoneTracker {
             return nil
         }
         guard let candidate = swapTarget?.windowID == hit.id ? swapTarget : lookUpSwapTarget(for: hit) else { return nil }
-        let allowed = SwapPolicy.allowsSwap(
+        let allowed = forcesSwap || SwapPolicy.allowsSwap(
             sourceSlot: swapSource.slot,
             targetFrame: candidate.slot,
             cursor: cursor,

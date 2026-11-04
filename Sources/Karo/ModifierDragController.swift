@@ -172,7 +172,9 @@ final class ModifierDragController {
         } catch {
             logger.error("Move failed: \(String(describing: error), privacy: .public)")
         }
-        tracker.update(cursor: location, window: window, isSuppressed: flags.contains(.maskShift))
+        // ⌥ already in the configured combo is held for every move, so it cannot also mean "force a swap".
+        let forcesSwap = flags.contains(.maskAlternate) && !(modifiers?.contains(.option) ?? false)
+        tracker.update(cursor: location, window: window, isSuppressed: flags.contains(.maskShift), forcesSwap: forcesSwap)
         return true
     }
 
