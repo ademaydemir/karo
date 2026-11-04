@@ -225,6 +225,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowPlacer.gap = settings.gap
         dragSnapController.isEnabled = settings.isDragSnappingEnabled
         snapZoneTracker.detector = ZoneDetector(edgeThreshold: settings.edgeThreshold, cornerSize: settings.cornerSize)
+        snapZoneTracker.keepsLayoutAcrossDisplays = settings.keepsLayoutAcrossDisplays
         modifierDragController.modifiers = settings.modifierDrag.modifiers
         snapAssist.isEnabled = settings.isSnapAssistEnabled
         snapAssist.showsPreviews = settings.showsWindowPreviews

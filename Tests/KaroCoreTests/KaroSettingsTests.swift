@@ -89,6 +89,19 @@ struct KaroSettingsTests {
         #expect(decoded.showsWindowlessApps)
     }
 
+    @Test func keepsNoLayoutAcrossDisplaysWhenSavedBeforeTheSetting() throws {
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: Data(#"{"gap": 12}"#.utf8))
+        #expect(!decoded.keepsLayoutAcrossDisplays)
+    }
+
+    @Test func roundTripsKeepingTheLayoutAcrossDisplays() throws {
+        var settings = KaroSettings()
+        settings.keepsLayoutAcrossDisplays = true
+        let data = try JSONEncoder().encode(settings)
+        let decoded = try JSONDecoder().decode(KaroSettings.self, from: data)
+        #expect(decoded.keepsLayoutAcrossDisplays)
+    }
+
     @Test func roundTripsHiddenWindowlessApps() throws {
         var settings = KaroSettings()
         settings.showsWindowlessApps = false

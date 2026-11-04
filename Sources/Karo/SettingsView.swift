@@ -151,6 +151,11 @@ struct SnappingSettingsView: View {
                     range: 10...150
                 )
                 .disabled(!store.settings.isDragSnappingEnabled)
+                Toggle(isOn: store.binding(\.keepsLayoutAcrossDisplays)) {
+                    Text("Keep the layout when dragging to another display")
+                    Text("A snapped window dropped on another display takes the same place there, such as the left half.")
+                }
+                .disabled(!store.settings.isDragSnappingEnabled)
                 Toggle(isOn: store.binding(\.isSnapAssistEnabled)) {
                     Text("Suggest windows for the other side")
                     Text("After snapping to a half or a third, pick a window to fill the rest of the screen.")

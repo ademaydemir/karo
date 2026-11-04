@@ -9,6 +9,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
     public var isDragSnappingEnabled = true
     public var edgeThreshold: CGFloat = 5
     public var cornerSize: CGFloat = 40
+    /// A snapped window dropped on another display takes the same placement there.
+    public var keepsLayoutAcrossDisplays = false
     /// Live window thumbnails in the switcher; needs Screen Recording permission, so off by default.
     public var showsWindowPreviews = false
     public var switcherSize = SwitcherSize.medium
@@ -76,7 +78,7 @@ public struct KaroSettings: Codable, Equatable, Sendable {
 
     // Decoding field by field keeps settings saved by older versions readable when fields are added.
     private enum CodingKeys: String, CodingKey {
-        case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, showsWindowPreviews, switcherSize, switcherStyle
+        case gap, isDragSnappingEnabled, edgeThreshold, cornerSize, keepsLayoutAcrossDisplays, showsWindowPreviews, switcherSize, switcherStyle
         case switcherModifier, showsWindowlessApps
         case restoresLayoutOnDisplayChange, isSnapAssistEnabled, modifierDrag, showsMenuBarIcon
         case isDockPreviewEnabled
@@ -91,6 +93,8 @@ public struct KaroSettings: Codable, Equatable, Sendable {
             ?? defaults.isDragSnappingEnabled
         edgeThreshold = try container.decodeIfPresent(CGFloat.self, forKey: .edgeThreshold) ?? defaults.edgeThreshold
         cornerSize = try container.decodeIfPresent(CGFloat.self, forKey: .cornerSize) ?? defaults.cornerSize
+        keepsLayoutAcrossDisplays = try container.decodeIfPresent(Bool.self, forKey: .keepsLayoutAcrossDisplays)
+            ?? defaults.keepsLayoutAcrossDisplays
         showsWindowPreviews = try container.decodeIfPresent(Bool.self, forKey: .showsWindowPreviews)
             ?? defaults.showsWindowPreviews
         // An unknown size from a newer version falls back to the default instead of failing.

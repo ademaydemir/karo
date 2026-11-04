@@ -49,6 +49,16 @@
         }
       }
     },
+    "A snapped window dropped on another display takes the same place there, such as the left half.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yerleşik bir pencere başka bir ekrana bırakıldığında orada da aynı yeri alır, örneğin sol yarıyı."
+          }
+        }
+      }
+    },
     "About Karo": {
       "localizations": {
         "tr": {
@@ -718,6 +728,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Karo ⌥ + Tab: her pencere"
+          }
+        }
+      }
+    },
+    "Keep the layout when dragging to another display": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başka ekrana sürüklerken yerleşimi koru"
           }
         }
       }

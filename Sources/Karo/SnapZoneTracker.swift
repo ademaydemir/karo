@@ -13,6 +13,9 @@ import OSLog
 /// with any snapped window under the pointer, skipping `SwapPolicy`. Esc cancels the snap or
 /// swap for the rest of the drag, so the release leaves the window where it was dropped.
 ///
+/// With the setting on, a snapped window dropped on another display, with no zone, swap or
+/// free region in play, takes the same placement there (a left half stays a left half).
+///
 /// An edge shared with another display is where the pointer crosses over, so it snaps only
 /// after the pointer has rested there briefly.
 ///
@@ -47,6 +50,8 @@ final class SnapZoneTracker {
     private static let escapeKeyCode: UInt16 = 53
 
     var detector = ZoneDetector()
+    /// Whether a snapped window dropped on another display takes the same placement there.
+    var keepsLayoutAcrossDisplays = false
 
     private let placer: WindowPlacer
     private let overlay = SnapPreviewOverlay()
@@ -288,6 +293,20 @@ final class SnapZoneTracker {
                 try placer.place(window, freeRegion.action, from: try window.frame(), on: displays[freeRegion.displayIndex], announces: false)
             } catch {
                 logger.error("Placing into \(freeRegion.action.rawValue, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+            }
+        } else if keepsLayoutAcrossDisplays, let swapSource {
+            let displays = ScreenGeometry.displays()
+            let visibleFrames = displays.map(\.visibleFrame)
+            guard let source = DisplaySelector.indexOfDisplay(containing: swapSource.slot, among: visibleFrames),
+                  let destination = displays.firstIndex(where: { $0.frame.contains(ScreenGeometry.cursorLocation()) }),
+                  source != destination,
+                  let action = LayoutMatcher.action(
+                      matching: swapSource.slot, in: visibleFrames[source], gap: placer.gap, tolerance: StepSizeFitting.maximumStep
+                  ) else { return }
+            do {
+                try placer.place(window, action, from: try window.frame(), on: displays[destination])
+            } catch {
+                logger.error("Keeping \(action.rawValue, privacy: .public) on another display failed: \(String(describing: error), privacy: .public)")
             }
         }
     }
