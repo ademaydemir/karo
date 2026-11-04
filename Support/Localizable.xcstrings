@@ -492,12 +492,12 @@
         }
       }
     },
-    "Edges snap to halves, corners to quarters, the top edge maximizes. Hold ⇧ while dragging to move freely.": {
+    "Edges snap to halves, corners to quarters, the top edge maximizes and the bottom edge snaps to thirds. Drop a snapped window on another to swap them (⌥ forces it). Hold ⇧ to move freely, press Esc to cancel.": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kenarlar yarıma, köşeler çeyreğe yerleştirir, üst kenar pencereyi büyütür. Serbestçe taşımak için sürüklerken ⇧ tuşunu basılı tutun."
+            "value": "Kenarlar yarıya, köşeler çeyreğe yerleştirir, üst kenar pencereyi büyütür, alt kenar üçte bire yerleştirir. Yerleşik bir pencereyi diğerinin üstüne bırakınca yer değiştirirler (⌥ ile zorlanır). Serbestçe taşımak için ⇧ tuşunu basılı tutun, iptal için Esc tuşuna basın."
           }
         }
       }

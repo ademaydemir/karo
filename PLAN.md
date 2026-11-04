@@ -19,7 +19,7 @@ Workflow: Claude plans and reviews; Sonnet subagents write the code; `swift buil
 - [x] 7. feat: bottom edge snaps to thirds between its corners
 - [x] 8. feat: fill the free region next to a snapped window after a dwell (~0.5 s)
 - [x] 9. feat: setting — a snapped window dragged to another display keeps its layout there (default off)
-- [ ] 10. docs: Settings / Welcome / README texts (en + tr) for the new drag behaviour
+- [x] 10. docs: Settings / Welcome / README texts (en + tr) for the new drag behaviour
 
 ## Decisions
 

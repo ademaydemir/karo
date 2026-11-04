@@ -135,7 +135,7 @@ struct SnappingSettingsView: View {
             Section {
                 Toggle(isOn: store.binding(\.isDragSnappingEnabled)) {
                     Text("Snap windows dragged to screen edges")
-                    Text("Edges snap to halves, corners to quarters, the top edge maximizes. Hold ⇧ while dragging to move freely.")
+                    Text("Edges snap to halves, corners to quarters, the top edge maximizes and the bottom edge snaps to thirds. Drop a snapped window on another to swap them (⌥ forces it). Hold ⇧ to move freely, press Esc to cancel.")
                 }
                 PointSlider(
                     title: "Edge sensitivity",

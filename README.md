@@ -26,7 +26,7 @@
 
 **Karo**, macOS için pencere yönetimi: pencereleri kenarlara yerleştirin, klavyeyle konumlandırın ve aralarında geçiş yapın. Uygulama Türkçe de kullanılabilir.
 
-**Sürükleyerek yerleştirme.** Bir pencereyi ekranın kenarına ya da köşesine sürükleyin; ekranın yarısını ya da çeyreğini kaplasın. Karo ardından boş kalan alan için pencere önerir.
+**Sürükleyerek yerleştirme.** Bir pencereyi ekranın kenarına ya da köşesine sürükleyin; ekranın yarısını ya da çeyreğini kaplasın. Karo ardından boş kalan alan için pencere önerir. Alt kenar üçte birlere yerleştirir; iki ekranın arasındaki kenarlar işaretçi orada kısa süre durunca devreye girer. Yerleşik bir pencereyi diğerinin ortasına bırakırsanız yer değiştirirler (⌥ ile her yerde), yerleşik pencerenin yanındaki boş alanda işaretçiyi bekletirseniz pencere oraya oturur. Serbestçe taşımak için ⇧, iptal etmek için Esc tuşunu kullanın.
 
 **Klavyeyle yerleştirme.** <kbd>⌃</kbd> <kbd>⌥</kbd> tuşlarını basılı tutup sol ya da sağ yarı için <kbd>←</kbd> veya <kbd>→</kbd>, büyütmek için <kbd>↩</kbd>, eski haline getirmek için <kbd>⌫</kbd> tuşuna basın. Çeyrekler, üçte birler ve daha fazlası Ayarlar'da; her kısayol değiştirilebilir.
 
@@ -46,7 +46,7 @@ Karo, macOS 14 veya üstünü gerektirir; Apple silicon ve Intel Mac'lerde çal�
 
 ## Snap
 
-Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space.
+Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space. The bottom edge snaps to thirds, and an edge shared by two displays snaps once the pointer rests there briefly. Drop a snapped window on the middle of another to swap them (hold ⌥ to swap anywhere), or rest the pointer in the free space beside a snapped window to fill it. Hold ⇧ to move freely, press Esc to cancel.
 
 <p align="center">
   <picture>
