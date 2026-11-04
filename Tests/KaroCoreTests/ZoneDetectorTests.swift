@@ -10,6 +10,42 @@ struct ZoneDetectorTests {
         detector.zone(at: point, displays: displays ?? single)?.action
     }
 
+    private func held(_ current: WindowAction?, at point: CGPoint, display: Int = 0, displays: [CGRect]? = nil) -> ZoneDetector.Zone? {
+        detector.zone(
+            at: point,
+            displays: displays ?? single,
+            current: current.map { ZoneDetector.Zone(action: $0, displayIndex: display) }
+        )
+    }
+
+    @Test func hysteresisKeepsAnEdgeHalfInsideACornerSegment() {
+        #expect(held(.leftHalf, at: CGPoint(x: 0, y: 38))?.action == .leftHalf)
+        #expect(action(at: CGPoint(x: 0, y: 38)) == .topLeft)
+        #expect(held(.leftHalf, at: CGPoint(x: 0, y: 30))?.action == .topLeft)
+    }
+
+    @Test func hysteresisKeepsACornerJustOutsideItsSegment() {
+        #expect(held(.topLeft, at: CGPoint(x: 0, y: 45))?.action == .topLeft)
+        #expect(held(.topLeft, at: CGPoint(x: 0, y: 49))?.action == .leftHalf)
+    }
+
+    @Test func hysteresisKeepsAZoneJustOutsideTheEdge() {
+        #expect(held(.leftHalf, at: CGPoint(x: 10, y: 450))?.action == .leftHalf)
+        #expect(held(.leftHalf, at: CGPoint(x: 14, y: 450)) == nil)
+    }
+
+    @Test func withoutACurrentZoneHysteresisChangesNothing() {
+        for point in [CGPoint(x: 0, y: 38), CGPoint(x: 10, y: 450), CGPoint(x: 720, y: 0), CGPoint(x: 720, y: 450)] {
+            #expect(held(nil, at: point) == detector.zone(at: point, displays: single))
+        }
+    }
+
+    @Test func hysteresisDoesNotKeepAZoneOnAnotherDisplay() {
+        let displays = [CGRect(x: 0, y: 0, width: 1440, height: 900), CGRect(x: 1440, y: 0, width: 1440, height: 900)]
+        #expect(held(.leftHalf, at: CGPoint(x: 2000, y: 450), display: 0, displays: displays) == nil)
+        #expect(held(.leftHalf, at: CGPoint(x: 1445, y: 450), display: 0, displays: displays) == nil)
+    }
+
     @Test(arguments: [
         (CGPoint(x: 0, y: 450), WindowAction.leftHalf),
         (CGPoint(x: 4, y: 450), .leftHalf),

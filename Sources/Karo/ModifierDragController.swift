@@ -87,8 +87,13 @@ final class ModifierDragController {
     }
 
     private func cancelGesture() {
-        if case .resize(_, _, _, _, let session, _) = gesture {
+        switch gesture {
+        case .resize(_, _, _, _, let session, _):
             session?.cancel()
+        case .move:
+            tracker.cancel()
+        case nil:
+            break
         }
         gesture = nil
     }

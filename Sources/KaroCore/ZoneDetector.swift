@@ -15,9 +15,31 @@ public struct ZoneDetector: Sendable {
     /// Length of the corner segments at both ends of each edge.
     public var cornerSize: CGFloat
 
-    public init(edgeThreshold: CGFloat = 5, cornerSize: CGFloat = 40) {
+    /// How far (in points) past a zone's borders the cursor may stray before the zone is left;
+    /// used by `zone(at:displays:current:)`.
+    public var hysteresis: CGFloat
+
+    public init(edgeThreshold: CGFloat = 5, cornerSize: CGFloat = 40, hysteresis: CGFloat = 8) {
         self.edgeThreshold = edgeThreshold
         self.cornerSize = cornerSize
+        self.hysteresis = hysteresis
+    }
+
+    /// Like `zone(at:displays:)`, but keeps `current` while the pointer is still within
+    /// `hysteresis` points of it, so zones do not flicker at their borders.
+    public func zone(at point: CGPoint, displays: [CGRect], current: Zone?) -> Zone? {
+        let candidate = zone(at: point, displays: displays)
+        guard let current, candidate != current else { return candidate }
+        // A wider edge and corner keep an edge zone or a corner zone; a smaller corner keeps
+        // an edge-half zone that the pointer has slid into a corner segment.
+        let keepers = [
+            ZoneDetector(edgeThreshold: edgeThreshold + hysteresis, cornerSize: cornerSize + hysteresis, hysteresis: 0),
+            ZoneDetector(edgeThreshold: edgeThreshold + hysteresis, cornerSize: max(0, cornerSize - hysteresis), hysteresis: 0),
+        ]
+        if keepers.contains(where: { $0.zone(at: point, displays: displays) == current }) {
+            return current
+        }
+        return candidate
     }
 
     /// - Parameters:

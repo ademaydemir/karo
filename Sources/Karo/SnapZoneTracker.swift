@@ -60,7 +60,7 @@ final class SnapZoneTracker {
     ///   - forcesSwap: Swaps with any snapped window under the pointer, skipping `SwapPolicy`, e.g. while ⌥ is held.
     func update(cursor: CGPoint, window: AXWindow, isSuppressed: Bool, forcesSwap: Bool) {
         guard !isCancelledByUser else { return }
-        let newZone = isSuppressed ? nil : detector.zone(at: cursor, displays: ScreenGeometry.displays().map(\.frame))
+        let newZone = isSuppressed ? nil : detector.zone(at: cursor, displays: ScreenGeometry.displays().map(\.frame), current: zone)
         let zoneChanged = newZone != zone
         if zoneChanged {
             logger.debug("Zone at \(String(describing: cursor), privacy: .public): \(String(describing: newZone?.action), privacy: .public)")
