@@ -1,73 +1,32 @@
 import SwiftUI
 import KaroCore
 
-/// A ring of quick actions around a switcher item, opened by resting the pointer on it.
+/// A ring of quick actions around a switcher item. Purely visual: opening, hover and clicks
+/// are handled by `radialMenu(...)`, which tells this view which slice is hovered.
 ///
-/// Every slice is the same distance from the center, which makes them quick to hit. Only
-/// the slices take the pointer: the center lets it through to the item underneath, so
-/// clicking there still switches to the window and the item keeps its hover.
+/// Every slice is the same distance from the center, which makes them quick to hit.
 struct RadialMenu: View {
     /// The menu stays in the view tree while closed, so opening inserts each slice on its
     /// own and each gets its own staggered transition.
     let isOpen: Bool
     let outerRadius: CGFloat
-    var modifier: SwitcherModifier = .option
     var actions: [SwitcherQuickAction] = SwitcherQuickAction.radialOrder
-    let onAction: (SwitcherQuickAction) -> Void
-    /// Whether the pointer is over any slice.
-    let onHoverChange: (Bool) -> Void
+    /// The slice under the pointer, decided by the caller.
+    var hoveredAction: SwitcherQuickAction?
 
-    @State private var hoveredAction: SwitcherQuickAction?
+    private var innerRadius: CGFloat { Self.innerRadius(outerRadius: outerRadius) }
 
-    private var innerRadius: CGFloat { outerRadius * 0.46 }
+    nonisolated static func innerRadius(outerRadius: CGFloat) -> CGFloat { outerRadius * 0.46 }
 
     var body: some View {
         ZStack {
             backdrop
             slices
-            hitLayer
             center
         }
         .frame(width: outerRadius * 2, height: outerRadius * 2)
-        // Closed, it must not catch the pointer over neighbouring items.
-        .allowsHitTesting(isOpen)
-        .onChange(of: hoveredAction) { _, action in onHoverChange(action != nil) }
-    }
-
-    /// The one view that takes the pointer. The slices are drawn but never hit-tested: with
-    /// interactive glass in a container their hit areas stop being their own sector, and the
-    /// topmost slice caught hover and taps across the whole ring. The slice is decided by
-    /// angle instead. The ring shape leaves the center open, so the pointer still reaches the
-    /// item underneath.
-    @ViewBuilder
-    private var hitLayer: some View {
-        if isOpen {
-            Color.clear
-                .frame(width: outerRadius * 2, height: outerRadius * 2)
-                .contentShape(RingShape(innerRatio: innerRadius / outerRadius), eoFill: true)
-                .onContinuousHover(coordinateSpace: .local) { phase in
-                    let hovered: SwitcherQuickAction?
-                    switch phase {
-                    case .active(let location): hovered = action(at: location)
-                    case .ended: hovered = nil
-                    }
-                    guard hovered != hoveredAction else { return }
-                    withAnimation(.easeOut(duration: 0.12)) { hoveredAction = hovered }
-                }
-                .gesture(SpatialTapGesture().onEnded { value in
-                    if let action = action(at: value.location) { onAction(action) }
-                })
-        }
-    }
-
-    private func action(at location: CGPoint) -> SwitcherQuickAction? {
-        RadialHitTest.index(
-            of: location,
-            center: CGPoint(x: outerRadius, y: outerRadius),
-            innerRadius: innerRadius,
-            outerRadius: outerRadius,
-            count: actions.count
-        ).map { actions[$0] }
+        // It is only drawn; the pointer is handled elsewhere and must reach the item below.
+        .allowsHitTesting(false)
     }
 
     /// A solid band behind the slices. Glass alone lets item titles and neighbouring items
@@ -152,10 +111,6 @@ struct RadialMenu: View {
         .offset(x: cos(angle) * labelRadius, y: sin(angle) * labelRadius)
         .frame(width: outerRadius * 2, height: outerRadius * 2)
         .allowsHitTesting(false)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: action.title))
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction { onAction(action) }
     }
 
     /// Names the slice under the pointer.
@@ -172,23 +127,6 @@ struct RadialMenu: View {
         }
         .frame(width: innerRadius * 2 - 8, height: innerRadius * 2 - 8)
         .allowsHitTesting(false)
-    }
-}
-
-/// The whole ring, for hit-testing: the outer circle with the inner one cut out when filled
-/// even-odd.
-private struct RingShape: Shape {
-    /// Inner radius as a fraction of the outer one.
-    var innerRatio: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        let outer = min(rect.width, rect.height) / 2
-        let inner = outer * innerRatio
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        var path = Path()
-        path.addEllipse(in: CGRect(x: center.x - outer, y: center.y - outer, width: outer * 2, height: outer * 2))
-        path.addEllipse(in: CGRect(x: center.x - inner, y: center.y - inner, width: inner * 2, height: inner * 2))
-        return path
     }
 }
 

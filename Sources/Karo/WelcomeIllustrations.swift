@@ -407,7 +407,7 @@ private struct WindowSwitcherPanel: View {
                     .overlay {
                         // The real menu at the switcher's smallest size, scaled down and inert, so
                         // labels and ring keep the proportions they have in the app.
-                        RadialMenu(isOpen: showsActions, outerRadius: 96, onAction: { _ in }, onHoverChange: { _ in })
+                        RadialMenu(isOpen: showsActions, outerRadius: 96)
                             .scaleEffect(0.45)
                             .allowsHitTesting(false)
                             .offset(x: 24)

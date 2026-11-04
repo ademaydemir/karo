@@ -557,7 +557,6 @@ struct SwitcherView: View {
             allowsRadial: isCentered,
             dimsWhenBackgrounded: !(movesToSelection && isCentered),
             isListRow: isListRow,
-            modifier: model.modifier,
             // In Cover Flow and the list an item is brought to the middle first; the middle one switches.
             onChoose: { isCentered ? model.onChoose(index) : model.onSelect(index) },
             onQuickAction: { model.onQuickAction(index, $0) },
@@ -581,38 +580,6 @@ struct SwitcherView: View {
         )
         .frame(width: isListRow ? layout.listWidth : layout.itemWidth)
         .zIndex(activeID == item.id ? 1 : 0)
-    }
-}
-
-/// Catches right clicks over a SwiftUI view and lets every other event through. SwiftUI's
-/// tap gestures only see the primary button.
-private struct SecondaryClickArea: NSViewRepresentable {
-    let action: () -> Void
-
-    func makeNSView(context: Context) -> CatcherView {
-        let view = CatcherView()
-        view.action = action
-        return view
-    }
-
-    func updateNSView(_ view: CatcherView, context: Context) {
-        view.action = action
-    }
-
-    final class CatcherView: NSView {
-        var action: () -> Void = {}
-
-        override func hitTest(_ point: NSPoint) -> NSView? {
-            // Claiming only right clicks keeps hover, left clicks and scrolling with SwiftUI.
-            guard let type = NSApp.currentEvent?.type, type == .rightMouseDown || type == .rightMouseUp else { return nil }
-            return super.hitTest(point)
-        }
-
-        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-
-        override func rightMouseDown(with event: NSEvent) {
-            action()
-        }
     }
 }
 
@@ -663,10 +630,6 @@ private struct CoverFlowPlacement: ViewModifier {
 }
 
 private struct SwitcherItemView: View {
-    /// Hover ends for a moment when the pointer crosses from the item onto a slice or the
-    /// gap between slices; closing only after this grace period keeps the menu from flickering.
-    private static let closeDelay: Duration = .milliseconds(120)
-
     let item: SwitcherItem
     let isSelected: Bool
     let layout: SwitcherLayout
@@ -677,39 +640,29 @@ private struct SwitcherItemView: View {
     let dimsWhenBackgrounded: Bool
     /// Drawn as a row of the list style rather than a card.
     let isListRow: Bool
-    let modifier: SwitcherModifier
     let onChoose: () -> Void
     let onQuickAction: (SwitcherQuickAction) -> Void
     let onActiveChange: (Bool) -> Void
     let onRadialOpenChange: (Bool) -> Void
 
     @State private var isCardHovered = false
-    @State private var isRingHovered = false
     @State private var isRadialOpen = false
-    @State private var closeTask: Task<Void, Never>?
 
     var body: some View {
         card
             // Hover and clicks use the item's unscaled frame: hit-testing the scaled card
             // would end the hover as the card shrinks away from under the pointer.
             .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .onHover { isCardHovered = $0; updateRadial() }
+            .onHover { isCardHovered = $0 }
             .onTapGesture(perform: onChoose)
-            .overlay {
-                if allowsRadial {
-                    SecondaryClickArea(action: openRadial)
-                }
-            }
-            .overlay {
-                RadialMenu(
-                    isOpen: isRadialOpen,
-                    outerRadius: layout.radialRadius,
-                    modifier: modifier,
-                    actions: SwitcherQuickAction.radialOrder.filter(item.actions.contains),
-                    onAction: onQuickAction,
-                    onHoverChange: { isRingHovered = $0; updateRadial() }
-                )
-            }
+            .radialMenu(
+                isEnabled: allowsRadial,
+                outerRadius: layout.radialRadius,
+                actions: SwitcherQuickAction.radialOrder.filter(item.actions.contains),
+                isOpen: $isRadialOpen,
+                onAction: onQuickAction,
+                onActiveChange: onActiveChange
+            )
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(verbatim: "\(item.title), \(item.applicationName)"))
             .accessibilityValue(item.isWindowless ? Text("No windows") : (item.isBackgrounded ? Text("Minimized or hidden") : Text(verbatim: "")))
@@ -721,14 +674,7 @@ private struct SwitcherItemView: View {
                 }
             }
             .onChange(of: isRadialOpen) { _, isOpen in onRadialOpenChange(isOpen) }
-            // A Cover Flow card that scrolls away from the middle loses its menu.
-            .onChange(of: allowsRadial) { _, allowsRadial in
-                if !allowsRadial, isRadialOpen {
-                    withAnimation(.easeOut(duration: 0.16)) { isRadialOpen = false }
-                }
-            }
             .onDisappear {
-                closeTask?.cancel()
                 if isRadialOpen { onRadialOpenChange(false) }
             }
     }
@@ -808,30 +754,6 @@ private struct SwitcherItemView: View {
             }
         }
         .frame(height: layout.cardContentHeight, alignment: .top)
-    }
-
-    private func openRadial() {
-        guard allowsRadial, !isRadialOpen else { return }
-        withAnimation(.spring(response: 0.36, dampingFraction: 0.7)) { isRadialOpen = true }
-    }
-
-    /// Reports the pointer over the item or its ring, and closes the menu once the pointer has
-    /// stayed off both for a moment.
-    private func updateRadial() {
-        if isCardHovered || isRingHovered {
-            closeTask?.cancel()
-            closeTask = nil
-            onActiveChange(true)
-        } else {
-            guard closeTask == nil else { return }
-            closeTask = Task { @MainActor in
-                try? await Task.sleep(for: Self.closeDelay)
-                guard !Task.isCancelled else { return }
-                withAnimation(.easeOut(duration: 0.16)) { isRadialOpen = false }
-                onActiveChange(false)
-                closeTask = nil
-            }
-        }
     }
 
     /// Thumbnail with the app icon badged in the corner, or a large icon until it arrives.
