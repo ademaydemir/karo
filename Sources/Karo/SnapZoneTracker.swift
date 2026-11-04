@@ -6,8 +6,9 @@ import OSLog
 /// Follows the pointer during a window drag, previews where the window will go and puts it
 /// there on release. Shared by ordinary title-bar drags and modifier drags.
 ///
-/// Near a screen edge the window snaps into the zone. Over another snapped window, a
-/// snapped window being dragged swaps places with it instead.
+/// Near a screen edge the window snaps into the zone. A snapped window being dragged swaps
+/// places instead only with a snapped window on the same display, with the pointer near its
+/// middle (see `SwapPolicy`).
 @MainActor
 final class SnapZoneTracker {
     private struct SwapTarget {
@@ -125,7 +126,17 @@ final class SnapZoneTracker {
         guard let hit = WindowServer.windows().first(where: { $0.id != swapSource.windowID && $0.bounds.contains(cursor) }) else {
             return nil
         }
-        if let swapTarget, swapTarget.windowID == hit.id { return swapTarget }
+        guard let candidate = swapTarget?.windowID == hit.id ? swapTarget : lookUpSwapTarget(for: hit) else { return nil }
+        let allowed = SwapPolicy.allowsSwap(
+            sourceSlot: swapSource.slot,
+            targetFrame: candidate.slot,
+            cursor: cursor,
+            visibleFrames: ScreenGeometry.displays().map(\.visibleFrame)
+        )
+        return allowed ? candidate : nil
+    }
+
+    private func lookUpSwapTarget(for hit: WindowServer.WindowInfo) -> SwapTarget? {
         // Only snapped windows take part; free windows are left alone.
         if let placed = placer.placedWindows().first(where: {
             $0.window.processIdentifier == hit.processIdentifier && Self.isClose($0.frame, hit.bounds)
