@@ -391,17 +391,6 @@
         }
       }
     },
-    "Display": {
-      "comment": "Radial menu: move to next display",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ekran"
-          }
-        }
-      }
-    },
     "Displays": {
       "localizations": {
         "tr": {
@@ -783,17 +772,6 @@
         }
       }
     },
-    "Left": {
-      "comment": "Radial menu: left half",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sol"
-          }
-        }
-      }
-    },
     "Left Half": {
       "comment": "Window action",
       "localizations": {
@@ -951,12 +929,12 @@
         }
       }
     },
-    "Move to Next Display": {
+    "Move to Other Display": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sonraki Ekrana Taşı"
+            "value": "Diğer Ekrana Taşı"
           }
         }
       }
@@ -1070,6 +1048,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "İsteğe bağlı"
+          }
+        }
+      }
+    },
+    "Other Display": {
+      "comment": "Radial menu: move the window to another display",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diğer Ekran"
           }
         }
       }
@@ -1263,17 +1252,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Varsayılanlara Döndür"
-          }
-        }
-      }
-    },
-    "Right": {
-      "comment": "Radial menu: right half",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ"
           }
         }
       }

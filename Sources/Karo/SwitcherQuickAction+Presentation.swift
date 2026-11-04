@@ -47,7 +47,7 @@ extension SwitcherQuickAction {
         case .leftHalf: String(localized: "Left Half", comment: "Window action")
         case .maximize: String(localized: "Maximize", comment: "Window action")
         case .rightHalf: String(localized: "Right Half", comment: "Window action")
-        case .nextDisplay: String(localized: "Move to Next Display")
+        case .nextDisplay: String(localized: "Move to Other Display")
         }
     }
 
@@ -58,10 +58,10 @@ extension SwitcherQuickAction {
         case .minimize: String(localized: "Minimize")
         case .hideApplication: String(localized: "Hide", comment: "Radial menu: hide the app")
         case .quitApplication: String(localized: "Quit", comment: "Radial menu: quit the app")
-        case .leftHalf: String(localized: "Left", comment: "Radial menu: left half")
+        case .leftHalf: String(localized: "Left Half", comment: "Window action")
         case .maximize: String(localized: "Maximize", comment: "Window action")
-        case .rightHalf: String(localized: "Right", comment: "Radial menu: right half")
-        case .nextDisplay: String(localized: "Display", comment: "Radial menu: move to next display")
+        case .rightHalf: String(localized: "Right Half", comment: "Window action")
+        case .nextDisplay: String(localized: "Other Display", comment: "Radial menu: move the window to another display")
         }
     }
 

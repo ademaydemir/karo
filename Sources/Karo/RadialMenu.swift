@@ -103,9 +103,14 @@ struct RadialMenu: View {
         return VStack(spacing: 2) {
             Image(systemName: action.symbolName)
                 .font(.system(size: 14, weight: .semibold))
+            // Two-word labels such as "Other Display" wrap instead of spilling into the
+            // neighbouring slices: the width is the slice's chord at the label's radius.
             Text(verbatim: action.shortTitle)
                 .font(.caption2)
-                .lineLimit(1)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.85)
+                .frame(width: max(labelRadius * 2 * sin(.pi / Double(actions.count)) - 6, 30))
         }
         .foregroundStyle(isHovered ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
         .offset(x: cos(angle) * labelRadius, y: sin(angle) * labelRadius)
