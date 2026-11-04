@@ -88,13 +88,7 @@ final class WindowPlacer {
             return false
         }
         let visibleFrame = displays[index].visibleFrame
-        let tolerance = StepSizeFitting.maximumStep
-        return WindowAction.allCases.contains { action in
-            guard action != .center,
-                  let target = LayoutCalculator.frame(for: action, in: visibleFrame, currentFrame: frame, gap: gap) else { return false }
-            return abs(target.minX - frame.minX) <= tolerance && abs(target.minY - frame.minY) <= tolerance
-                && abs(target.width - frame.width) <= tolerance && abs(target.height - frame.height) <= tolerance
-        }
+        return LayoutMatcher.action(matching: frame, in: visibleFrame, gap: gap, tolerance: StepSizeFitting.maximumStep) != nil
     }
 
     /// Windows Karo placed, with the frames it gave them. Read from the placement history,

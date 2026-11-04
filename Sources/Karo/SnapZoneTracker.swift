@@ -15,8 +15,20 @@ import OSLog
 ///
 /// An edge shared with another display is where the pointer crosses over, so it snaps only
 /// after the pointer has rested there briefly.
+///
+/// Away from the edges and from swap targets, resting the pointer for a moment in the free
+/// region beside a snapped window (the right half next to a left half) previews that region,
+/// and the release puts the window there. The pause keeps ordinary drags across the screen
+/// from being surprised.
 @MainActor
 final class SnapZoneTracker {
+    /// A placement that no snapped window occupies, where a dragged window can be dropped.
+    private struct FreeRegion: Equatable {
+        let action: WindowAction
+        let displayIndex: Int
+        let frame: CGRect
+    }
+
     private struct SwapTarget {
         let window: AXWindow
         let windowID: CGWindowID
@@ -28,6 +40,9 @@ final class SnapZoneTracker {
 
     /// How long the pointer rests at an edge shared with another display before it snaps.
     private static let sharedEdgeDwell: Duration = .milliseconds(400)
+
+    /// How long the pointer rests in a free region beside a snapped window before it is previewed.
+    private static let freeRegionDwell: Duration = .milliseconds(500)
 
     private static let escapeKeyCode: UInt16 = 53
 
@@ -53,6 +68,14 @@ final class SnapZoneTracker {
     private var dwellTask: Task<Void, Never>?
     /// The dragged window, for the preview once a dwell completes.
     private var lastWindow: AXWindow?
+    /// The dragged window, placed or not, so it is left out when looking for snapped neighbours.
+    private var draggedWindowID: CGWindowID?
+    /// The free region shown on `overlay`; the release places the window there.
+    private var freeRegion: FreeRegion?
+    /// A free region the pointer is resting in, not yet shown.
+    private var pendingFreeRegion: FreeRegion?
+    private var freeRegionTask: Task<Void, Never>?
+    private var lastFreeRegionProbe: CGPoint?
 
     init(placer: WindowPlacer) {
         self.placer = placer
@@ -62,6 +85,7 @@ final class SnapZoneTracker {
     /// - Parameter slot: The frame Karo had placed the window at, or `nil` for a free window.
     func begin(windowID: CGWindowID, slot: CGRect?) {
         cancel()
+        draggedWindowID = windowID
         swapSource = slot.map { (windowID, $0) }
         installKeyMonitors()
     }
@@ -82,6 +106,7 @@ final class SnapZoneTracker {
 
         // An edge zone wins over a window underneath.
         if let newZone {
+            clearFreeRegion(hidesOverlay: false)
             swapTarget = nil
             swapOverlay.hide()
             if zoneChanged { showPreview(for: newZone, window: window) }
@@ -89,6 +114,8 @@ final class SnapZoneTracker {
         }
 
         let target = isSuppressed ? nil : findSwapTarget(at: cursor, forcesSwap: forcesSwap)
+        // The swap preview takes over `overlay`, so a free region must not hide it later.
+        if target != nil { clearFreeRegion(hidesOverlay: false) }
         if target?.windowID != swapTarget?.windowID {
             swapTarget = target
             if let target, let swapSource {
@@ -103,6 +130,87 @@ final class SnapZoneTracker {
             // The swap target was already nil here, so only the edge preview can be showing.
             overlay.hide()
         }
+        if target == nil { updateFreeRegion(at: cursor, isSuppressed: isSuppressed) }
+    }
+
+    /// Keeps the free region while the pointer is in it; otherwise looks for one and starts the
+    /// dwell that shows it.
+    private func updateFreeRegion(at cursor: CGPoint, isSuppressed: Bool) {
+        if let freeRegion {
+            if !isSuppressed, freeRegion.frame.contains(cursor) { return }
+            clearFreeRegion(hidesOverlay: true)
+        }
+        guard !isSuppressed else {
+            clearPendingFreeRegion()
+            return
+        }
+        if let lastFreeRegionProbe, hypot(cursor.x - lastFreeRegionProbe.x, cursor.y - lastFreeRegionProbe.y) < Self.swapProbeDistance {
+            return
+        }
+        lastFreeRegionProbe = cursor
+
+        guard let found = findFreeRegion(at: cursor) else {
+            clearPendingFreeRegion()
+            return
+        }
+        guard found != pendingFreeRegion else { return }
+        pendingFreeRegion = found
+        freeRegionTask?.cancel()
+        freeRegionTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.freeRegionDwell)
+            guard !Task.isCancelled else { return }
+            self?.activateFreeRegion(found)
+        }
+    }
+
+    /// The region beside a snapped window on the cursor's display that nothing occupies and
+    /// that the cursor is in.
+    private func findFreeRegion(at cursor: CGPoint) -> FreeRegion? {
+        let displays = ScreenGeometry.displays()
+        guard let index = displays.firstIndex(where: { $0.frame.contains(cursor) }) else { return nil }
+        let visibleFrames = displays.map(\.visibleFrame)
+        let visibleFrame = visibleFrames[index]
+        let snapped = WindowServer.windows().compactMap { info -> CGRect? in
+            guard info.id != draggedWindowID,
+                  DisplaySelector.indexOfDisplay(containing: info.bounds, among: visibleFrames) == index,
+                  isSnapped(info) else { return nil }
+            return info.bounds
+        }
+        guard let action = FreeRegionFinder.region(
+            at: cursor, in: visibleFrame, gap: placer.gap, snappedFrames: snapped, tolerance: StepSizeFitting.maximumStep
+        ), let frame = LayoutCalculator.frame(for: action, in: visibleFrame, currentFrame: .zero, gap: placer.gap) else { return nil }
+        return FreeRegion(action: action, displayIndex: index, frame: frame)
+    }
+
+    private func isSnapped(_ info: WindowServer.WindowInfo) -> Bool {
+        placer.placedWindows().contains {
+            $0.window.processIdentifier == info.processIdentifier && Self.isClose($0.frame, info.bounds)
+        } || placer.looksSnapped(info.bounds)
+    }
+
+    private func activateFreeRegion(_ region: FreeRegion) {
+        guard pendingFreeRegion == region, !isCancelledByUser, zone == nil, swapTarget == nil,
+              region.frame.contains(ScreenGeometry.cursorLocation()) else { return }
+        logger.debug("Free region after dwell: \(region.action.rawValue, privacy: .public)")
+        clearPendingFreeRegion()
+        freeRegion = region
+        overlay.show(region.frame)
+        Haptics.tick()
+    }
+
+    private func clearPendingFreeRegion() {
+        pendingFreeRegion = nil
+        freeRegionTask?.cancel()
+        freeRegionTask = nil
+    }
+
+    /// - Parameter hidesOverlay: `false` when a zone or swap preview has just taken over `overlay`.
+    private func clearFreeRegion(hidesOverlay: Bool) {
+        clearPendingFreeRegion()
+        lastFreeRegionProbe = nil
+        guard freeRegion != nil else { return }
+        freeRegion = nil
+        if hidesOverlay { overlay.hide() }
     }
 
     /// The zone at the cursor. A zone at a shared display edge stays pending until the pointer
@@ -139,6 +247,7 @@ final class SnapZoneTracker {
               detector.zone(at: ScreenGeometry.cursorLocation(), displays: frames, current: nil, includesSharedEdges: true) == shared else { return }
         logger.debug("Zone at shared edge after dwell: \(shared.action.rawValue, privacy: .public)")
         clearPendingSharedZone()
+        clearFreeRegion(hidesOverlay: false)
         zone = shared
         swapTarget = nil
         swapOverlay.hide()
@@ -172,11 +281,23 @@ final class SnapZoneTracker {
             } catch {
                 logger.error("Swapping windows failed: \(String(describing: error), privacy: .public)")
             }
+        } else if let freeRegion {
+            let displays = ScreenGeometry.displays()
+            guard displays.indices.contains(freeRegion.displayIndex) else { return }
+            do {
+                try placer.place(window, freeRegion.action, from: try window.frame(), on: displays[freeRegion.displayIndex], announces: false)
+            } catch {
+                logger.error("Placing into \(freeRegion.action.rawValue, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+            }
         }
     }
 
     func cancel() {
         zone = nil
+        draggedWindowID = nil
+        freeRegion = nil
+        lastFreeRegionProbe = nil
+        clearPendingFreeRegion()
         swapSource = nil
         swapTarget = nil
         lastSwapProbe = nil
@@ -216,6 +337,7 @@ final class SnapZoneTracker {
         logger.debug("Snap cancelled with Esc")
         isCancelledByUser = true
         clearPendingSharedZone()
+        clearFreeRegion(hidesOverlay: false)
         zone = nil
         swapTarget = nil
         overlay.hide()
