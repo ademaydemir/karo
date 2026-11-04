@@ -15,7 +15,7 @@ Workflow: Claude plans and reviews; Sonnet subagents write the code; `swift buil
 - [x] 3. feat: hold ⌥ to force a swap (bypasses step 1 rules; ignored when ⌥ is part of the modifier-drag combo)
 - [x] 4. feat: Esc cancels the snap/swap for the rest of the drag
 - [x] 5. feat: zone hysteresis so edge/corner zones do not flicker at their borders
-- [ ] 6. feat: snap at edges shared between displays after a short dwell (~0.4 s)
+- [x] 6. feat: snap at edges shared between displays after a short dwell (~0.4 s)
 - [ ] 7. feat: bottom edge snaps to thirds between its corners
 - [ ] 8. feat: fill the free region next to a snapped window after a dwell (~0.5 s)
 - [ ] 9. feat: setting — a snapped window dragged to another display keeps its layout there (default off)

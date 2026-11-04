@@ -12,6 +12,9 @@ import OSLog
 /// window goes, and a fainter one where the other window goes. Holding ⌥ forces the swap
 /// with any snapped window under the pointer, skipping `SwapPolicy`. Esc cancels the snap or
 /// swap for the rest of the drag, so the release leaves the window where it was dropped.
+///
+/// An edge shared with another display is where the pointer crosses over, so it snaps only
+/// after the pointer has rested there briefly.
 @MainActor
 final class SnapZoneTracker {
     private struct SwapTarget {
@@ -22,6 +25,9 @@ final class SnapZoneTracker {
 
     /// Pointer travel between looks for a swap target; the window list is not read on every event.
     private static let swapProbeDistance: CGFloat = 6
+
+    /// How long the pointer rests at an edge shared with another display before it snaps.
+    private static let sharedEdgeDwell: Duration = .milliseconds(400)
 
     private static let escapeKeyCode: UInt16 = 53
 
@@ -42,6 +48,11 @@ final class SnapZoneTracker {
     /// local for Karo's own.
     private var keyMonitors: [Any] = []
     private var isCancelledByUser = false
+    /// A zone at a shared display edge the pointer is resting in, not yet active.
+    private var pendingSharedZone: ZoneDetector.Zone?
+    private var dwellTask: Task<Void, Never>?
+    /// The dragged window, for the preview once a dwell completes.
+    private var lastWindow: AXWindow?
 
     init(placer: WindowPlacer) {
         self.placer = placer
@@ -60,7 +71,8 @@ final class SnapZoneTracker {
     ///   - forcesSwap: Swaps with any snapped window under the pointer, skipping `SwapPolicy`, e.g. while ⌥ is held.
     func update(cursor: CGPoint, window: AXWindow, isSuppressed: Bool, forcesSwap: Bool) {
         guard !isCancelledByUser else { return }
-        let newZone = isSuppressed ? nil : detector.zone(at: cursor, displays: ScreenGeometry.displays().map(\.frame), current: zone)
+        lastWindow = window
+        let newZone = isSuppressed ? nil : resolveZone(at: cursor)
         let zoneChanged = newZone != zone
         if zoneChanged {
             logger.debug("Zone at \(String(describing: cursor), privacy: .public): \(String(describing: newZone?.action), privacy: .public)")
@@ -93,6 +105,53 @@ final class SnapZoneTracker {
         }
     }
 
+    /// The zone at the cursor. A zone at a shared display edge stays pending until the pointer
+    /// has rested there for `sharedEdgeDwell`; one already active stays while the pointer is in it.
+    private func resolveZone(at cursor: CGPoint) -> ZoneDetector.Zone? {
+        let frames = ScreenGeometry.displays().map(\.frame)
+        if let plain = detector.zone(at: cursor, displays: frames, current: zone) {
+            clearPendingSharedZone()
+            return plain
+        }
+        guard let shared = detector.zone(at: cursor, displays: frames, current: zone, includesSharedEdges: true) else {
+            clearPendingSharedZone()
+            return nil
+        }
+        if shared == zone {
+            clearPendingSharedZone()
+            return shared
+        }
+        if shared != pendingSharedZone {
+            pendingSharedZone = shared
+            dwellTask?.cancel()
+            dwellTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: Self.sharedEdgeDwell)
+                guard !Task.isCancelled else { return }
+                self?.activateSharedZone(shared)
+            }
+        }
+        return nil
+    }
+
+    private func activateSharedZone(_ shared: ZoneDetector.Zone) {
+        let frames = ScreenGeometry.displays().map(\.frame)
+        guard pendingSharedZone == shared, !isCancelledByUser, let lastWindow,
+              detector.zone(at: ScreenGeometry.cursorLocation(), displays: frames, current: nil, includesSharedEdges: true) == shared else { return }
+        logger.debug("Zone at shared edge after dwell: \(shared.action.rawValue, privacy: .public)")
+        clearPendingSharedZone()
+        zone = shared
+        swapTarget = nil
+        swapOverlay.hide()
+        showPreview(for: shared, window: lastWindow)
+        Haptics.tick()
+    }
+
+    private func clearPendingSharedZone() {
+        pendingSharedZone = nil
+        dwellTask?.cancel()
+        dwellTask = nil
+    }
+
     /// Snaps the window into the current zone or swaps it with the window under it, then
     /// ends tracking.
     func finish(window: AXWindow) {
@@ -123,6 +182,8 @@ final class SnapZoneTracker {
         lastSwapProbe = nil
         lastForcesSwap = false
         isCancelledByUser = false
+        clearPendingSharedZone()
+        lastWindow = nil
         removeKeyMonitors()
         overlay.hide()
         swapOverlay.hide()
@@ -154,6 +215,7 @@ final class SnapZoneTracker {
         guard !isCancelledByUser else { return }
         logger.debug("Snap cancelled with Esc")
         isCancelledByUser = true
+        clearPendingSharedZone()
         zone = nil
         swapTarget = nil
         overlay.hide()

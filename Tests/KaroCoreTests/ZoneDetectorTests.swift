@@ -46,6 +46,31 @@ struct ZoneDetectorTests {
         #expect(held(.leftHalf, at: CGPoint(x: 1445, y: 450), display: 0, displays: displays) == nil)
     }
 
+    private let sideBySide = [CGRect(x: 0, y: 0, width: 1440, height: 900), CGRect(x: 1440, y: 0, width: 1920, height: 1080)]
+
+    @Test func sharedEdgesCountOnlyOnRequest() {
+        let point = CGPoint(x: 1435, y: 450)
+        #expect(detector.zone(at: point, displays: sideBySide) == nil)
+        #expect(detector.zone(at: point, displays: sideBySide, includesSharedEdges: true)
+            == ZoneDetector.Zone(action: .rightHalf, displayIndex: 0))
+    }
+
+    @Test func sharedEdgeSnapsTheDisplayUnderThePointer() {
+        #expect(detector.zone(at: CGPoint(x: 1445, y: 500), displays: sideBySide, includesSharedEdges: true)
+            == ZoneDetector.Zone(action: .leftHalf, displayIndex: 1))
+        #expect(detector.zone(at: CGPoint(x: 1435, y: 10), displays: sideBySide, includesSharedEdges: true)
+            == ZoneDetector.Zone(action: .topRight, displayIndex: 0))
+    }
+
+    @Test func sharedEdgeThresholdIsLimited() {
+        #expect(detector.zone(at: CGPoint(x: 1425, y: 450), displays: sideBySide, includesSharedEdges: true) == nil)
+    }
+
+    @Test func openEdgesIgnoreTheSharedThreshold() {
+        #expect(detector.zone(at: CGPoint(x: 8, y: 450), displays: sideBySide, includesSharedEdges: true) == nil)
+        #expect(detector.zone(at: CGPoint(x: 3, y: 450), displays: sideBySide, includesSharedEdges: true)?.action == .leftHalf)
+    }
+
     @Test(arguments: [
         (CGPoint(x: 0, y: 450), WindowAction.leftHalf),
         (CGPoint(x: 4, y: 450), .leftHalf),

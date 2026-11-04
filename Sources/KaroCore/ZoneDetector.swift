@@ -18,25 +18,35 @@ public struct ZoneDetector: Sendable {
     /// How far (in points) past a zone's borders the cursor may stray before the zone is left;
     /// used by `zone(at:displays:current:)`.
     public var hysteresis: CGFloat
+    /// How close to an edge shared with another display the cursor must be for it to count,
+    /// when shared edges are included. Larger than `edgeThreshold` because the cursor is not
+    /// held back at a shared edge.
+    public var sharedEdgeThreshold: CGFloat
 
-    public init(edgeThreshold: CGFloat = 5, cornerSize: CGFloat = 40, hysteresis: CGFloat = 8) {
+    public init(
+        edgeThreshold: CGFloat = 5,
+        cornerSize: CGFloat = 40,
+        hysteresis: CGFloat = 8,
+        sharedEdgeThreshold: CGFloat = 10
+    ) {
         self.edgeThreshold = edgeThreshold
         self.cornerSize = cornerSize
         self.hysteresis = hysteresis
+        self.sharedEdgeThreshold = sharedEdgeThreshold
     }
 
     /// Like `zone(at:displays:)`, but keeps `current` while the pointer is still within
     /// `hysteresis` points of it, so zones do not flicker at their borders.
-    public func zone(at point: CGPoint, displays: [CGRect], current: Zone?) -> Zone? {
-        let candidate = zone(at: point, displays: displays)
+    public func zone(at point: CGPoint, displays: [CGRect], current: Zone?, includesSharedEdges: Bool = false) -> Zone? {
+        let candidate = zone(at: point, displays: displays, includesSharedEdges: includesSharedEdges)
         guard let current, candidate != current else { return candidate }
         // A wider edge and corner keep an edge zone or a corner zone; a smaller corner keeps
         // an edge-half zone that the pointer has slid into a corner segment.
         let keepers = [
-            ZoneDetector(edgeThreshold: edgeThreshold + hysteresis, cornerSize: cornerSize + hysteresis, hysteresis: 0),
-            ZoneDetector(edgeThreshold: edgeThreshold + hysteresis, cornerSize: max(0, cornerSize - hysteresis), hysteresis: 0),
+            ZoneDetector(edgeThreshold: edgeThreshold + hysteresis, cornerSize: cornerSize + hysteresis, hysteresis: 0, sharedEdgeThreshold: sharedEdgeThreshold + hysteresis),
+            ZoneDetector(edgeThreshold: edgeThreshold + hysteresis, cornerSize: max(0, cornerSize - hysteresis), hysteresis: 0, sharedEdgeThreshold: sharedEdgeThreshold + hysteresis),
         ]
-        if keepers.contains(where: { $0.zone(at: point, displays: displays) == current }) {
+        if keepers.contains(where: { $0.zone(at: point, displays: displays, includesSharedEdges: includesSharedEdges) == current }) {
             return current
         }
         return candidate
@@ -45,23 +55,24 @@ public struct ZoneDetector: Sendable {
     /// - Parameters:
     ///   - point: Cursor location in Accessibility coordinates.
     ///   - displays: Full display frames in Accessibility coordinates.
-    public func zone(at point: CGPoint, displays: [CGRect]) -> Zone? {
+    ///   - includesSharedEdges: Whether an edge shared with another display counts, within
+    ///     `sharedEdgeThreshold`. Off by default: the cursor crosses there all the time, so callers
+    ///     should ask for it only once the cursor rests.
+    public func zone(at point: CGPoint, displays: [CGRect], includesSharedEdges: Bool = false) -> Zone? {
         guard let index = displays.firstIndex(where: { Self.containsInclusive($0, point) }) else { return nil }
         let display = displays[index]
 
         // An edge shared with another display is where the cursor crosses over; snapping
-        // there would trigger on every move between displays.
-        func isOpenEdge(beyond probe: CGPoint) -> Bool {
-            !displays.indices.contains { $0 != index && Self.containsInclusive(displays[$0], probe) }
+        // there would trigger on every move between displays, so it counts only on request.
+        func isNear(_ distance: CGFloat, beyond probe: CGPoint) -> Bool {
+            let isOpen = !displays.indices.contains { $0 != index && Self.containsInclusive(displays[$0], probe) }
+            if isOpen { return distance <= edgeThreshold }
+            return includesSharedEdges && distance <= sharedEdgeThreshold
         }
-        let nearLeft = point.x - display.minX <= edgeThreshold
-            && isOpenEdge(beyond: CGPoint(x: display.minX - 1, y: point.y))
-        let nearRight = display.maxX - point.x <= edgeThreshold
-            && isOpenEdge(beyond: CGPoint(x: display.maxX + 1, y: point.y))
-        let nearTop = point.y - display.minY <= edgeThreshold
-            && isOpenEdge(beyond: CGPoint(x: point.x, y: display.minY - 1))
-        let nearBottom = display.maxY - point.y <= edgeThreshold
-            && isOpenEdge(beyond: CGPoint(x: point.x, y: display.maxY + 1))
+        let nearLeft = isNear(point.x - display.minX, beyond: CGPoint(x: display.minX - 1, y: point.y))
+        let nearRight = isNear(display.maxX - point.x, beyond: CGPoint(x: display.maxX + 1, y: point.y))
+        let nearTop = isNear(point.y - display.minY, beyond: CGPoint(x: point.x, y: display.minY - 1))
+        let nearBottom = isNear(display.maxY - point.y, beyond: CGPoint(x: point.x, y: display.maxY + 1))
 
         let inTopSegment = point.y - display.minY <= cornerSize
         let inBottomSegment = display.maxY - point.y <= cornerSize
