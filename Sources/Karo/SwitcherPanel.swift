@@ -89,6 +89,8 @@ final class SwitcherPanel {
         container.addSubview(background)
         hostingView = FirstMouseHostingView(rootView: SwitcherView(model: model))
         hostingView.autoresizingMask = [.width, .height]
+        // Items choose on tap; a right click that no radial menu claimed must not choose.
+        hostingView.swallowsSecondaryClicks = true
         var accumulator = ScrollStepAccumulator()
         hostingView.onScroll = { [model] event in
             if let step = accumulator.step(for: event) {
@@ -169,13 +171,46 @@ final class SwitcherPanel {
     }
 }
 
+/// Marks an AppKit view that handles secondary (right, other) clicks itself, so a
+/// `FirstMouseHostingView` that swallows unclaimed secondary clicks lets them through.
+protocol SecondaryClickClaiming: NSView {}
+
 /// The panel never becomes key, so without this the first click on an item or a quick
 /// action would be swallowed.
 final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
     /// Scroll events over the view, e.g. to move through Cover Flow.
     var onScroll: ((NSEvent) -> Void)?
 
+    /// SwiftUI tap gestures can fire for secondary clicks that no AppKit view claimed. A panel
+    /// whose items choose on tap turns this on so that a right click never chooses; views that
+    /// do want right clicks (the radial menu tracker) claim them through `SecondaryClickClaiming`.
+    var swallowsSecondaryClicks = false
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    /// AppKit delivers a right click to the view `hitTest` returns, and SwiftUI's hosting view
+    /// may return one of its own internal subviews, which would bypass the overrides below and
+    /// let a tap gesture see the click. So while a secondary click is being dispatched, only a
+    /// view that explicitly claims such clicks is allowed through; everything else, SwiftUI's
+    /// internals included, resolves to the hosting view itself, which ignores the click.
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        let hit = super.hitTest(point)
+        guard swallowsSecondaryClicks, let hit, hit !== self, isSecondaryMouseEvent(NSApp.currentEvent) else { return hit }
+        return hit is SecondaryClickClaiming ? hit : self
+    }
+
+    private func isSecondaryMouseEvent(_ event: NSEvent?) -> Bool {
+        switch event?.type {
+        case .rightMouseDown, .rightMouseUp, .rightMouseDragged, .otherMouseDown, .otherMouseUp, .otherMouseDragged: true
+        default: false
+        }
+    }
+
+    override func rightMouseDown(with event: NSEvent) { if !swallowsSecondaryClicks { super.rightMouseDown(with: event) } }
+    override func rightMouseUp(with event: NSEvent) { if !swallowsSecondaryClicks { super.rightMouseUp(with: event) } }
+    override func rightMouseDragged(with event: NSEvent) { if !swallowsSecondaryClicks { super.rightMouseDragged(with: event) } }
+    override func otherMouseDown(with event: NSEvent) { if !swallowsSecondaryClicks { super.otherMouseDown(with: event) } }
+    override func otherMouseUp(with event: NSEvent) { if !swallowsSecondaryClicks { super.otherMouseUp(with: event) } }
 
     override func scrollWheel(with event: NSEvent) {
         if let onScroll {

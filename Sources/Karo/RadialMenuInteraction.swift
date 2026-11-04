@@ -49,6 +49,20 @@ private struct RadialMenuLayout: Equatable {
         CGSize(width: max(outerRadius * 2, itemSize.width), height: max(outerRadius * 2, itemSize.height))
     }
 
+    /// How far beyond the item a right click still opens the menu. The card is drawn scaled,
+    /// rotated or offset (hover, Deck, Cover Flow), so where it appears can differ a little from
+    /// where it is laid out; this keeps a click on its visible edge from missing the menu.
+    static let rightClickTolerance: CGFloat = 8
+
+    /// Whether a right click at `point` (tracker coordinates) should open or stay in the menu.
+    func claimsRightClick(at point: CGPoint) -> Bool {
+        guard isEnabled else { return false }
+        if isOpen, region(of: point) != .outside { return true }
+        let center = CGPoint(x: trackerSize.width / 2, y: trackerSize.height / 2)
+        let itemRect = CGRect(x: center.x - itemSize.width / 2, y: center.y - itemSize.height / 2, width: itemSize.width, height: itemSize.height)
+        return itemRect.insetBy(dx: -Self.rightClickTolerance, dy: -Self.rightClickTolerance).contains(point)
+    }
+
     /// `point` is in the tracker's flipped coordinates; the ring and the item share its center.
     func region(of point: CGPoint) -> RadialMenuRegion {
         let center = CGPoint(x: trackerSize.width / 2, y: trackerSize.height / 2)
@@ -174,7 +188,7 @@ private struct RadialMenuTracker: NSViewRepresentable {
         view.onSliceClick = onSliceClick
     }
 
-    final class TrackerView: NSView {
+    final class TrackerView: NSView, SecondaryClickClaiming {
         var layout = RadialMenuLayout(outerRadius: 0, sliceCount: 0, itemSize: .zero, isOpen: false, isEnabled: false)
         var onPointer: (CGPoint?) -> Void = { _ in }
         var onRightClick: () -> Void = {}
@@ -212,12 +226,12 @@ private struct RadialMenuTracker: NSViewRepresentable {
             // Claiming only what the menu needs keeps hover, left clicks on the item and
             // scrolling with SwiftUI.
             guard let type = NSApp.currentEvent?.type else { return nil }
-            let region = layout.region(of: convert(point, from: superview))
+            let local = convert(point, from: superview)
             switch type {
             case .rightMouseDown, .rightMouseUp:
-                return layout.isEnabled && region != .outside ? self : nil
+                return layout.claimsRightClick(at: local) ? self : nil
             case .leftMouseDown, .leftMouseUp:
-                if layout.isOpen, case .slice = region { return self }
+                if layout.isOpen, case .slice = layout.region(of: local) { return self }
                 return nil
             default:
                 return nil
