@@ -25,12 +25,49 @@ struct RadialMenu: View {
         ZStack {
             backdrop
             slices
+            hitLayer
             center
         }
         .frame(width: outerRadius * 2, height: outerRadius * 2)
         // Closed, it must not catch the pointer over neighbouring items.
         .allowsHitTesting(isOpen)
         .onChange(of: hoveredAction) { _, action in onHoverChange(action != nil) }
+    }
+
+    /// The one view that takes the pointer. The slices are drawn but never hit-tested: with
+    /// interactive glass in a container their hit areas stop being their own sector, and the
+    /// topmost slice caught hover and taps across the whole ring. The slice is decided by
+    /// angle instead. The ring shape leaves the center open, so the pointer still reaches the
+    /// item underneath.
+    @ViewBuilder
+    private var hitLayer: some View {
+        if isOpen {
+            Color.clear
+                .frame(width: outerRadius * 2, height: outerRadius * 2)
+                .contentShape(RingShape(innerRatio: innerRadius / outerRadius), eoFill: true)
+                .onContinuousHover(coordinateSpace: .local) { phase in
+                    let hovered: SwitcherQuickAction?
+                    switch phase {
+                    case .active(let location): hovered = action(at: location)
+                    case .ended: hovered = nil
+                    }
+                    guard hovered != hoveredAction else { return }
+                    withAnimation(.easeOut(duration: 0.12)) { hoveredAction = hovered }
+                }
+                .gesture(SpatialTapGesture().onEnded { value in
+                    if let action = action(at: value.location) { onAction(action) }
+                })
+        }
+    }
+
+    private func action(at location: CGPoint) -> SwitcherQuickAction? {
+        RadialHitTest.index(
+            of: location,
+            center: CGPoint(x: outerRadius, y: outerRadius),
+            innerRadius: innerRadius,
+            outerRadius: outerRadius,
+            count: actions.count
+        ).map { actions[$0] }
     }
 
     /// A solid band behind the slices. Glass alone lets item titles and neighbouring items
@@ -114,21 +151,11 @@ struct RadialMenu: View {
         .foregroundStyle(isHovered ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
         .offset(x: cos(angle) * labelRadius, y: sin(angle) * labelRadius)
         .frame(width: outerRadius * 2, height: outerRadius * 2)
-        .contentShape(shape(for: index))
-        .onHover { isInside in
-            withAnimation(.easeOut(duration: 0.12)) {
-                if isInside {
-                    hoveredAction = action
-                } else if hoveredAction == action {
-                    hoveredAction = nil
-                }
-            }
-        }
-        .onTapGesture { onAction(action) }
+        .allowsHitTesting(false)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: action.title))
         .accessibilityAddTraits(.isButton)
-        .help(Text(verbatim: "\(action.title) (\(action.shortcut(holding: modifier).displayString))"))
+        .accessibilityAction { onAction(action) }
     }
 
     /// Names the slice under the pointer.
@@ -145,6 +172,23 @@ struct RadialMenu: View {
         }
         .frame(width: innerRadius * 2 - 8, height: innerRadius * 2 - 8)
         .allowsHitTesting(false)
+    }
+}
+
+/// The whole ring, for hit-testing: the outer circle with the inner one cut out when filled
+/// even-odd.
+private struct RingShape: Shape {
+    /// Inner radius as a fraction of the outer one.
+    var innerRatio: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let outer = min(rect.width, rect.height) / 2
+        let inner = outer * innerRatio
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        var path = Path()
+        path.addEllipse(in: CGRect(x: center.x - outer, y: center.y - outer, width: outer * 2, height: outer * 2))
+        path.addEllipse(in: CGRect(x: center.x - inner, y: center.y - inner, width: inner * 2, height: inner * 2))
+        return path
     }
 }
 
