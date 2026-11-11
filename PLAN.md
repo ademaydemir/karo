@@ -1,3 +1,26 @@
+# Click latency in other apps
+
+Goal: Karo must not slow clicks in other apps. Trigger: switching chats in WhatsApp and Messages
+(both Mac Catalyst) stutters while Karo runs.
+
+Diagnosis (from code and logs, not reproduced live): every left click ran synchronous
+Accessibility calls against the clicked app, on the same main thread that serves the active
+event tap, so mouse events waited for the busy app.
+
+Workflow: Sonnet subagents write the code; `swift build` + `swift test` after each step, then
+one commit per step, on branch `fix/click-latency`.
+
+- [x] 1. fix: no Accessibility calls on mouse down; identify the window through the window server and resolve it only once it really moves or resizes
+- [ ] 2. fix: run the modifier-drag event tap on its own thread; only the modifier combo or an active gesture reaches the main thread (`ModifierDragPolicy` in KaroCore + tests)
+- [ ] 3. fix: timeout on the system-wide hit test; layout memory scan off the main thread
+- [ ] 4. Verify in the real app (user relaunches Karo)
+
+Decisions:
+
+- Fixing the click path, not removing the per-app AX observers: WhatsApp stayed fast with its Accessibility runtime still loaded after Karo quit.
+
+---
+
 # Drag & drop improvements
 
 Goal: make drag & drop do what the user means. Trigger: dragging a snapped window from the

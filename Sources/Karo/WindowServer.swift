@@ -27,6 +27,8 @@ enum WindowServer {
                   let id = (info[kCGWindowNumber as String] as? NSNumber)?.uint32Value,
                   let processIdentifier = (info[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value,
                   let bounds = bounds(from: info) else { return nil }
+            // Fully transparent overlays are on screen but are never what the user clicked.
+            if onScreenOnly, (info[kCGWindowAlpha as String] as? NSNumber)?.doubleValue == 0 { return nil }
             return WindowInfo(
                 id: id,
                 processIdentifier: processIdentifier,

@@ -13,12 +13,10 @@ import OSLog
 @MainActor
 final class DragSnapController {
     private struct Press {
-        let window: AXWindow
+        let processIdentifier: pid_t
         let windowID: CGWindowID
         let initialFrame: CGRect
         let cursor: CGPoint
-        /// Snapped into a layout slot, so it can swap places with another snapped window.
-        let isSnapped: Bool
         let edgeCandidates: [WindowServer.WindowInfo]
     }
 
@@ -31,7 +29,7 @@ final class DragSnapController {
         case ignored
     }
 
-    /// Cursor travel before the window is checked, so plain clicks cost no extra AX calls.
+    /// Cursor travel before the window is looked up, so plain clicks make no Accessibility calls.
     private static let dragStartDistance: CGFloat = 4
     /// Cursor travel after which a window that has not moved means this is not a window drag.
     /// Only applies when the cursor is not near an edge; edge presses wait for the resize.
@@ -101,49 +99,27 @@ final class DragSnapController {
             !SharedEdges.edges(near: cursor, of: $0.bounds, reach: Self.edgeReach).isEmpty
         }.prefix(2))
 
-        func recordEdgePress() -> Bool {
-            guard let candidate = edgeCandidates.first else { return false }
-            guard let window = AXWindow.window(ofApplication: candidate.processIdentifier, matching: candidate.bounds) else {
-                state = .ignored
-                return true
-            }
-            logger.debug("Edge press on \(edgeCandidates.map(\.id), privacy: .public)")
-            state = .pressed(Press(
-                window: window,
-                windowID: candidate.id,
-                initialFrame: candidate.bounds,
-                cursor: cursor,
-                isSnapped: placer.isPlaced(window, at: candidate.bounds) || placer.looksSnapped(candidate.bounds),
-                edgeCandidates: edgeCandidates
-            ))
-            return true
-        }
-
-        do {
-            let window = try AXWindow.window(at: cursor)
-            let frame = try window.frame()
-            guard let windowID = WindowServer.match(
-                processIdentifier: window.processIdentifier, frame: frame, in: windows
-            )?.window.id else {
-                if recordEdgePress() { return }
-                logger.debug("Press on window at \(String(describing: frame), privacy: .public) ignored: no window server match")
-                state = .ignored
-                return
-            }
-            logger.debug("Press on window \(windowID, privacy: .public) at \(String(describing: frame), privacy: .public)")
-            state = .pressed(Press(
-                window: window,
-                windowID: windowID,
-                initialFrame: frame,
-                cursor: cursor,
-                isSnapped: placer.isPlaced(window, at: frame) || placer.looksSnapped(frame),
-                edgeCandidates: edgeCandidates
-            ))
-        } catch {
-            if recordEdgePress() { return }
-            logger.debug("Press at \(String(describing: cursor), privacy: .public) ignored: \(String(describing: error), privacy: .public)")
+        // Only the window server is asked here: the clicked app is busy handling this very
+        // click, so an Accessibility call would stall it. The window is resolved once the
+        // press turns into a real move or resize.
+        let karo = ProcessInfo.processInfo.processIdentifier
+        let topmost = windows.first { $0.bounds.contains(cursor) }
+        // A Karo window on top must not hand the press to the window below it.
+        let target = topmost.flatMap { $0.processIdentifier == karo ? nil : $0 }
+            ?? edgeCandidates.first { $0.processIdentifier != karo }
+        guard let target else {
+            logger.debug("Press at \(String(describing: cursor), privacy: .public) ignored: no window")
             state = .ignored
+            return
         }
+        logger.debug("Press on window \(target.id, privacy: .public) at \(String(describing: target.bounds), privacy: .public)")
+        state = .pressed(Press(
+            processIdentifier: target.processIdentifier,
+            windowID: target.id,
+            initialFrame: target.bounds,
+            cursor: cursor,
+            edgeCandidates: edgeCandidates
+        ))
     }
 
     private func mouseDragged(modifiers: NSEvent.ModifierFlags) {
@@ -191,25 +167,35 @@ final class DragSnapController {
         logger.debug("Drag check: travel \(travel, privacy: .public), frame \(String(describing: frame), privacy: .public), moving \(isMoving, privacy: .public)")
 
         if isMoving {
-            // Remember the slot before restoring the pre-snap size, which forgets it.
-            tracker.begin(windowID: press.windowID, slot: press.isSnapped ? press.initialFrame : nil)
+            guard let window = resolveWindow(processIdentifier: press.processIdentifier, initialFrame: press.initialFrame, liveFrame: frame, travel: travel) else {
+                state = .ignored
+                return
+            }
+            // Snapped into a layout slot, so it can swap places with another snapped window.
+            // Decided before restoring the pre-snap size, which forgets the slot.
+            let isSnapped = placer.isPlaced(window, at: press.initialFrame) || placer.looksSnapped(press.initialFrame)
+            tracker.begin(windowID: press.windowID, slot: isSnapped ? press.initialFrame : nil)
             do {
-                try placer.restoreSizeForDrag(of: press.window, currentFrame: frame, cursor: cursor)
+                try placer.restoreSizeForDrag(of: window, currentFrame: frame, cursor: cursor)
             } catch {
                 logger.error("Restore on drag failed: \(String(describing: error), privacy: .public)")
             }
-            state = .dragging(press.window)
+            state = .dragging(window)
             return
         }
 
         var resizeTarget: (window: AXWindow, windowID: CGWindowID, initialFrame: CGRect, liveFrame: CGRect)?
         if frame.size != press.initialFrame.size {
-            resizeTarget = (press.window, press.windowID, press.initialFrame, frame)
+            guard let window = resolveWindow(processIdentifier: press.processIdentifier, initialFrame: press.initialFrame, liveFrame: frame, travel: travel) else {
+                state = .ignored
+                return
+            }
+            resizeTarget = (window, press.windowID, press.initialFrame, frame)
         } else {
             for candidate in press.edgeCandidates where candidate.id != press.windowID {
                 guard let candidateFrame = WindowServer.bounds(of: candidate.id) else { continue }
                 if candidateFrame.size != candidate.bounds.size {
-                    guard let window = AXWindow.window(ofApplication: candidate.processIdentifier, matching: candidate.bounds) else {
+                    guard let window = resolveWindow(processIdentifier: candidate.processIdentifier, initialFrame: candidate.bounds, liveFrame: candidateFrame, travel: travel) else {
                         state = .ignored
                         return
                     }
@@ -242,6 +228,17 @@ final class DragSnapController {
         } else if press.edgeCandidates.isEmpty && travel >= Self.dragGiveUpDistance {
             state = .ignored
         }
+    }
+
+    /// The Accessibility window behind a window server window. Only called once a press has
+    /// turned into a real move or resize, so plain clicks never message the clicked app.
+    private func resolveWindow(processIdentifier: pid_t, initialFrame: CGRect, liveFrame: CGRect, travel: CGFloat) -> AXWindow? {
+        // The Accessibility frame lags during a drag and may be anywhere between the two.
+        let found = AXWindow.window(ofApplication: processIdentifier, matching: initialFrame)
+            ?? AXWindow.window(ofApplication: processIdentifier, matching: liveFrame)
+            ?? AXWindow.window(ofApplication: processIdentifier, matching: liveFrame, tolerance: travel + 2)
+        // Lookups use a short timeout; placing the window later should get the normal one.
+        return found.map { AXWindow(identity: $0.identity) }
     }
 
     private func stopResizeFollowTask() {
