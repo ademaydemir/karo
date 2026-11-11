@@ -39,6 +39,7 @@ Cross-cutting facts that need several files to see:
 ## Conventions
 
 - **Shared interactions live in one place.** Right-click-to-open, hover and close grace, and hit testing are written once in a central component that screens only call. Examples are the `View.radialMenu(...)` modifier in `RadialMenuInteraction.swift` and `SecondaryClickClaiming` with `FirstMouseHostingView.swallowsSecondaryClicks` in `SwitcherPanel.swift`. Fix or extend the central component; don't re-implement the behaviour per screen.
+- **Mouse path:** Make no Accessibility calls on a plain click or anywhere the event tap waits. The clicked app's main thread is busy with that click, so use `WindowServer` until the press is really a move or resize. The tap runs on its own thread and reaches the main thread only for the configured modifier combination or an active gesture (`ModifierDragPolicy`).
 - **Commit messages:** Conventional Commits in English (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`). Make one commit per completed step.
 - **Long tasks:** track progress and decisions in `PLAN.md` at the repo root.
 - **Workflow:** Claude plans and reviews; coding goes to lower-model (Sonnet/Haiku) subagents. Run `swift build` and `swift test` after each step, then commit before moving on. Don't delegate to Gemini.
