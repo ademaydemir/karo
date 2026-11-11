@@ -53,17 +53,18 @@ final class LayoutMemoryController {
         snapshotTask = Task { [weak self] in
             try? await Task.sleep(for: Self.snapshotDelay)
             guard !Task.isCancelled, let self, !self.isSettling else { return }
-            self.recordSnapshot()
+            await self.recordSnapshot()
         }
     }
 
-    private func recordSnapshot() {
+    private func recordSnapshot() async {
         guard isEnabled else { return }
-        let frames = Dictionary(
-            catalog.visibleWindows().map { ($0.window.identity, $0.frame) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        memory.record(frames, for: currentConfiguration())
+        // Taken before the scan: frames belong to the display setup they were read under.
+        let configuration = currentConfiguration()
+        let frames = await catalog.visibleFrames()
+        // Displays may have changed during the scan, while macOS piles windows onto what is left.
+        guard !Task.isCancelled, !isSettling else { return }
+        memory.record(frames, for: configuration)
     }
 
     private func displaysChanged() {
@@ -75,7 +76,7 @@ final class LayoutMemoryController {
             guard !Task.isCancelled, let self else { return }
             self.restoreLayout()
             self.isSettling = false
-            self.recordSnapshot()
+            await self.recordSnapshot()
         }
     }
 

@@ -128,6 +128,14 @@ final class WindowCatalog {
             .compactMap { window in (try? window.frame()).map { (window, $0) } }
     }
 
+    /// Frames of the windows on screen, read off the main thread.
+    func visibleFrames() async -> [WindowIdentity: CGRect] {
+        let processIdentifiers = Self.applications().filter { !$0.isHidden }.map(\.processIdentifier)
+        return await Task.detached(priority: .utility) {
+            AXWindow.visibleFrames(ofApplications: processIdentifiers)
+        }.value
+    }
+
     /// Regular apps that are running without any window, for the switcher to reopen;
     /// most recently active first.
     /// - Parameter processesWithWindows: Apps already known to have windows, e.g. from
