@@ -11,7 +11,7 @@ Workflow: Sonnet subagents write the code; `swift build` + `swift test` after ea
 one commit per step, on branch `fix/click-latency`.
 
 - [x] 1. fix: no Accessibility calls on mouse down; identify the window through the window server and resolve it only once it really moves or resizes
-- [ ] 2. fix: run the modifier-drag event tap on its own thread; only the modifier combo or an active gesture reaches the main thread (`ModifierDragPolicy` in KaroCore + tests)
+- [x] 2. fix: run the modifier-drag event tap on its own thread; only the modifier combo or an active gesture reaches the main thread (`ModifierDragPolicy` in KaroCore + tests)
 - [ ] 3. fix: timeout on the system-wide hit test; layout memory scan off the main thread
 - [ ] 4. Verify in the real app (user relaunches Karo)
 

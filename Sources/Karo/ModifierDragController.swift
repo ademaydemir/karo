@@ -9,6 +9,7 @@ import KaroCore
 /// Unlike the title-bar drag, this has to keep the click from reaching the app, so it uses
 /// an event tap rather than an event monitor. The tap only swallows clicks while the exact
 /// modifier combination is held over a window; everything else passes through untouched.
+/// The tap runs on its own thread so that clicks in other apps never wait for the main thread.
 @MainActor
 final class ModifierDragController {
     private enum Gesture {
@@ -16,21 +17,55 @@ final class ModifierDragController {
         case resize(window: AXWindow, startFrame: CGRect, startCursor: CGPoint, corner: ResizeGeometry.Corner, session: LinkedEdgeResize?, lastFrame: CGRect)
     }
 
+    /// What the tap thread needs to decide whether an event concerns Karo. It cannot ask the
+    /// main actor without blocking on the main thread, which is what the tap must avoid.
+    private final class TapState: @unchecked Sendable {
+        private let lock = NSLock()
+        private var _modifiers: KeyboardShortcut.Modifiers?
+        private var _isGestureActive = false
+        private var _tap: CFMachPort?
+
+        var modifiers: KeyboardShortcut.Modifiers? {
+            get { lock.withLock { _modifiers } }
+            set { lock.withLock { _modifiers = newValue } }
+        }
+        var isGestureActive: Bool {
+            get { lock.withLock { _isGestureActive } }
+            set { lock.withLock { _isGestureActive = newValue } }
+        }
+        var tap: CFMachPort? {
+            get { lock.withLock { _tap } }
+            set { lock.withLock { _tap = newValue } }
+        }
+    }
+
+    /// Hands a non-Sendable value to the tap thread, which only passes it on to Core Foundation.
+    private struct UncheckedBox<Value>: @unchecked Sendable {
+        let value: Value
+    }
+
     /// `nil` turns the feature off and removes the event tap.
     var modifiers: KeyboardShortcut.Modifiers? = [.control, .option] {
-        didSet { updateTap() }
+        didSet {
+            tapState.modifiers = modifiers
+            updateTap()
+        }
     }
 
     private let placer: WindowPlacer
     private let tracker: SnapZoneTracker
     private let logger = Logger(subsystem: "dev.ademaydemir.Karo", category: "modifier-drag")
+    private nonisolated let tapState = TapState()
     private var tap: CFMachPort?
-    private var runLoopSource: CFRunLoopSource?
-    private var gesture: Gesture?
+    private var gesture: Gesture? {
+        didSet { tapState.isGestureActive = gesture != nil }
+    }
 
     init(placer: WindowPlacer, tracker: SnapZoneTracker) {
         self.placer = placer
         self.tracker = tracker
+        // `didSet` does not fire for the default value.
+        tapState.modifiers = modifiers
     }
 
     /// Installs the event tap. Needs Accessibility permission; call again once it is granted.
@@ -51,12 +86,29 @@ final class ModifierDragController {
         let mask = types.reduce(CGEventMask(0)) { $0 | (1 << $1.rawValue) }
         let callback: CGEventTapCallBack = { _, type, event, refcon in
             guard let refcon else { return Unmanaged.passUnretained(event) }
+            // The controller lives as long as the app.
             let controller = Unmanaged<ModifierDragController>.fromOpaque(refcon).takeUnretainedValue()
+            let state = controller.tapState
+            if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                // macOS disables taps that respond too slowly; turn it back on right here.
+                if let tap = state.tap { CGEvent.tapEnable(tap: tap, enable: true) }
+                return Unmanaged.passUnretained(event)
+            }
+            let isPress = type == .leftMouseDown || type == .rightMouseDown
+            guard ModifierDragPolicy.isRelevant(
+                isPress: isPress,
+                held: ModifierDragController.modifiers(in: event.flags),
+                configured: state.modifiers,
+                isGestureActive: state.isGestureActive
+            ) else { return Unmanaged.passUnretained(event) }
+            // Only the configured combination or an active gesture blocks on the main thread.
             let location = event.location
             let flags = event.flags
-            // The tap's run loop source is on the main run loop.
-            let consumed = MainActor.assumeIsolated {
-                controller.handle(type, location: location, flags: flags)
+            var consumed = false
+            DispatchQueue.main.sync {
+                consumed = MainActor.assumeIsolated {
+                    controller.handle(type, location: location, flags: flags)
+                }
             }
             return consumed ? nil : Unmanaged.passUnretained(event)
         }
@@ -71,17 +123,24 @@ final class ModifierDragController {
             logger.info("Event tap not available yet (Accessibility permission missing)")
             return
         }
-        let source = CFMachPortCreateRunLoopSource(nil, tap, 0)
-        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
         self.tap = tap
-        runLoopSource = source
+        tapState.tap = tap
+        let source = UncheckedBox(value: CFMachPortCreateRunLoopSource(nil, tap, 0))
+        let thread = Thread {
+            CFRunLoopAddSource(CFRunLoopGetCurrent(), source.value, .commonModes)
+            CFRunLoopRun()
+        }
+        thread.name = "dev.ademaydemir.Karo.event-tap"
+        thread.qualityOfService = .userInteractive
+        thread.start()
     }
 
     private func removeTap() {
-        if let runLoopSource { CFRunLoopRemoveSource(CFRunLoopGetMain(), runLoopSource, .commonModes) }
+        // Invalidating the port removes its source, and a run loop without sources returns from
+        // `CFRunLoopRun`, so the tap thread ends by itself. Never wait for it: it may be in `main.sync`.
         if let tap { CFMachPortInvalidate(tap) }
         tap = nil
-        runLoopSource = nil
+        tapState.tap = nil
         cancelGesture()
         tracker.cancel()
     }
@@ -101,10 +160,6 @@ final class ModifierDragController {
     /// - Returns: Whether the event was handled and must not reach the app.
     private func handle(_ type: CGEventType, location: CGPoint, flags: CGEventFlags) -> Bool {
         switch type {
-        case .tapDisabledByTimeout, .tapDisabledByUserInput:
-            // macOS disables taps that respond too slowly; turn it back on.
-            if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
-            return false
         case .leftMouseDown, .rightMouseDown:
             return begin(isResize: type == .rightMouseDown, at: location, flags: flags)
         case .leftMouseDragged:
@@ -201,7 +256,7 @@ final class ModifierDragController {
 
     /// Only the keys that can make up a combination; caps lock and the like are ignored.
     /// Shift is left out so it can still suppress snapping during a move.
-    private static func modifiers(in flags: CGEventFlags) -> KeyboardShortcut.Modifiers {
+    private nonisolated static func modifiers(in flags: CGEventFlags) -> KeyboardShortcut.Modifiers {
         var modifiers: KeyboardShortcut.Modifiers = []
         if flags.contains(.maskControl) { modifiers.insert(.control) }
         if flags.contains(.maskAlternate) { modifiers.insert(.option) }
