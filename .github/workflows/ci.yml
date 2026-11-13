@@ -11,7 +11,9 @@ concurrency:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    # Matches local development: the macOS 26 image's Xcode 26.6 crashes in IRGen on
+    # SettingsView.swift; Xcode 27 compiles it fine.
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v4
       - run: swift build
