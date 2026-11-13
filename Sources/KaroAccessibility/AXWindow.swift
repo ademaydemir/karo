@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import KaroCore
 
 /// A window of another application, read and moved through the Accessibility API.
 ///
@@ -83,15 +84,25 @@ public struct AXWindow {
     /// Most apps only report windows on the current Space. A short timeout keeps a hung
     /// app from stalling the window switcher.
     public static func windows(ofApplication processIdentifier: pid_t, timeout: Float = 0.25) -> [AXWindow] {
+        let (application, elements) = standardElements(ofApplication: processIdentifier, timeout: timeout)
+        return elements.map { AXWindow(element: $0, application: application, processIdentifier: processIdentifier) }
+    }
+
+    /// The AX elements of an app's standard windows, including minimized ones, with the
+    /// application element they belong to. Timeouts are set on the application and on every
+    /// element: they are per element, and children would otherwise use the ~6 s default.
+    ///
+    /// Not tied to the main actor, so a background scan can call it for a slow app.
+    private nonisolated static func standardElements(
+        ofApplication processIdentifier: pid_t,
+        timeout: Float
+    ) -> (application: AXUIElement, elements: [AXUIElement]) {
         let application = AXUIElementCreateApplication(processIdentifier)
         AXUIElementSetMessagingTimeout(application, timeout)
         guard let value = try? application.value(of: kAXWindowsAttribute),
-              let elements = value as? [AXUIElement] else { return [] }
-        // Timeouts are per element; child elements would otherwise use the ~6 s system default.
+              let elements = value as? [AXUIElement] else { return (application, []) }
         elements.forEach { AXUIElementSetMessagingTimeout($0, timeout) }
-        return elements
-            .filter { (try? $0.value(of: kAXSubroleAttribute)) as? String == kAXStandardWindowSubrole }
-            .map { AXWindow(element: $0, application: application, processIdentifier: processIdentifier) }
+        return (application, elements.filter { (try? $0.value(of: kAXSubroleAttribute)) as? String == kAXStandardWindowSubrole })
     }
 
     public var title: String {
@@ -195,8 +206,7 @@ extension AXWindow {
     public static func window(ofApplication processIdentifier: pid_t, matching frame: CGRect, tolerance: CGFloat = 2) -> AXWindow? {
         windows(ofApplication: processIdentifier).first { window in
             guard let actual = try? window.frame() else { return false }
-            return abs(actual.minX - frame.minX) <= tolerance && abs(actual.minY - frame.minY) <= tolerance
-                && abs(actual.width - frame.width) <= tolerance && abs(actual.height - frame.height) <= tolerance
+            return LayoutMatcher.isWithin(actual, of: frame, tolerance: tolerance)
         }
     }
 }
@@ -209,17 +219,12 @@ extension AXWindow {
     public nonisolated static func visibleFrames(ofApplications processIdentifiers: [pid_t], timeout: Float = 0.25) -> [WindowIdentity: CGRect] {
         var frames: [WindowIdentity: CGRect] = [:]
         for processIdentifier in processIdentifiers {
-            let application = AXUIElementCreateApplication(processIdentifier)
-            AXUIElementSetMessagingTimeout(application, timeout)
-            guard let windows = (try? application.value(of: kAXWindowsAttribute)) as? [AXUIElement] else { continue }
-            for window in windows {
-                // Timeouts are per element.
-                AXUIElementSetMessagingTimeout(window, timeout)
-                guard (try? window.value(of: kAXSubroleAttribute)) as? String == kAXStandardWindowSubrole,
-                      (try? window.value(of: kAXMinimizedAttribute)) as? Bool != true,
-                      let position = try? window.point(of: kAXPositionAttribute),
-                      let size = try? window.size(of: kAXSizeAttribute) else { continue }
-                let identity = WindowIdentity(element: window)
+            let (_, elements) = standardElements(ofApplication: processIdentifier, timeout: timeout)
+            for element in elements {
+                guard (try? element.value(of: kAXMinimizedAttribute)) as? Bool != true,
+                      let position = try? element.point(of: kAXPositionAttribute),
+                      let size = try? element.size(of: kAXSizeAttribute) else { continue }
+                let identity = WindowIdentity(element: element)
                 if frames[identity] == nil {
                     frames[identity] = CGRect(origin: position, size: size)
                 }
