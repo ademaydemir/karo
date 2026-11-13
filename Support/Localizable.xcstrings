@@ -1,1812 +1,1812 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "%@ is already used by %@.": {
-      "comment": "Shortcut conflict: the shortcut, then the action already using it",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@ is already used by %2$@."
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ is already used by %@." : {
+      "comment" : "Shortcut conflict: the shortcut, then the action already using it",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ is already used by %2$@."
           }
         },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@ zaten %2$@ için kullanılıyor."
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ zaten %2$@ için kullanılıyor."
           }
         }
       }
     },
-    "%@ is used by the window switcher.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ pencere değiştirici tarafından kullanılıyor."
+    "%@ is used by the window switcher." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ pencere değiştirici tarafından kullanılıyor."
           }
         }
       }
     },
-    "%lld points": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld nokta"
+    "%lld points" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld nokta"
           }
         }
       }
     },
-    "%lld pt": {
-      "comment": "Slider value in points",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld pt"
+    "%lld pt" : {
+      "comment" : "Slider value in points",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pt"
           }
         }
       }
     },
-    "A snapped window dropped on another display takes the same place there, such as the left half.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yerleşik bir pencere başka bir ekrana bırakıldığında orada da aynı yeri alır, örneğin sol yarıyı."
+    "A snapped window dropped on another display takes the same place there, such as the left half." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yerleşik bir pencere başka bir ekrana bırakıldığında orada da aynı yeri alır, örneğin sol yarıyı."
           }
         }
       }
     },
-    "About Karo": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo Hakkında"
+    "About Karo" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo Hakkında"
           }
         }
       }
     },
-    "Accessibility": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erişilebilirlik"
+    "Accessibility" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik"
           }
         }
       }
     },
-    "Accessibility access granted": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erişilebilirlik izni verildi"
+    "Accessibility access granted" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik izni verildi"
           }
         }
       }
     },
-    "Accessibility access required": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erişilebilirlik izni gerekli"
+    "Accessibility access required" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik izni gerekli"
           }
         }
       }
     },
-    "After allowing it, restart Karo to see window previews.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "İzin verdikten sonra önizlemeleri görmek için Karo’yu yeniden başlatın."
+    "After allowing it, restart Karo to see window previews." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzin verdikten sonra önizlemeleri görmek için Karo’yu yeniden başlatın."
           }
         }
       }
     },
-    "After snapping to a half or a third, pick a window to fill the rest of the screen.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir pencereyi yarıya veya üçte bire yerleştirdikten sonra ekranın kalanını dolduracak pencereyi seçin."
+    "After snapping to a half or a third, pick a window to fill the rest of the screen." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir pencereyi yarıya veya üçte bire yerleştirdikten sonra ekranın kalanını dolduracak pencereyi seçin."
           }
         }
       }
     },
-    "All windows at once; an app’s windows share one deck.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tüm pencereler bir arada; bir uygulamanın pencereleri tek destede."
+    "All windows at once; an app’s windows share one deck." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm pencereler bir arada; bir uygulamanın pencereleri tek destede."
           }
         }
       }
     },
-    "Allow Access": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erişime İzin Verin"
+    "Allow Access" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişime İzin Verin"
           }
         }
       }
     },
-    "Allow Karo in System Settings to finish turning this on.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Açmayı tamamlamak için Sistem Ayarları'nda Karo'ya izin verin."
+    "Allow Karo in System Settings to finish turning this on." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Açmayı tamamlamak için Sistem Ayarları'nda Karo'ya izin verin."
           }
         }
       }
     },
-    "Allow Karo under Screen & System Audio Recording, then quit and reopen Karo. Until then, app icons are shown.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ekran ve Sistem Sesi Kaydı bölümünde Karo'ya izin verin, ardından Karo'yu kapatıp yeniden açın. O zamana kadar uygulama simgeleri gösterilir."
+    "Allow Karo under Screen & System Audio Recording, then quit and reopen Karo. Until then, app icons are shown." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran ve Sistem Sesi Kaydı bölümünde Karo'ya izin verin, ardından Karo'yu kapatıp yeniden açın. O zamana kadar uygulama simgeleri gösterilir."
           }
         }
       }
     },
-    "Allowed": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "İzin verildi"
+    "Allowed" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzin verildi"
           }
         }
       }
     },
-    "Allow…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "İzin Ver…"
+    "Allow…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzin Ver…"
           }
         }
       }
     },
-    "Also %@ / %@ while the switcher is open.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Also %1$@ / %2$@ while the switcher is open."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Değiştirici açıkken %1$@ / %2$@ ile de değişir."
-          }
-        }
-      }
-    },
-    "Approval needed": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Onay gerekiyor"
-          }
-        }
-      }
-    },
-    "Apps that are still open after their last window was closed come last. Choose one to open a new window.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Son penceresi kapatıldığı hâlde açık olan uygulamalar en sonda görünür. Birini seçince yeni bir pencere açılır."
-          }
-        }
-      }
-    },
-    "Back": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geri"
-          }
-        }
-      }
-    },
-    "Bottom Half": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alt Yarı"
-          }
-        }
-      }
-    },
-    "Bottom Left": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sol Alt"
-          }
-        }
-      }
-    },
-    "Bottom Right": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ Alt"
-          }
-        }
-      }
-    },
-    "Bring All to Front": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tümünü Öne Getir"
-          }
-        }
-      }
-    },
-    "Center": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ortala"
-          }
-        }
-      }
-    },
-    "Center Third": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Orta Üçte Bir"
-          }
-        }
-      }
-    },
-    "Check Now": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Şimdi Denetle"
-          }
-        }
-      }
-    },
-    "Check for Updates…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Güncellemeleri Denetle…"
-          }
-        }
-      }
-    },
-    "Check for updates automatically": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Güncellemeleri otomatik olarak denetle"
-          }
-        }
-      }
-    },
-    "Choose a Switcher Style": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Değiştirici Stilini Seçin"
-          }
-        }
-      }
-    },
-    "Choose a window for this side": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bu taraf için bir pencere seçin"
-          }
-        }
-      }
-    },
-    "Click a shortcut, then type the new combination. Press ⎋ to cancel.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir kısayola tıklayın, ardından yeni tuş birleşimine basın. Vazgeçmek için ⎋ tuşuna basın."
-          }
-        }
-      }
-    },
-    "Close": {
-      "comment": "Close the window",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kapat"
-          }
-        }
-      }
-    },
-    "Continue": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Devam"
-          }
-        }
-      }
-    },
-    "Corner size": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Köşe boyutu"
-          }
-        }
-      }
-    },
-    "Could not change the login item: %@": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giriş öğesi değiştirilemedi: %@"
-          }
-        }
-      }
-    },
-    "Displays": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ekranlar"
-          }
-        }
-      }
-    },
-    "Do Not Move": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Taşıma"
-          }
-        }
-      }
-    },
-    "Do not ask again": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir daha sorma"
-          }
-        }
-      }
-    },
-    "Dock": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock"
-          }
-        }
-      }
-    },
-    "Drag Karo to the Applications folder in Finder, then open it from there.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo'yu Finder'da Uygulamalar klasörüne sürükleyin ve oradan açın."
-          }
-        }
-      }
-    },
-    "Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir pencereyi ekranın kenarına ya da köşesine sürükleyerek yarıya veya çeyreğe yerleştirin. Karo kalan alan için pencere önerir."
-          }
-        }
-      }
-    },
-    "Drag to Snap": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sürükleyerek Yerleştir"
-          }
-        }
-      }
-    },
-    "Drag to snap": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sürükleyip yerleştirin"
-          }
-        }
-      }
-    },
-    "Edge sensitivity": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kenar hassasiyeti"
-          }
-        }
-      }
-    },
-    "Edges snap to halves, corners to quarters, the top edge maximizes and the bottom edge snaps to thirds. Drop a snapped window on another to swap them (⌥ forces it). Hold ⇧ to move freely, press Esc to cancel.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kenarlar yarıya, köşeler çeyreğe yerleştirir, üst kenar pencereyi büyütür, alt kenar üçte bire yerleştirir. Yerleşik bir pencereyi diğerinin üstüne bırakınca yer değiştirirler (⌥ ile zorlanır). Serbestçe taşımak için ⇧ tuşunu basılı tutun, iptal için Esc tuşuna basın."
-          }
-        }
-      }
-    },
-    "Gap between windows": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencereler arası boşluk"
-          }
-        }
-      }
-    },
-    "General": {
-      "comment": "Settings tab",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Genel"
-          }
-        }
-      }
-    },
-    "Get Started": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Başlayın"
-          }
-        }
-      }
-    },
-    "Grant Accessibility Access…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erişilebilirlik İzni Ver…"
-          }
-        }
-      }
-    },
-    "Grid": {
-      "comment": "Switcher style",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Izgara"
-          }
-        }
-      }
-    },
-    "Halves": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yarılar"
-          }
-        }
-      }
-    },
-    "Hide": {
-      "comment": "Radial menu: hide the app",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gizle"
-          }
-        }
-      }
-    },
-    "Hide App": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uygulamayı Gizle"
-          }
-        }
-      }
-    },
-    "Hide Karo": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo'yu Gizle"
-          }
-        }
-      }
-    },
-    "Hide Others": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diğerlerini Gizle"
-          }
-        }
-      }
-    },
-    "Hold %@ and press Tab to step through windows; release %@ to switch.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Hold %1$@ and press Tab to step through windows; release %2$@ to switch."
+    "Also %@ / %@ while the switcher is open." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Also %1$@ / %2$@ while the switcher is open."
           }
         },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencereler arasında ilerlemek için %1$@ tuşunu basılı tutup Tab'a basın; geçiş yapmak için %1$@ tuşunu bırakın."
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değiştirici açıkken %1$@ / %2$@ ile de değişir."
           }
         }
       }
     },
-    "Hold these keys and drag anywhere in a window to move it, or right-drag to resize it from the nearest corner.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bu tuşları basılı tutup pencerenin herhangi bir yerinden sürükleyerek taşıyın veya sağ tıkla sürükleyerek en yakın köşesinden boyutlandırın."
+    "Approval needed" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onay gerekiyor"
           }
         }
       }
     },
-    "Hold ⌥ and press Tab to step through windows; release ⌥ to switch.": {
-      "extractionState": "stale",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencereler arasında ilerlemek için ⌥ tuşunu basılı tutup Tab'a basın; geçiş yapmak için ⌥ tuşunu bırakın."
+    "Apps that are still open after their last window was closed come last. Choose one to open a new window." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son penceresi kapatıldığı hâlde açık olan uygulamalar en sonda görünür. Birini seçince yeni bir pencere açılır."
           }
         }
       }
     },
-    "How close to the edge the pointer must be.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "İmlecin kenara ne kadar yaklaşması gerektiği."
+    "Back" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri"
           }
         }
       }
     },
-    "How ⌥ + Tab shows your windows. You can change it later in Settings.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌥ + Tab pencerelerinizi nasıl göstersin? Bunu daha sonra Ayarlar’da değiştirebilirsiniz."
+    "Bottom Half" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alt Yarı"
           }
         }
       }
     },
-    "Karo can use a different language than macOS.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo, macOS'tan farklı bir dil kullanabilir."
+    "Bottom Left" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol Alt"
           }
         }
       }
     },
-    "Karo could not be moved": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo taşınamadı"
+    "Bottom Right" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sağ Alt"
           }
         }
       }
     },
-    "Karo is running from outside the Applications folder, for example from the disk image. In Applications it can update itself and start at login.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo, Uygulamalar klasörünün dışından, örneğin disk imajından çalışıyor. Uygulamalar klasöründe kendini güncelleyebilir ve girişte açılabilir."
+    "Bring All to Front" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tümünü Öne Getir"
           }
         }
       }
     },
-    "Karo lives in the menu bar. Click its icon for window actions and Settings.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo menü çubuğunda çalışır. Pencere işlemleri ve Ayarlar için simgesine tıklayın."
+    "Center" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ortala"
           }
         }
       }
     },
-    "Karo looks for a new version once a day and asks before installing it.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo günde bir kez yeni sürüm arar ve yüklemeden önce size sorar."
+    "Center Third" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orta Üçte Bir"
           }
         }
       }
     },
-    "Karo works through macOS privacy permissions. Everything stays on your Mac.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo, macOS gizlilik izinleriyle çalışır. Hiçbir veri Mac’inizden çıkmaz."
+    "Check Now" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şimdi Denetle"
           }
         }
       }
     },
-    "Karo ⌥ + Tab: every window": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo ⌥ + Tab: her pencere"
+    "Check for Updates…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güncellemeleri Denetle…"
           }
         }
       }
     },
-    "Keep the layout when dragging to another display": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Başka ekrana sürüklerken yerleşimi koru"
+    "Check for updates automatically" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güncellemeleri otomatik olarak denetle"
           }
         }
       }
     },
-    "Language": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dil"
+    "Choose a Switcher Style" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değiştirici Stilini Seçin"
           }
         }
       }
     },
-    "Large": {
-      "comment": "Switcher size",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Büyük"
+    "Choose a window for this side" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu taraf için bir pencere seçin"
           }
         }
       }
     },
-    "Launch at login": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oturum açıldığında başlat"
+    "Click a shortcut, then type the new combination. Press ⎋ to cancel." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir kısayola tıklayın, ardından yeni tuş birleşimine basın. Vazgeçmek için ⎋ tuşuna basın."
           }
         }
       }
     },
-    "Layout": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yerleşim"
+    "Close" : {
+      "comment" : "Close the window",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapat"
           }
         }
       }
     },
-    "Left Half": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sol Yarı"
+    "Continue" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devam"
           }
         }
       }
     },
-    "Left Third": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sol Üçte Bir"
+    "Corner size" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Köşe boyutu"
           }
         }
       }
     },
-    "Left Two Thirds": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sol Üçte İki"
+    "Could not change the login item: %@" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giriş öğesi değiştirilemedi: %@"
           }
         }
       }
     },
-    "Length of the corner areas that snap to quarters.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Çeyreğe yerleştiren köşe alanlarının uzunluğu."
+    "Displays" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekranlar"
           }
         }
       }
     },
-    "Lets Karo move and resize other apps’ windows.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo’nun diğer uygulamaların pencerelerini taşıyıp boyutlandırmasını sağlar."
+    "Do Not Move" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taşıma"
           }
         }
       }
     },
-    "List": {
-      "comment": "Switcher style",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Liste"
+    "Do not ask again" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir daha sorma"
           }
         }
       }
     },
-    "Maximize": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Büyüt"
+    "Dock" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock"
           }
         }
       }
     },
-    "Medium": {
-      "comment": "Switcher size",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Orta"
+    "Drag Karo to the Applications folder in Finder, then open it from there." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo'yu Finder'da Uygulamalar klasörüne sürükleyin ve oradan açın."
           }
         }
       }
     },
-    "Minimize": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Küçült"
+    "Drag a window to a screen edge or corner to fill a half or a quarter. Karo then suggests windows for the free space." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir pencereyi ekranın kenarına ya da köşesine sürükleyerek yarıya veya çeyreğe yerleştirin. Karo kalan alan için pencere önerir."
           }
         }
       }
     },
-    "Minimized or hidden": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Küçültülmüş veya gizli"
+    "Drag to Snap" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sürükleyerek Yerleştir"
           }
         }
       }
     },
-    "Move Karo to the Applications folder?": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo, Uygulamalar klasörüne taşınsın mı?"
+    "Drag to snap" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sürükleyip yerleştirin"
           }
         }
       }
     },
-    "Move Window": {
-      "comment": "Menu section header",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencereyi Taşı"
+    "Edge sensitivity" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kenar hassasiyeti"
           }
         }
       }
     },
-    "Move and Resize": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Taşıma ve Boyutlandırma"
+    "Edges snap to halves, corners to quarters, the top edge maximizes and the bottom edge snaps to thirds. Drop a snapped window on another to swap them (⌥ forces it). Hold ⇧ to move freely, press Esc to cancel." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kenarlar yarıya, köşeler çeyreğe yerleştirir, üst kenar pencereyi büyütür, alt kenar üçte bire yerleştirir. Yerleşik bir pencereyi diğerinin üstüne bırakınca yer değiştirirler (⌥ ile zorlanır). Serbestçe taşımak için ⇧ tuşunu basılı tutun, iptal için Esc tuşuna basın."
           }
         }
       }
     },
-    "Move and resize from anywhere": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Her yerden taşı ve boyutlandır"
+    "Gap between windows" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereler arası boşluk"
           }
         }
       }
     },
-    "Move to Applications": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uygulamalar'a Taşı"
+    "General" : {
+      "comment" : "Settings tab",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genel"
           }
         }
       }
     },
-    "Move to Other Display": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diğer Ekrana Taşı"
+    "Get Started" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başlayın"
           }
         }
       }
     },
-    "Next Display": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sonraki Ekran"
+    "Grant Accessibility Access…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erişilebilirlik İzni Ver…"
           }
         }
       }
     },
-    "No windows": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere yok"
+    "Grid" : {
+      "comment" : "Switcher style",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izgara"
           }
         }
       }
     },
-    "None": {
-      "comment": "No shortcut assigned",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yok"
+    "Halves" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yarılar"
           }
         }
       }
     },
-    "Off": {
-      "comment": "Move and resize from anywhere: off",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kapalı"
+    "Hide" : {
+      "comment" : "Radial menu: hide the app",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizle"
           }
         }
       }
     },
-    "One large window at a time; swipe sideways on a Magic Mouse or trackpad.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir seferde tek büyük pencere; Magic Mouse veya trackpad'de yana kaydırın."
+    "Hide App" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı Gizle"
           }
         }
       }
     },
-    "One window per row with its title; easiest to read with many windows.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Her satırda başlığıyla bir pencere; çok pencere varken okuması en kolay görünüm."
+    "Hide Karo" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo'yu Gizle"
           }
         }
       }
     },
-    "Open Desktop & Dock…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Masaüstü ve Dock'u Aç…"
+    "Hide Others" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğerlerini Gizle"
           }
         }
       }
     },
-    "Open Login Items…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giriş Öğelerini Aç…"
-          }
-        }
-      }
-    },
-    "Open Privacy Settings…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gizlilik Ayarlarını Aç…"
-          }
-        }
-      }
-    },
-    "Open Settings": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ayarları Aç"
-          }
-        }
-      }
-    },
-    "Optional": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "İsteğe bağlı"
-          }
-        }
-      }
-    },
-    "Other Display": {
-      "comment": "Radial menu: move the window to another display",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diğer Ekran"
-          }
-        }
-      }
-    },
-    "Place with the keyboard": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klavyeyle yerleştirin"
-          }
-        }
-      }
-    },
-    "Press Esc or click elsewhere to skip.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geçmek için Esc'e basın veya başka bir yere tıklayın."
-          }
-        }
-      }
-    },
-    "Preview of the selected style": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seçili görünümün önizlemesi"
-          }
-        }
-      }
-    },
-    "Previews": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Önizlemeler"
-          }
-        }
-      }
-    },
-    "Previous Display": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Önceki Ekran"
-          }
-        }
-      }
-    },
-    "Quick actions": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hızlı işlemler"
-          }
-        }
-      }
-    },
-    "Quit": {
-      "comment": "Radial menu: quit the app",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Çık"
-          }
-        }
-      }
-    },
-    "Quit App": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uygulamadan Çık"
-          }
-        }
-      }
-    },
-    "Quit Karo": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo'dan Çık"
-          }
-        }
-      }
-    },
-    "Records a new shortcut": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yeni bir kısayol kaydeder"
-          }
-        }
-      }
-    },
-    "Remember window positions for each display setup": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Her ekran düzeni için pencere konumlarını hatırla"
-          }
-        }
-      }
-    },
-    "Remove shortcut": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kısayolu kaldır"
-          }
-        }
-      }
-    },
-    "Required": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerekli"
-          }
-        }
-      }
-    },
-    "Required to move and resize other apps’ windows.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diğer uygulamaların pencerelerini taşımak ve boyutlandırmak için gerekli."
-          }
-        }
-      }
-    },
-    "Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir uygulamanın pencerelerini görmek için imleci Dock’taki simgesinin üstünde tutun. Öne getirmek için bir pencereye tıklayın."
-          }
-        }
-      }
-    },
-    "Restart Karo to use the new language.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yeni dili kullanmak için Karo'yu yeniden başlatın."
-          }
-        }
-      }
-    },
-    "Restart Now": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Şimdi Yeniden Başlat"
-          }
-        }
-      }
-    },
-    "Restore": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eski Haline Getir"
-          }
-        }
-      }
-    },
-    "Restore Defaults": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Varsayılanlara Döndür"
-          }
-        }
-      }
-    },
-    "Right Half": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ Yarı"
-          }
-        }
-      }
-    },
-    "Right Third": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ Üçte Bir"
-          }
-        }
-      }
-    },
-    "Right Two Thirds": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ Üçte İki"
-          }
-        }
-      }
-    },
-    "Right-click": {
-      "comment": "Mouse action in a hint",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ tık"
-          }
-        }
-      }
-    },
-    "Right-click a window in the switcher to close, minimize, hide or place it. Holding %@, the same works from the keyboard.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştiricide bir pencereye sağ tıklayarak onu kapatın, küçültün, gizleyin veya yerleştirin. %@ basılıyken aynı işlemler klavyeyle de yapılabilir."
-          }
-        }
-      }
-    },
-    "Right-click a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard.": {
-      "extractionState": "stale",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştiricide bir pencereye sağ tıklayarak onu kapatın, küçültün, gizleyin veya yerleştirin. ⌥ basılıyken aynı işlemler klavyeyle de yapılabilir."
-          }
-        }
-      }
-    },
-    "Right-click for quick actions": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hızlı işlemler için sağ tıklayın"
-          }
-        }
-      }
-    },
-    "Screen Recording": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ekran Kaydı"
-          }
-        }
-      }
-    },
-    "Screen Recording needed": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ekran Kaydı izni gerekli"
-          }
-        }
-      }
-    },
-    "Settings…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ayarlar…"
-          }
-        }
-      }
-    },
-    "Shortcuts": {
-      "comment": "Settings tab",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kısayollar"
-          }
-        }
-      }
-    },
-    "Shortcuts need ⌃, ⌥ or ⌘.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kısayollar ⌃, ⌥ veya ⌘ içermelidir."
-          }
-        }
-      }
-    },
-    "Show All": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tümünü Göster"
-          }
-        }
-      }
-    },
-    "Show a small picture of each window in the window switcher and Snap Assist, instead of only its app icon.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştiricide ve Snap Assist'te, uygulama simgesi yerine her pencerenin küçük bir görüntüsünü gösterir."
-          }
-        }
-      }
-    },
-    "Show apps without windows": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Penceresi olmayan uygulamaları göster"
-          }
-        }
-      }
-    },
-    "Show in menu bar": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Menü çubuğunda göster"
-          }
-        }
-      }
-    },
-    "Show window previews": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere önizlemelerini göster"
-          }
-        }
-      }
-    },
-    "Show windows from the Dock": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock’tan pencereleri göster"
-          }
-        }
-      }
-    },
-    "Shows live window previews in the switcher and Snap Assist. Nothing is recorded or saved.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştiricide ve Snap Assist’te canlı önizlemeler gösterir. Hiçbir şey kaydedilmez."
-          }
-        }
-      }
-    },
-    "Shows the switcher in this style.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere değiştiriciyi bu stilde gösterir."
-          }
-        }
-      }
-    },
-    "Size": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Boyut"
-          }
-        }
-      }
-    },
-    "Skip": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Atla"
-          }
-        }
-      }
-    },
-    "Small": {
-      "comment": "Switcher size",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Küçük"
-          }
-        }
-      }
-    },
-    "Snap windows dragged to screen edges": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ekran kenarlarına sürüklenen pencereleri yerleştir"
-          }
-        }
-      }
-    },
-    "Snapping": {
-      "comment": "Settings tab",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yerleştirme"
-          }
-        }
-      }
-    },
-    "Space": {
-      "comment": "Space bar in a shortcut",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Boşluk"
-          }
-        }
-      }
-    },
-    "Space around snapped windows and between neighbours.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yerleştirilen pencerelerin çevresindeki ve aralarındaki boşluk."
-          }
-        }
-      }
-    },
-    "Start Karo automatically when you log in.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oturum açtığınızda Karo otomatik olarak başlar."
-          }
-        }
-      }
-    },
-    "Step %lld of %lld": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Step %1$lld of %2$lld"
+    "Hold %@ and press Tab to step through windows; release %@ to switch." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hold %1$@ and press Tab to step through windows; release %2$@ to switch."
           }
         },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adım %1$lld / %2$lld"
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereler arasında ilerlemek için %1$@ tuşunu basılı tutup Tab'a basın; geçiş yapmak için %1$@ tuşunu bırakın."
           }
         }
       }
     },
-    "Style": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Görünüm"
+    "Hold these keys and drag anywhere in a window to move it, or right-drag to resize it from the nearest corner." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu tuşları basılı tutup pencerenin herhangi bir yerinden sürükleyerek taşıyın veya sağ tıkla sürükleyerek en yakın köşesinden boyutlandırın."
           }
         }
       }
     },
-    "Suggest windows for the other side": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diğer taraf için pencere öner"
+    "Hold ⌥ and press Tab to step through windows; release ⌥ to switch." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereler arasında ilerlemek için ⌥ tuşunu basılı tutup Tab'a basın; geçiş yapmak için ⌥ tuşunu bırakın."
           }
         }
       }
     },
-    "Switch between windows": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencereler arasında geçin"
+    "How close to the edge the pointer must be." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İmlecin kenara ne kadar yaklaşması gerektiği."
           }
         }
       }
     },
-    "Switch windows": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencereler arası geçiş"
+    "How ⌥ + Tab shows your windows. You can change it later in Settings." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌥ + Tab pencerelerinizi nasıl göstersin? Bunu daha sonra Ayarlar’da değiştirebilirsiniz."
           }
         }
       }
     },
-    "Switcher": {
-      "comment": "Settings tab",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geçiş"
+    "Karo can use a different language than macOS." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo, macOS'tan farklı bir dil kullanabilir."
           }
         }
       }
     },
-    "System Default (%@)": {
-      "comment": "Language option that follows macOS; the language it currently resolves to in parentheses",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistem Varsayılanı (%@)"
+    "Karo could not be moved" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo taşınamadı"
           }
         }
       }
     },
-    "Top Half": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Üst Yarı"
+    "Karo is running from outside the Applications folder, for example from the disk image. In Applications it can update itself and start at login." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo, Uygulamalar klasörünün dışından, örneğin disk imajından çalışıyor. Uygulamalar klasöründe kendini güncelleyebilir ve girişte açılabilir."
           }
         }
       }
     },
-    "Top Left": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sol Üst"
+    "Karo lives in the menu bar. Click its icon for window actions and Settings." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo menü çubuğunda çalışır. Pencere işlemleri ve Ayarlar için simgesine tıklayın."
           }
         }
       }
     },
-    "Top Right": {
-      "comment": "Window action",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağ Üst"
+    "Karo looks for a new version once a day and asks before installing it." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo günde bir kez yeni sürüm arar ve yüklemeden önce size sorar."
           }
         }
       }
     },
-    "Type a shortcut, or press Escape to cancel": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir kısayola basın veya vazgeçmek için Escape tuşuna basın"
+    "Karo works through macOS privacy permissions. Everything stays on your Mac." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo, macOS gizlilik izinleriyle çalışır. Hiçbir veri Mac’inizden çıkmaz."
           }
         }
       }
     },
-    "Type shortcut…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kısayola basın…"
+    "Karo ⌥ + Tab: every window" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo ⌥ + Tab: her pencere"
           }
         }
       }
     },
-    "Version %@": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sürüm %@"
+    "Keep the layout when dragging to another display" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başka ekrana sürüklerken yerleşimi koru"
           }
         }
       }
     },
-    "Welcome Guide…": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karşılama Rehberi…"
+    "Language" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dil"
           }
         }
       }
     },
-    "Welcome to Karo": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Karo’ya Hoş Geldiniz"
+    "Large" : {
+      "comment" : "Switcher size",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Büyük"
           }
         }
       }
     },
-    "When hidden, open Karo again from Finder or Spotlight to see Settings.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gizliyken Ayarlar’a ulaşmak için Karo’yu Finder’dan veya Spotlight’tan yeniden açın."
+    "Launch at login" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oturum açıldığında başlat"
           }
         }
       }
     },
-    "When you connect or disconnect a display, windows go back to where they were the last time you used that setup.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bir ekran takıldığında veya çıkarıldığında pencereler, o ekran düzenini en son kullandığınızdaki yerlerine döner."
+    "Layout" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yerleşim"
           }
         }
       }
     },
-    "Window": {
-      "comment": "Menu bar menu",
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pencere"
+    "Left Half" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol Yarı"
           }
         }
       }
     },
-    "Window management for your Mac.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac’iniz için pencere yönetimi."
+    "Left Third" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol Üçte Bir"
           }
         }
       }
     },
-    "You’re All Set": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Her Şey Hazır"
+    "Left Two Thirds" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol Üçte İki"
           }
         }
       }
     },
-    "macOS tiling is also on": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS döşemesi de açık"
+    "Length of the corner areas that snap to quarters." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çeyreğe yerleştiren köşe alanlarının uzunluğu."
           }
         }
       }
     },
-    "macOS ⌘ + Tab: one icon per app": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS ⌘ + Tab: uygulama başına tek simge"
+    "Lets Karo move and resize other apps’ windows." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo’nun diğer uygulamaların pencerelerini taşıyıp boyutlandırmasını sağlar."
           }
         }
       }
     },
-    "“Drag windows to screen edges to tile” reacts to the same drags. Turn it off so only Karo snaps.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS'un “Pencereleri döşemek için ekran kenarlarına sürükle” ayarı aynı sürüklemelere tepki verir. Yalnızca Karo'nun yerleştirmesi için bu ayarı kapatın."
+    "List" : {
+      "comment" : "Switcher style",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste"
           }
         }
       }
     },
-    "⌃ + ⌥ + ← and ⌃ + ⌥ + → for halves, ⌃ + ⌥ + ↩ to maximize, ⌃ + ⌥ + ⌫ to restore. All shortcuts can be changed.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yarımlar için ⌃ + ⌥ + ← ve ⌃ + ⌥ + →, büyütmek için ⌃ + ⌥ + ↩, geri almak için ⌃ + ⌥ + ⌫. Tüm kısayollar değiştirilebilir."
+    "Maximize" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Büyüt"
           }
         }
       }
     },
-    "⌘ + Tab shows one icon per app. ⌥ + Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions.": {
-      "localizations": {
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌘ + Tab her uygulama için tek simge gösterir. ⌥ + Tab ise aynı uygulamanın pencereleri dahil her pencereyi canlı önizlemeyle gösterir; sağ tıklayınca hızlı işlemler çıkar."
+    "Medium" : {
+      "comment" : "Switcher size",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orta"
+          }
+        }
+      }
+    },
+    "Minimize" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Küçült"
+          }
+        }
+      }
+    },
+    "Minimized or hidden" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Küçültülmüş veya gizli"
+          }
+        }
+      }
+    },
+    "Move Karo to the Applications folder?" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo, Uygulamalar klasörüne taşınsın mı?"
+          }
+        }
+      }
+    },
+    "Move Window" : {
+      "comment" : "Menu section header",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereyi Taşı"
+          }
+        }
+      }
+    },
+    "Move and Resize" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taşıma ve Boyutlandırma"
+          }
+        }
+      }
+    },
+    "Move and resize from anywhere" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her yerden taşı ve boyutlandır"
+          }
+        }
+      }
+    },
+    "Move to Applications" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamalar'a Taşı"
+          }
+        }
+      }
+    },
+    "Move to Other Display" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğer Ekrana Taşı"
+          }
+        }
+      }
+    },
+    "Next Display" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonraki Ekran"
+          }
+        }
+      }
+    },
+    "No windows" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere yok"
+          }
+        }
+      }
+    },
+    "None" : {
+      "comment" : "No shortcut assigned",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yok"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "comment" : "Move and resize from anywhere: off",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapalı"
+          }
+        }
+      }
+    },
+    "One large window at a time; swipe sideways on a Magic Mouse or trackpad." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir seferde tek büyük pencere; Magic Mouse veya trackpad'de yana kaydırın."
+          }
+        }
+      }
+    },
+    "One window per row with its title; easiest to read with many windows." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her satırda başlığıyla bir pencere; çok pencere varken okuması en kolay görünüm."
+          }
+        }
+      }
+    },
+    "Open Desktop & Dock…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masaüstü ve Dock'u Aç…"
+          }
+        }
+      }
+    },
+    "Open Login Items…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giriş Öğelerini Aç…"
+          }
+        }
+      }
+    },
+    "Open Privacy Settings…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizlilik Ayarlarını Aç…"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarları Aç"
+          }
+        }
+      }
+    },
+    "Optional" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İsteğe bağlı"
+          }
+        }
+      }
+    },
+    "Other Display" : {
+      "comment" : "Radial menu: move the window to another display",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğer Ekran"
+          }
+        }
+      }
+    },
+    "Place with the keyboard" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klavyeyle yerleştirin"
+          }
+        }
+      }
+    },
+    "Press Esc or click elsewhere to skip." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçmek için Esc'e basın veya başka bir yere tıklayın."
+          }
+        }
+      }
+    },
+    "Preview of the selected style" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçili görünümün önizlemesi"
+          }
+        }
+      }
+    },
+    "Previews" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önizlemeler"
+          }
+        }
+      }
+    },
+    "Previous Display" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önceki Ekran"
+          }
+        }
+      }
+    },
+    "Quick actions" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hızlı işlemler"
+          }
+        }
+      }
+    },
+    "Quit" : {
+      "comment" : "Radial menu: quit the app",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çık"
+          }
+        }
+      }
+    },
+    "Quit App" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamadan Çık"
+          }
+        }
+      }
+    },
+    "Quit Karo" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo'dan Çık"
+          }
+        }
+      }
+    },
+    "Records a new shortcut" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni bir kısayol kaydeder"
+          }
+        }
+      }
+    },
+    "Remember window positions for each display setup" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her ekran düzeni için pencere konumlarını hatırla"
+          }
+        }
+      }
+    },
+    "Remove shortcut" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısayolu kaldır"
+          }
+        }
+      }
+    },
+    "Required" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerekli"
+          }
+        }
+      }
+    },
+    "Required to move and resize other apps’ windows." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğer uygulamaların pencerelerini taşımak ve boyutlandırmak için gerekli."
+          }
+        }
+      }
+    },
+    "Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir uygulamanın pencerelerini görmek için imleci Dock’taki simgesinin üstünde tutun. Öne getirmek için bir pencereye tıklayın."
+          }
+        }
+      }
+    },
+    "Restart Karo to use the new language." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni dili kullanmak için Karo'yu yeniden başlatın."
+          }
+        }
+      }
+    },
+    "Restart Now" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şimdi Yeniden Başlat"
+          }
+        }
+      }
+    },
+    "Restore" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eski Haline Getir"
+          }
+        }
+      }
+    },
+    "Restore Defaults" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varsayılanlara Döndür"
+          }
+        }
+      }
+    },
+    "Right Half" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sağ Yarı"
+          }
+        }
+      }
+    },
+    "Right Third" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sağ Üçte Bir"
+          }
+        }
+      }
+    },
+    "Right Two Thirds" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sağ Üçte İki"
+          }
+        }
+      }
+    },
+    "Right-click" : {
+      "comment" : "Mouse action in a hint",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sağ tık"
+          }
+        }
+      }
+    },
+    "Right-click a window in the switcher to close, minimize, hide or place it. Holding %@, the same works from the keyboard." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere değiştiricide bir pencereye sağ tıklayarak onu kapatın, küçültün, gizleyin veya yerleştirin. %@ basılıyken aynı işlemler klavyeyle de yapılabilir."
+          }
+        }
+      }
+    },
+    "Right-click a window in the switcher to close, minimize, hide or place it. Holding ⌥, the same works from the keyboard." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere değiştiricide bir pencereye sağ tıklayarak onu kapatın, küçültün, gizleyin veya yerleştirin. ⌥ basılıyken aynı işlemler klavyeyle de yapılabilir."
+          }
+        }
+      }
+    },
+    "Right-click for quick actions" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hızlı işlemler için sağ tıklayın"
+          }
+        }
+      }
+    },
+    "Screen Recording" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran Kaydı"
+          }
+        }
+      }
+    },
+    "Screen Recording needed" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran Kaydı izni gerekli"
+          }
+        }
+      }
+    },
+    "Settings…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar…"
+          }
+        }
+      }
+    },
+    "Shortcuts" : {
+      "comment" : "Settings tab",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısayollar"
+          }
+        }
+      }
+    },
+    "Shortcuts need ⌃, ⌥ or ⌘." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısayollar ⌃, ⌥ veya ⌘ içermelidir."
+          }
+        }
+      }
+    },
+    "Show All" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tümünü Göster"
+          }
+        }
+      }
+    },
+    "Show a small picture of each window in the window switcher and Snap Assist, instead of only its app icon." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere değiştiricide ve Snap Assist'te, uygulama simgesi yerine her pencerenin küçük bir görüntüsünü gösterir."
+          }
+        }
+      }
+    },
+    "Show apps without windows" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penceresi olmayan uygulamaları göster"
+          }
+        }
+      }
+    },
+    "Show in menu bar" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğunda göster"
+          }
+        }
+      }
+    },
+    "Show window previews" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere önizlemelerini göster"
+          }
+        }
+      }
+    },
+    "Show windows from the Dock" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock’tan pencereleri göster"
+          }
+        }
+      }
+    },
+    "Shows live window previews in the switcher and Snap Assist. Nothing is recorded or saved." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere değiştiricide ve Snap Assist’te canlı önizlemeler gösterir. Hiçbir şey kaydedilmez."
+          }
+        }
+      }
+    },
+    "Shows the switcher in this style." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere değiştiriciyi bu stilde gösterir."
+          }
+        }
+      }
+    },
+    "Size" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boyut"
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atla"
+          }
+        }
+      }
+    },
+    "Small" : {
+      "comment" : "Switcher size",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Küçük"
+          }
+        }
+      }
+    },
+    "Snap windows dragged to screen edges" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran kenarlarına sürüklenen pencereleri yerleştir"
+          }
+        }
+      }
+    },
+    "Snapping" : {
+      "comment" : "Settings tab",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yerleştirme"
+          }
+        }
+      }
+    },
+    "Space" : {
+      "comment" : "Space bar in a shortcut",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boşluk"
+          }
+        }
+      }
+    },
+    "Space around snapped windows and between neighbours." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yerleştirilen pencerelerin çevresindeki ve aralarındaki boşluk."
+          }
+        }
+      }
+    },
+    "Start Karo automatically when you log in." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oturum açtığınızda Karo otomatik olarak başlar."
+          }
+        }
+      }
+    },
+    "Step %lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Step %1$lld of %2$lld"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adım %1$lld / %2$lld"
+          }
+        }
+      }
+    },
+    "Style" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Görünüm"
+          }
+        }
+      }
+    },
+    "Suggest windows for the other side" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğer taraf için pencere öner"
+          }
+        }
+      }
+    },
+    "Switch between windows" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereler arasında geçin"
+          }
+        }
+      }
+    },
+    "Switch windows" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereler arası geçiş"
+          }
+        }
+      }
+    },
+    "Switcher" : {
+      "comment" : "Settings tab",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçiş"
+          }
+        }
+      }
+    },
+    "System Default (%@)" : {
+      "comment" : "Language option that follows macOS; the language it currently resolves to in parentheses",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistem Varsayılanı (%@)"
+          }
+        }
+      }
+    },
+    "Top Half" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üst Yarı"
+          }
+        }
+      }
+    },
+    "Top Left" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sol Üst"
+          }
+        }
+      }
+    },
+    "Top Right" : {
+      "comment" : "Window action",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sağ Üst"
+          }
+        }
+      }
+    },
+    "Type a shortcut, or press Escape to cancel" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir kısayola basın veya vazgeçmek için Escape tuşuna basın"
+          }
+        }
+      }
+    },
+    "Type shortcut…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kısayola basın…"
+          }
+        }
+      }
+    },
+    "Version %@" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sürüm %@"
+          }
+        }
+      }
+    },
+    "Welcome Guide…" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karşılama Rehberi…"
+          }
+        }
+      }
+    },
+    "Welcome to Karo" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karo’ya Hoş Geldiniz"
+          }
+        }
+      }
+    },
+    "When hidden, open Karo again from Finder or Spotlight to see Settings." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizliyken Ayarlar’a ulaşmak için Karo’yu Finder’dan veya Spotlight’tan yeniden açın."
+          }
+        }
+      }
+    },
+    "When you connect or disconnect a display, windows go back to where they were the last time you used that setup." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir ekran takıldığında veya çıkarıldığında pencereler, o ekran düzenini en son kullandığınızdaki yerlerine döner."
+          }
+        }
+      }
+    },
+    "Window" : {
+      "comment" : "Menu bar menu",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencere"
+          }
+        }
+      }
+    },
+    "Window management for your Mac." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac’iniz için pencere yönetimi."
+          }
+        }
+      }
+    },
+    "You’re All Set" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her Şey Hazır"
+          }
+        }
+      }
+    },
+    "macOS tiling is also on" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS döşemesi de açık"
+          }
+        }
+      }
+    },
+    "macOS ⌘ + Tab: one icon per app" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ⌘ + Tab: uygulama başına tek simge"
+          }
+        }
+      }
+    },
+    "“Drag windows to screen edges to tile” reacts to the same drags. Turn it off so only Karo snaps." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS'un “Pencereleri döşemek için ekran kenarlarına sürükle” ayarı aynı sürüklemelere tepki verir. Yalnızca Karo'nun yerleştirmesi için bu ayarı kapatın."
+          }
+        }
+      }
+    },
+    "⌃ + ⌥ + ← and ⌃ + ⌥ + → for halves, ⌃ + ⌥ + ↩ to maximize, ⌃ + ⌥ + ⌫ to restore. All shortcuts can be changed." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yarımlar için ⌃ + ⌥ + ← ve ⌃ + ⌥ + →, büyütmek için ⌃ + ⌥ + ↩, geri almak için ⌃ + ⌥ + ⌫. Tüm kısayollar değiştirilebilir."
+          }
+        }
+      }
+    },
+    "⌘ + Tab shows one icon per app. ⌥ + Tab shows every window with a live preview, even two of the same app, and right-click offers quick actions." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ + Tab her uygulama için tek simge gösterir. ⌥ + Tab ise aynı uygulamanın pencereleri dahil her pencereyi canlı önizlemeyle gösterir; sağ tıklayınca hızlı işlemler çıkar."
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
