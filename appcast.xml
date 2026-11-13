@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Karo</title>
+        <item>
+            <title>0.1.10</title>
+            <pubDate>Wed, 11 Nov 2026 10:41:21 +0300</pubDate>
+            <sparkle:version>11</sparkle:version>
+            <sparkle:shortVersionString>0.1.10</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/ademaydemir/karo/releases/download/v0.1.10/Karo.dmg" length="5233499" type="application/octet-stream" sparkle:edSignature="PcWBE4EhpfolVAeC8mBQ9cBNpMDe+cHhswPkZiVuxrHfOGWjVoDs+ik7g4FVcfBUoQDAEdThxJHpk4bMi8d8AQ=="/>
+        </item>
+    </channel>
+</rss>
