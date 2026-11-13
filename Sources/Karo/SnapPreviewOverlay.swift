@@ -30,7 +30,9 @@ final class SnapPreviewOverlay {
     }
 
     /// - Parameter frame: Target frame in Accessibility coordinates.
-    func show(_ frame: CGRect) {
+    /// - Parameter fadeDuration: How long the appearance fade takes, in seconds. A slow fade
+    ///   makes an overlay seem to fill in while its dwell runs.
+    func show(_ frame: CGRect, fadeDuration: Double = 0.12) {
         let appKitFrame = ScreenGeometry.appKitFrame(fromAccessibility: frame)
         if panel.isVisible {
             NSAnimationContext.runAnimationGroup { context in
@@ -42,7 +44,7 @@ final class SnapPreviewOverlay {
             panel.alphaValue = 0
             panel.orderFrontRegardless()
             NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.12
+                context.duration = fadeDuration
                 panel.animator().alphaValue = 1
             }
         }

@@ -17,7 +17,8 @@ import OSLog
 /// free region in play, takes the same placement there (a left half stays a left half).
 ///
 /// An edge shared with another display is where the pointer crosses over, so it snaps only
-/// after the pointer has rested there briefly.
+/// after the pointer has rested there briefly. While it rests, a faint preview of the zone
+/// fades in, and the same happens in a free region: the dwell is visible, not a pause.
 ///
 /// Away from the edges and from swap targets, resting the pointer for a moment in the free
 /// region beside a snapped window (the right half next to a left half) previews that region,
@@ -43,9 +44,13 @@ final class SnapZoneTracker {
 
     /// How long the pointer rests at an edge shared with another display before it snaps.
     private static let sharedEdgeDwell: Duration = .milliseconds(400)
+    /// The same duration in seconds, as the fade the pending preview takes.
+    private static let sharedEdgeDwellFade: Double = 0.4
 
     /// How long the pointer rests in a free region beside a snapped window before it is previewed.
     private static let freeRegionDwell: Duration = .milliseconds(500)
+    /// The same duration in seconds, as the fade the pending preview takes.
+    private static let freeRegionDwellFade: Double = 0.5
 
     private static let escapeKeyCode: UInt16 = 53
 
@@ -57,6 +62,9 @@ final class SnapZoneTracker {
     private let overlay = SnapPreviewOverlay()
     /// Shows `swapSource.slot`, where the swap target will go; fainter than `overlay`.
     private let swapOverlay = SnapPreviewOverlay(tintAlpha: 0.08)
+    /// Shows the region a pending dwell is about to choose; fainter still, and faded in
+    /// over the dwell itself, so resting the pointer visibly fills the region in.
+    private let dwellOverlay = SnapPreviewOverlay(tintAlpha: 0.05)
     private let logger = Logger(subsystem: "dev.ademaydemir.Karo", category: "drag")
     private var zone: ZoneDetector.Zone?
     /// The dragged window and the frame it was placed at, when it was placed; only then can it swap.
@@ -160,6 +168,7 @@ final class SnapZoneTracker {
         }
         guard found != pendingFreeRegion else { return }
         pendingFreeRegion = found
+        dwellOverlay.show(found.frame, fadeDuration: Self.freeRegionDwellFade)
         freeRegionTask?.cancel()
         freeRegionTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: Self.freeRegionDwell)
@@ -205,6 +214,7 @@ final class SnapZoneTracker {
 
     private func clearPendingFreeRegion() {
         pendingFreeRegion = nil
+        dwellOverlay.hide()
         freeRegionTask?.cancel()
         freeRegionTask = nil
     }
@@ -236,6 +246,7 @@ final class SnapZoneTracker {
         }
         if shared != pendingSharedZone {
             pendingSharedZone = shared
+            showDwellPreview(for: shared)
             dwellTask?.cancel()
             dwellTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: Self.sharedEdgeDwell)
@@ -244,6 +255,16 @@ final class SnapZoneTracker {
             }
         }
         return nil
+    }
+
+    /// Faintly shows where `shared` would place the dragged window, so a dwell at a shared
+    /// edge answers "what am I waiting for?" while the pointer rests.
+    private func showDwellPreview(for shared: ZoneDetector.Zone) {
+        guard let lastWindow, let currentFrame = try? lastWindow.frame() else { return }
+        let displays = ScreenGeometry.displays()
+        guard displays.indices.contains(shared.displayIndex),
+              let target = placer.targetFrame(for: shared.action, currentFrame: currentFrame, on: displays[shared.displayIndex]) else { return }
+        dwellOverlay.show(target, fadeDuration: Self.sharedEdgeDwellFade)
     }
 
     private func activateSharedZone(_ shared: ZoneDetector.Zone) {
@@ -262,6 +283,7 @@ final class SnapZoneTracker {
 
     private func clearPendingSharedZone() {
         pendingSharedZone = nil
+        dwellOverlay.hide()
         dwellTask?.cancel()
         dwellTask = nil
     }
