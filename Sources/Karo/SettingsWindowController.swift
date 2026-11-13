@@ -10,7 +10,7 @@ import KaroAccessibility
 @MainActor
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     enum Tab: String, CaseIterable {
-        case general, snapping, switcher, shortcuts
+        case general, snapping, switcher, shortcuts, guide
     }
 
     private let store: SettingsStore
@@ -84,6 +84,9 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         case .shortcuts:
             content = AnyView(ShortcutsSettingsView(store: store, recorder: recorder))
             (label, symbol) = (String(localized: "Shortcuts", comment: "Settings tab"), "keyboard")
+        case .guide:
+            content = AnyView(GuideSettingsView())
+            (label, symbol) = (String(localized: "Guide", comment: "Settings tab"), "hand.tap")
         }
 
         // No sizing options: the hosting controller would pass the size to the tab view

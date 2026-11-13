@@ -451,6 +451,16 @@
         }
       }
     },
+    "Drag a window to an edge to fill that half, or to a corner for a quarter. The top edge maximizes and the bottom edge takes a third." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir pencereyi kenara sürükleyin, o yarısını doldursun; köşeye sürükleyin çeyrek kaplasın. Üst kenar büyütür, alt kenar üçte birler yapar."
+          }
+        }
+      }
+    },
     "Drag to Snap" : {
       "localizations" : {
         "tr" : {
@@ -471,6 +481,16 @@
         }
       }
     },
+    "Drop a snapped window onto another to swap them. Hold ⌥ to swap anywhere." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yerleşik bir pencereyi diğerinin üzerine bırakın, yerleri değişsin. Her yerde değiştirmek için ⌥ tuşunu basılı tutun."
+          }
+        }
+      }
+    },
     "Edge sensitivity" : {
       "localizations" : {
         "tr" : {
@@ -487,6 +507,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kenarlar yarıya, köşeler çeyreğe yerleştirir, üst kenar pencereyi büyütür, alt kenar üçte bire yerleştirir. Yerleşik bir pencereyi diğerinin üstüne bırakınca yer değiştirirler (⌥ ile zorlanır). Serbestçe taşımak için ⇧ tuşunu basılı tutun, iptal için Esc tuşuna basın."
+          }
+        }
+      }
+    },
+    "Free space" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boş alan"
           }
         }
       }
@@ -539,6 +569,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Izgara"
+          }
+        }
+      }
+    },
+    "Guide" : {
+      "comment" : "Settings tab",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rehber"
           }
         }
       }
@@ -620,6 +661,26 @@
         }
       }
     },
+    "Hold ⇧ to move freely" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serbest taşımak için ⇧ basılı tutun"
+          }
+        }
+      }
+    },
+    "Hold ⌃⌥ and drag anywhere in a window to move it. Drag with the right button to resize it from the nearest corner." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencereyi herhangi bir yerinden taşımak için ⌃⌥ basılı tutup sürükleyin. En yakın köşeden boyutlandırmak için sağ tuşla sürükleyin."
+          }
+        }
+      }
+    },
     "Hold ⌥ and press Tab to step through windows; release ⌥ to switch." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -627,6 +688,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pencereler arasında ilerlemek için ⌥ tuşunu basılı tutup Tab'a basın; geçiş yapmak için ⌥ tuşunu bırakın."
+          }
+        }
+      }
+    },
+    "Hold ⌥ and press Tab to step through windows; release ⌥ to switch. Right-click a window for quick actions." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌥ basılıyken Tab'a basarak pencereler arasında ilerleyin; geçiş için ⌥'yı bırakın. Hızlı işlemler için bir pencereye sağ tıklayın."
           }
         }
       }
@@ -727,6 +798,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Başka ekrana sürüklerken yerleşimi koru"
+          }
+        }
+      }
+    },
+    "Keyboard" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klavye"
           }
         }
       }
@@ -915,6 +996,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Her yerden taşı ve boyutlandır"
+          }
+        }
+      }
+    },
+    "Move from anywhere" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her yerden taşıma"
           }
         }
       }
@@ -1205,12 +1296,32 @@
         }
       }
     },
+    "Rest the pointer in the free area beside a snapped window and the window moves there." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yerleşik bir pencerenin yanındaki boş alanda işaretçiyi bekletin; pencere oraya taşınır."
+          }
+        }
+      }
+    },
     "Rest the pointer on an app’s Dock icon to see its windows. Click one to bring it forward." : {
       "localizations" : {
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bir uygulamanın pencerelerini görmek için imleci Dock’taki simgesinin üstünde tutun. Öne getirmek için bir pencereye tıklayın."
+          }
+        }
+      }
+    },
+    "Rest the pointer there briefly and the window snaps to the side you are on." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretçiyi orada kısa süre bekletin; pencere bulunduğunuz tarafı kaplar."
           }
         }
       }
@@ -1347,6 +1458,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ekran Kaydı izni gerekli"
+          }
+        }
+      }
+    },
+    "Screen edges" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran kenarları"
           }
         }
       }
@@ -1493,6 +1614,16 @@
         }
       }
     },
+    "Snap by Dragging" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sürükleyerek Yerleştirme"
+          }
+        }
+      }
+    },
     "Snap windows dragged to screen edges" : {
       "localizations" : {
         "tr" : {
@@ -1581,6 +1712,16 @@
         }
       }
     },
+    "Swap places" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yer değiştirme"
+          }
+        }
+      }
+    },
     "Switch between windows" : {
       "localizations" : {
         "tr" : {
@@ -1619,6 +1760,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sistem Varsayılanı (%@)"
+          }
+        }
+      }
+    },
+    "The edge between two displays" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İki ekranın arasındaki kenar"
           }
         }
       }
@@ -1787,12 +1938,32 @@
         }
       }
     },
+    "⇧ skips snapping while you drag, and ⎋ cancels snapping and swapping for the rest of the drag." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sürüklerken ⇧ yerleştirmeyi atlar; ⎋ sürüklemenin kalanı için yerleştirmeyi ve yer değiştirmeyi iptal eder."
+          }
+        }
+      }
+    },
     "⌃ + ⌥ + ← and ⌃ + ⌥ + → for halves, ⌃ + ⌥ + ↩ to maximize, ⌃ + ⌥ + ⌫ to restore. All shortcuts can be changed." : {
       "localizations" : {
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yarımlar için ⌃ + ⌥ + ← ve ⌃ + ⌥ + →, büyütmek için ⌃ + ⌥ + ↩, geri almak için ⌃ + ⌥ + ⌫. Tüm kısayollar değiştirilebilir."
+          }
+        }
+      }
+    },
+    "⌃⌥← and ⌃⌥→ take the left or right half, ↩ maximizes and ⌫ restores. Quarters, thirds and more are in Shortcuts." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌃⌥← ve ⌃⌥→ sol ya da sağ yarıyı alır; ↩ büyütür, ⌫ eski haline getirir. Çeyrekler, üçte birler ve daha fazlası Kısayollar'da."
           }
         }
       }

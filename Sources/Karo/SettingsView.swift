@@ -342,6 +342,76 @@ struct ShortcutsSettingsView: View {
     }
 }
 
+// MARK: - Guide
+
+/// One row of the guide: what to do, and what happens when you do it.
+private struct GuideRow: View {
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
+
+    var body: some View {
+        LabeledContent {
+            EmptyView()
+        } label: {
+            Text(title)
+            Text(detail)
+        }
+    }
+}
+
+struct GuideSettingsView: View {
+    var body: some View {
+        Form {
+            Section {
+                GuideRow(
+                    title: "Screen edges",
+                    detail: "Drag a window to an edge to fill that half, or to a corner for a quarter. The top edge maximizes and the bottom edge takes a third."
+                )
+                GuideRow(
+                    title: "The edge between two displays",
+                    detail: "Rest the pointer there briefly and the window snaps to the side you are on."
+                )
+                GuideRow(
+                    title: "Free space",
+                    detail: "Rest the pointer in the free area beside a snapped window and the window moves there."
+                )
+                GuideRow(
+                    title: "Swap places",
+                    detail: "Drop a snapped window onto another to swap them. Hold ⌥ to swap anywhere."
+                )
+                GuideRow(
+                    title: "Hold ⇧ to move freely",
+                    detail: "⇧ skips snapping while you drag, and ⎋ cancels snapping and swapping for the rest of the drag."
+                )
+            } header: {
+                Text("Snap by Dragging")
+            }
+
+            Section {
+                GuideRow(
+                    title: "Move from anywhere",
+                    detail: "Hold ⌃⌥ and drag anywhere in a window to move it. Drag with the right button to resize it from the nearest corner."
+                )
+            } header: {
+                Text("Move and Resize")
+            }
+
+            Section {
+                GuideRow(
+                    title: "Place with the keyboard",
+                    detail: "⌃⌥← and ⌃⌥→ take the left or right half, ↩ maximizes and ⌫ restores. Quarters, thirds and more are in Shortcuts."
+                )
+                GuideRow(
+                    title: "Switch windows",
+                    detail: "Hold ⌥ and press Tab to step through windows; release ⌥ to switch. Right-click a window for quick actions."
+                )
+            } header: {
+                Text("Keyboard")
+            }
+        }
+        .settingsFormStyle()
+    }
+}
 private struct ShortcutField: View {
     // Qualified because SwiftUI has its own `KeyboardShortcut`.
     let shortcut: KaroCore.KeyboardShortcut?
